@@ -27,7 +27,6 @@ ipcRenderer.on('info', function (event, data) {
         db.collection('Users').where('UserID', '==',data).get().then((snapshot) => {
                 snapshot.docs.forEach(doc => {
                         populatePageDetails(doc.data());
-                        populateGuldsDropDown(doc.data());
                 })
         })
         
@@ -37,7 +36,7 @@ function populatePageDetails(userData)
         console.log(userData.UserName);
         document.getElementById('userName').innerHTML = userData.UserName;
         populateCharacterDropDown(userData);
-        populateGuldsDropDown(userData);
+        populateGuildsDropDown(userData);
 
 }
 
@@ -63,16 +62,33 @@ function populateCharacterDropDown(userData)
          
 }
 
-function populateGuldsDropDown(userData)
+function populateGuildsDropDown(userData)
 {
+        var guildId = userData.GuildID;
+        console.log(guildId)
         var addGuldBtn = document.createElement('a');
         addGuldBtn.className ="dropdown-item"
         addGuldBtn.innerHTML = "Add Guild";
         addGuldBtn.id = "addGuildBtn";
         addGuldBtn.onclick = loadGuildCreate;
         document.getElementById('guildsDll').appendChild(addGuldBtn)
+
+   
+
+                db.collection('Guilds').where('GuildID', '==',userData.GuildID).get().then((snapshot) => {
+                        snapshot.docs.forEach(doc => {
+                                var guildToAppend = document.createElement('a');
+                                guildToAppend.className ="dropdown-item"
+                                guildToAppend.innerHTML = doc.data().GuildName;
+                                guildToAppend.id = "guildDlItem";
+                                guildToAppend.onclick = function(){}
+                                console.log(guildToAppend)
+                               document.getElementById('guildsDll').appendChild(guildToAppend)
+                        })
+                })
         
-        db.collection('Guilds').where()
+
+      
 }
 
 function loadCharCreate()
