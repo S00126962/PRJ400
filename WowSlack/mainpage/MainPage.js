@@ -27,6 +27,7 @@ ipcRenderer.on('info', function (event, data) {
         db.collection('Users').where('UserID', '==',data).get().then((snapshot) => {
                 snapshot.docs.forEach(doc => {
                         populatePageDetails(doc.data());
+                        populateGuldsDropDown(doc.data());
                 })
         })
         
@@ -70,6 +71,8 @@ function populateGuldsDropDown(userData)
         addGuldBtn.id = "addGuildBtn";
         addGuldBtn.onclick = loadGuildCreate;
         document.getElementById('guildsDll').appendChild(addGuldBtn)
+        
+        db.collection('Guilds').where()
 }
 
 function loadCharCreate()
