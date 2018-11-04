@@ -54,7 +54,7 @@ function populateCharacterDropDown(userData)
                         var childToAppend = document.createElement('a');
                         childToAppend.className ="dropdown-item"
                         childToAppend.innerHTML = doc.data().charName;
-                        childToAppend.id = "characterDlItem";
+                        childToAppend.id = doc.id; //assign the id to the id so we can get at it again
                         childToAppend.onclick = function(){loadCharpage(this.innerHTML)}
                        document.getElementById('charactersDll').appendChild(childToAppend)
                 })
@@ -80,7 +80,7 @@ function populateGuildsDropDown(userData)
                                 var guildToAppend = document.createElement('a');
                                 guildToAppend.className ="dropdown-item"
                                 guildToAppend.innerHTML = doc.data().GuildName;
-                                guildToAppend.id = "guildDlItem";
+                                guildToAppend.id = doc.id; //again,save id in id
                                 guildToAppend.onclick = function(){}
                                 console.log(guildToAppend)
                                document.getElementById('guildsDll').appendChild(guildToAppend)
