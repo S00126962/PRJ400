@@ -1,0 +1,22 @@
+{
+  "name": "wowslack",
+  "version": "1.0.0",
+  "description": "Mangement and commication app based around the popular MMORPG World of Warcraft",
+  "main": "./main/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Gregory Sheerin",
+  "license": "ISC",
+  "dependencies": {
+    "angular": "^1.7.5",
+    "angular-route": "^1.7.5",
+    "blizzard.js": "^2.3.1",
+    "bootstrap": "^4.1.3",
+    "bootstrap-electron": "^1.0.10",
+    "electron": "^3.0.6",
+    "firebase": "^5.5.6",
+    "jquery": "^3.3.1",
+    "popper.js": "^1.14.4"
+  }
+}

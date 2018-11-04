@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>SignUp</title>
+    <script lang="JavaScript" type="text/javascript" src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../login/loginForm.css">
+
+
+</head>
+
+<body>
+
+    <div id="nav"></div>
+    <form class="form-signin" id="guildCreateForm">
+
+        <div class="container">
+            <div class="card card-container">
+                <p>Create your very own guild by providing some basic details</p>
+              
+                <input type="text" id="inputGuildName" class="form-control" placeholder="Guild Name" required autofocus><br>
+
+                <label>Region</label>
+                <select id="regionSelect" class="form-control">
+                   <option value="choose">Select Region</option>
+                    <option value="eu">Europe</option>
+                    <option value="us">United States</option>
+                    <option value="kr">Asia</option>
+                    <option value="tw">??</option>
+                </select><br>
+
+                <label>Sever</label>
+                <select id="serverSelect" class="form-control">
+                </select><br>
+
+                <label>Faction</label>
+                <select id="factionSelect" class="form-control">
+                        <option value="Alliance">Alliance</option>
+                        <option value="Horde">Horde</option>
+                </select><br>
+
+                <label for="comment">Description:</label>
+            <textarea class="form-control" rows="5" id="guildDescrip"></textarea>
+
+                <button type="submit">Submit</button>
+            </div>
+        </div>
+    </form><!-- /form -->
+    <script>
+        window.$ = window.Jquery = require("jquery")
+    </script>
+    <script>
+        require("../guildCreate/guildCreateRender.js");
+    </script>
+</body>
+
+</html>
