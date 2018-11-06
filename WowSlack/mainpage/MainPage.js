@@ -133,6 +133,12 @@ signOutBtn.addEventListener('click', function (event) {
   });
 
 $(document).ready(function () {
+        loadProfilePage();
+});
+
+function loadProfilePage()
+{
         $("#pageArea").load("../ProfilePage/ProfilePage.html");
         ipcRenderer.send("loadProfilePage")
-});
+        document.getElementById("pageName").innerHTML = "Profile Page"
+}
