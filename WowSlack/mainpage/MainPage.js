@@ -139,6 +139,13 @@ $(document).ready(function () {
 function loadProfilePage()
 {
         $("#pageArea").load("../ProfilePage/ProfilePage.html");
-        ipcRenderer.send("loadProfilePage")
-        document.getElementById("pageName").innerHTML = "Profile Page"
+        ipcRenderer.send("loadProfilePage");
+        UpdateBreadCrumbs("Profile Page")
+}
+
+function UpdateBreadCrumbs(Page)
+{
+       // document.getElementById("username").innerHTML = User;
+        document.getElementById("pageName").innerHTML = Page;
+        document.getElementById("PageNameTwo").innerHTML = "";
 }
