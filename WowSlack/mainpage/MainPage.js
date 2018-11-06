@@ -18,7 +18,6 @@ const db = firebase.firestore();
 db.settings({timestampsInSnapshots:true})
 
 ipcRenderer.on('info', function (event, data) {
-        console.log("boo");
         var charList =document.getElementById('charactersDll')
         var guildList =document.getElementById('guildsDll')
         charList.innerHTML = "";
@@ -33,7 +32,6 @@ ipcRenderer.on('info', function (event, data) {
 });
 function populatePageDetails(userData)
 {
-        console.log(userData.UserName);
         document.getElementById('userName').innerHTML = userData.UserName;
         populateCharacterDropDown(userData);
         populateGuildsDropDown(userData);
@@ -98,7 +96,6 @@ function loadCharCreate()
 
 function loadGuildCreate()
 {
-        console.log("Test")
         ipcRenderer.send('load-guildCreate')
 }
 
@@ -137,5 +134,5 @@ signOutBtn.addEventListener('click', function (event) {
 
 $(document).ready(function () {
         $("#pageArea").load("../ProfilePage/ProfilePage.html");
-
+        ipcRenderer.send("loadProfilePage")
 });

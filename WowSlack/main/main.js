@@ -46,8 +46,9 @@ app.on('ready', function () {
 //reload function,this will reload all details into the mainPage.html
 ipcMain.on('asynchronous-message', (event, args) => {
     ChildWindow.hide(); //when we do login,close the login window
-    console.log(args);
+    console.log("args" + " " + args);
     MainWindow.webContents.send('info', args);
+    MainWindow.webContents.send('loadProfilePage',args);
 });
 
 ipcMain.on('create-account', (event, args) => {
@@ -80,3 +81,4 @@ ipcMain.on('load-guildCreate', (event, args) => {
     }));
     ChildWindow.show(); //when we do login,close the login window
 });
+
