@@ -42,7 +42,7 @@
                                                 <label  style="font-weight:bold;">Useranme </label>
                                             </div>
                                             <div class="col-md-8 col-6">
-                                                <p id="username"></p>
+                                                <p id="profileUserName"></p>
                                             </div>
                                         </div>
                                         <hr />
@@ -52,36 +52,48 @@
                                                 <label style="font-weight:bold;">Email</label>
                                             </div>
                                             <div class="col-md-8 col-6">
-                                                <p id="userEmail"></p>
+                                                <p id="profileuserEmail"></p>
                                             </div>
                                         </div>
                                         <hr />
-                                        
-                                        
-                                       
-                                       
+                                    
                                         <div class="row">
                                             <div class="col-sm-3 col-md-2 col-5">
-                                                <label style="font-weight:bold;">Something</label>
+                                                <label style="font-weight:bold;">Region</label>
                                             </div>
                                             <div class="col-md-8 col-6">
-                                                Something
+                                                <p id="profileUserRegion"></p>
                                             </div>
                                         </div>
                                         <hr />
-                                        <div class="row">
-                                            <div class="col-sm-3 col-md-2 col-5">
-                                                <label style="font-weight:bold;">Something</label>
-                                            </div>
-                                            <div class="col-md-8 col-6">
-                                                Something
-                                            </div>
-                                        </div>
-                                        <hr />
-
+                                    
                                     </div>
+                                   
                                     <div class="tab-pane fade" id="connectedServices" role="tabpanel" aria-labelledby="ConnectedServices-tab">
-                                        Facebook, Google, Twitter Account that are connected to this account
+                                    <input type="text" id="searchCharacters" placeholder="Search for characters..">
+                                        <table id="charTbl" class="table">
+                                            <thead class="thead-dark">
+                                                <th scope="col">Character Name</th>
+                                                <th scope="col">Region</th>
+                                                <th scope="col">Sever</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody id="charTable">                                       
+                                            </tbody>
+                                          </table>
+                                          
+                                          <table class="table">
+                                            <thead class="thead-light">
+                                              <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">First</th>
+                                                <th scope="col">Last</th>
+                                                <th scope="col">Handle</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>     
+                                            </tbody>
+                                          </table>
                                     </div>
                                 </div>
                             </div>

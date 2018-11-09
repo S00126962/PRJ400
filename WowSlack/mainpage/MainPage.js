@@ -98,7 +98,6 @@ function loadGuildCreate()
 {
         ipcRenderer.send('load-guildCreate')
 }
-
 //addCharBtn.addEventListener('click',() =>{
   //      ipcRenderer.send('load-charCreate')
 //})
@@ -136,16 +135,10 @@ $(document).ready(function () {
         loadProfilePage();
 });
 
-function loadProfilePage()
+function loadProfilePage(userData)
 {
         $("#pageArea").load("../ProfilePage/ProfilePage.html");
         ipcRenderer.send("loadProfilePage");
-        UpdateBreadCrumbs("Profile Page")
 }
 
-function UpdateBreadCrumbs(Page)
-{
-       // document.getElementById("username").innerHTML = User;
-        document.getElementById("pageName").innerHTML = Page;
-        document.getElementById("PageNameTwo").innerHTML = "";
-}
+
