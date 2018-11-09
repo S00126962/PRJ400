@@ -27,20 +27,39 @@ ipcRenderer.on('loadProfilePage',(event,data) =>{
                 var cell1 = document.createElement("td");
                 var cell2 = document.createElement("td");
                 var cell3 = document.createElement("td");
+                var cell4 = document.createElement("td");
+                var btn = document.createElement("BUTTON");
 
                 row.id = doc.id; //assign the id to the id so we can get at it again
                 cell1.innerHTML = doc.data().charName;
                 cell2.innerHTML = doc.data().charRegion;
                 cell3.innerHTML = doc.data().charRealm;
+                btn.className= "btn btn-danger"
+                btn.onclick = delteChar;
+                btn.innerHTML="Delete"
+                cell4.appendChild(btn);
                 row.appendChild(cell1);
                 row.appendChild(cell2);
                 row.appendChild(cell3);
+                row.appendChild(cell4);
                 tbody.appendChild(row);
             })
 })
 })
 
 })
+
+function delteChar()
+{ 
+    var row =this.closest('tr');
+    var id = row.id;
+    row.parentNode.removeChild(row);
+    db.collection("Characters").doc(id).delete().then(function() {
+        console.log("Document successfully deleted!");
+    }).catch(function(error) {
+        console.error("Error removing document: ", error);
+    });
+}
 var searchInput = document.getElementById('searchCharacters');
 
 searchInput.addEventListener('input', () =>{ //very simple search,will do for time being
