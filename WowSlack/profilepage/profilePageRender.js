@@ -20,6 +20,9 @@ ipcRenderer.on('loadProfilePage',(event,data) =>{
                 //add more on here mate! it works now
         })
         var tbody= document.getElementById('charTable');
+        while (tbody.childNodes.length) {
+            tbody.removeChild(tbody.childNodes[0]);
+          }
         db.collection('Characters').where('userID', '==',defualt.auth().currentUser.uid).get().then((snapshot) => {
             snapshot.docs.forEach(doc => {
               
@@ -54,6 +57,7 @@ function delteChar()
     var row =this.closest('tr');
     var id = row.id;
     row.parentNode.removeChild(row);
+
     db.collection("Characters").doc(id).delete().then(function() {
         console.log("Document successfully deleted!");
     }).catch(function(error) {
@@ -80,6 +84,12 @@ searchInput.addEventListener('input', () =>{ //very simple search,will do for ti
         }
       } 
     }
+})
+
+var addcharBtn = document.getElementById('AddCharacterBTn');
+addcharBtn.addEventListener('click', () =>{
+
+        ipcRenderer.send('load-charCreate')
 })
 
 
