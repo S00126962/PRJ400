@@ -10,7 +10,7 @@ db.settings({timestampsInSnapshots:true})
 var usernameLbl = document.getElementById('profileUserName');
 var userEmailLbl = document.getElementById('profileuserEmail');
 var userRegion = document.getElementById('profileUserRegion');
-ipcRenderer.on('loadProfilePage',(event,data) =>{
+ipcRenderer.on('loadProfilePage',() =>{
     db.collection('Users').where('UserID', '==',defualt.auth().currentUser.uid).get().then((snapshot) => {
         snapshot.docs.forEach(doc => {
 
@@ -47,8 +47,20 @@ ipcRenderer.on('loadProfilePage',(event,data) =>{
                 row.appendChild(cell4);
                 tbody.appendChild(row);
             })
-})
-})
+}).catch(function (error) {
+
+    if (error != null) {
+      alert(error.message)
+      return;
+    }
+  })
+}).catch(function (error) {
+
+    if (error != null) {
+      alert(error.message)
+      return;
+    }
+  })
 
 })
 

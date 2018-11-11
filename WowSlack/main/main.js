@@ -12,8 +12,10 @@ let MainWindow;
 let ChildWindow;
 
 
-app.on('ready', function () {
 
+
+
+app.on('ready', function () {
     MainWindow = new BrowserWindow({
         width: 1281,
         height: 800,
@@ -27,6 +29,7 @@ app.on('ready', function () {
         minHeight: 600,
         parent: MainWindow
     })
+    
     var isLogedInAlready = false; //need to implent this proper
     MainWindow.loadURL(url.format({
         pathname: path.join(__dirname, '../mainpage/MainPage.html'),
@@ -46,10 +49,21 @@ app.on('ready', function () {
 //reload function,this will reload all details into the mainPage.html
 ipcMain.on('asynchronous-message', (event, args) => {
     ChildWindow.hide(); //when we do login,close the login window
-    console.log("args" + " " + args);
+    global.uid = args;
     MainWindow.webContents.send('info', args);
-    MainWindow.webContents.send('loadProfilePage',args);
+    MainWindow.webContents.send('loadProfilePage');
 });
+
+ipcMain.on('loadProfilePage',(sender,args) =>{
+    MainWindow.webContents.send('loadProfilePage');
+})
+
+ipcMain.on('load-guildpage',(sender,args) =>{
+     
+    console.log("In main process");
+    MainWindow.webContents.send('load-guildpage',args);
+    
+})
 
 ipcMain.on('create-account', (event, args) => {
     ChildWindow.loadURL(url.format({
@@ -72,6 +86,7 @@ ipcMain.on('load-charCreate', (event, args) => {
     }));
     ChildWindow.show(); //when we do login,close the login window
 });
+
 
 ipcMain.on('load-guildCreate', (event, args) => {
     ChildWindow.loadURL(url.format({

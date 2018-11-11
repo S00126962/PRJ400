@@ -17,6 +17,8 @@
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
+    border: #e9ecef;
+    border-style: solid;
   }
   
   #wrapper #content-wrapper {

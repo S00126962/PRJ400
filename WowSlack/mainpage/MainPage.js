@@ -1,9 +1,8 @@
-'use strict'
 window.$ = window.jQuery = require('jquery')
 window.Bootstrap = require('bootstrap')
 
-const electron = require('electron');
-const ipcRenderer = electron.ipcRenderer;
+var electron = require('electron');
+var ipcRenderer = electron.ipcRenderer;
 var config = {
         apiKey: "AIzaSyBPwA6lwFFahoYIABYpeAvjmSA10gkj040",
         authDomain: "wow-slack.firebaseapp.com",
@@ -14,7 +13,8 @@ var config = {
 };
 
 firebase.initializeApp(config);
-const db = firebase.firestore();
+var db = firebase.firestore();
+var auth = firebase.auth();
 db.settings({timestampsInSnapshots:true})
 
 ipcRenderer.on('info', function (event, data) {
@@ -39,8 +39,6 @@ function populatePageDetails(userData)
 
 function populateGuildsDropDown(userData)
 {
-        var guildId = userData.GuildID;
-        console.log(guildId)
         var addGuldBtn = document.createElement('a');
         addGuldBtn.className ="dropdown-item"
         addGuldBtn.innerHTML = "Add Guild";
@@ -56,8 +54,7 @@ function populateGuildsDropDown(userData)
                                 guildToAppend.className ="dropdown-item"
                                 guildToAppend.innerHTML = doc.data().GuildName;
                                 guildToAppend.id = doc.id; //again,save id in id
-                                guildToAppend.onclick = function(){}
-                                console.log(guildToAppend)
+                                guildToAppend.addEventListener("click", () =>{loadGuildPage(guildToAppend.id)});
                                document.getElementById('guildsDll').appendChild(guildToAppend)
                         })
                 })
@@ -72,9 +69,8 @@ function loadGuildCreate()
 {
         ipcRenderer.send('load-guildCreate')
 }
-//addCharBtn.addEventListener('click',() =>{
-  //      ipcRenderer.send('load-charCreate')
-//})
+
+
 function loadCharpage(name)
 {
         //code here to load up the char page
@@ -105,14 +101,26 @@ signOutBtn.addEventListener('click', function (event) {
               })
   });
 
+  var profileBtn = document.getElementById('profilePageBtn');
+  profileBtn.addEventListener('click',() =>{loadProfilePage();})
+
 $(document).ready(function () {
-        loadProfilePage();
+        loadProfilePage(); //default page load here
 });
 
-function loadProfilePage(userData)
+
+function loadProfilePage()
 {
+
         $("#pageArea").load("../ProfilePage/ProfilePage.html");
         ipcRenderer.send("loadProfilePage");
+}
+
+function loadGuildPage(id)
+{
+        console.log("In mainpage")
+        $("#pageArea").load("../guildPage/guildPage.html");
+        ipcRenderer.send("load-guildpage",id);
 }
 
 

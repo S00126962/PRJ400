@@ -14,7 +14,7 @@ const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
 
 $(document).ready(function(){
-       if (firebase.auth.currentUser) {
+       if (firebase.auth().currentUser) {
         var userRef = firebase.auth().currentUser.uid
         ipcRenderer.send('asynchronous-message',userRef)
        }
