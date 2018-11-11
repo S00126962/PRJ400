@@ -102,7 +102,7 @@ signOutBtn.addEventListener('click', function (event) {
   });
 
   var profileBtn = document.getElementById('profilePageBtn');
-  profileBtn.addEventListener('click',() =>{loadProfilePage();})
+  profileBtn.addEventListener('click',() =>{loadProfilePage;sendTabChangeMessage;})
 
 $(document).ready(function () {
         loadProfilePage(); //default page load here
@@ -111,10 +111,15 @@ $(document).ready(function () {
 
 function loadProfilePage()
 {
-
+        console.log("loadprofilehere")
+        $("#pageArea").html = "";
         $("#pageArea").load("../ProfilePage/ProfilePage.html");
-        ipcRenderer.send("loadProfilePage");
+        
 }
+
+function sendTabChangeMessage()
+
+{console.log("tab change here");ipcRenderer.send("tabChangeProfile");}
 
 function loadGuildPage(id)
 {

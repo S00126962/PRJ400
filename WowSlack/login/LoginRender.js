@@ -30,6 +30,7 @@ signInBtn.addEventListener('click', function (event) {
   firebase.auth().signInWithEmailAndPassword(email, pw).then(function () {
     var userRef = firebase.auth().currentUser.uid
     ipcRenderer.send('asynchronous-message',userRef)
+    ipcRenderer.send('LoadProfilePage')
 
   }).catch(function (error) {
 

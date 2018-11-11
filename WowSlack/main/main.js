@@ -49,12 +49,15 @@ app.on('ready', function () {
 //reload function,this will reload all details into the mainPage.html
 ipcMain.on('asynchronous-message', (event, args) => {
     ChildWindow.hide(); //when we do login,close the login window
+    console.log("login")
     global.uid = args;
     MainWindow.webContents.send('info', args);
     MainWindow.webContents.send('loadProfilePage');
+
 });
 
-ipcMain.on('loadProfilePage',(sender,args) =>{
+ipcMain.on('tabChangeProfile',(sender,args) =>{
+    console.log("LoadProfilePage from main")
     MainWindow.webContents.send('loadProfilePage');
 })
 
