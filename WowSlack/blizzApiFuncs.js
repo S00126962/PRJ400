@@ -1,3 +1,5 @@
+const calc = require("itemCals.ts")
+
 const blizzard = require('blizzard.js').initialize({
   apikey: 'qupb7zxzkdtzzzt87nnkyny29b289aw9'
 });
@@ -67,4 +69,4 @@ function GetCharClass() {
     });
 }
 
-GetCharacterDetails('Silvermoon', 'Sardarain', 'eu')
+GetCharacterItems('Silvermoon', 'Sardarain', 'eu')
