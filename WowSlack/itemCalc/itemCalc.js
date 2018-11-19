@@ -153,5 +153,5 @@ function readPawnString(Pawnstring) {
 
 //GetCharAPI("KeyBoardwárr", "Silvermoon", "eu")
 var PawnValues = readPawnString("( Pawn: v1: \"Keyboardwárr-Fury\": Class=Warrior, Spec=Fury,reallyCoolStat=1.41 Strength=1.44, Ap=1.36, CritRating=1.19, HasteRating=1.66, MasteryRating=1.32, Versatility=1.19, Dps=5.39 ")
-   console.log(PawnValues)
+console.log(PawnValues)
 //var stats =readPawnString("( Pawn: v1: \"Keyboardwárr-Fury\": Class=Warrior, Spec=Fury, Strength=1.46, Ap=1.37, CritRating=1.21, HasteRating=1.68, MasteryRating=1.35, Versatility=1.21, Dps=5.39 )")
