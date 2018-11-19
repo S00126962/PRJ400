@@ -7,15 +7,15 @@ const itemSlots = ["head", "neck", "shoulder", "back", "chest", "wrist", "hands"
 
 function GetOverallItemValue(itemToCalc, StatWeights) {
     var ItemValue = 0; //var to hold the overallValue for the item
+    var PrimaryArrray = [itemMap["3"],itemMap["4"],itemMap["5"],itemMap["71"],itemMap["72"],itemMap["73"],itemMap["74"]];
     for (var key in itemToCalc) {
         if (itemToCalc.hasOwnProperty(key)) {
-
-            if (key == "Strength" || key == "Intellect" || key == "Agility") { //deal with items that just use the Single terms,need to handle multi stats like 71 in mapping
-                ItemValue += calcItemStatValue(StatWeights["PrimWeight"], itemToCalc[key]);
+            if (PrimaryArrray.includes(key)) { //deal with items that just use the Single terms,need to handle multi stats like 71 in mapping
+                ItemValue += calcItemStatValue(StatWeights.PrimWeight, itemToCalc[key]);  
             } else {
                 for (var WeightKey in StatWeights) {
                     if (WeightKey.includes(key)) {
-                        // console.log(WeightKey +":" +StatWeights[WeightKey] + " " +  "-> " + key + itemToCalc[key])
+                        
                         ItemValue += calcItemStatValue(StatWeights[WeightKey], itemToCalc[key])
                     }
                 }
@@ -32,37 +32,27 @@ function calcItemStatValue(itemStatWeight, ItemStatAmount) {
     return (itemStatWeight * ItemStatAmount);
 }
 
-function GetCharAPI(Name, Sever, Region) {
-    blizzard.wow.character(['profile', 'items'], {
-            realm: Sever,
-            name: Name,
-            origin: Region
-        })
-        .then(response => {
-            console.log(response.data.items.shoulder);
-        })
-}
-
 function GenerateCharItemTemplate(Name, Sever, Region) {
-    var PawnValues = readPawnString("( Pawn: v1: \"Keyboardwárr-Fury\": Class=Warrior, Spec=Fury,reallyCoolStat=1.41 Strength=1.44, Ap=1.36, CritRating=1.19, HasteRating=1.66, MasteryRating=1.32, Versatility=1.19, Dps=5.39 ")
-    
-    var CharObj = {};
-    blizzard.wow.character(['profile', 'items'], {
+    var PawnValues = readPawnString("( Pawn: v1: \"Keyboardwárr-Fury\": Class=Warrior, Spec=Fury, Strength=1.44, Ap=1.36, CritRating=1.19, HasteRating=1.66, MasteryRating=1.32, Versatility=1.19, Dps=5.39 ")
+    console.log(PawnValues)
+    var CharObj = {}; //create a blank object to build up
+    blizzard.wow.character(['profile', 'items'], { //call the api to get the users character
             realm: Sever,
             name: Name,
             origin: Region
         })
         .then(response => {
 
-            itemSlots.forEach(function (itemSlotName) {
+            itemSlots.forEach(function (itemSlotName) { //loop though each item slot on the character
 
-                var statsObj = GenerateItemValue(response.data.items[itemSlotName].stats);
-                CharObj[itemSlotName] = statsObj;
-                var itemValue = GetOverallItemValue(CharObj[itemSlotName], PawnValues)
+                var statsObj = GenerateItemValue(response.data.items[itemSlotName].stats); //get the current items stats
+                CharObj[itemSlotName] = statsObj; //assign the name and the stats to the object
+                var itemValue = GetOverallItemValue(CharObj[itemSlotName], PawnValues) //calcaute the value of that item
 
-                CharObj[itemSlotName].OverAllValue = itemValue;
+                CharObj[itemSlotName].OverAllValue = itemValue; //assign this to the object
             });
-            console.log(CharObj)
+             console.log(CharObj)
+            //figure out a way to return this or assign this,idealy this gets called and an dom element is created to house each
         })
 
 }
@@ -151,7 +141,7 @@ function readPawnString(Pawnstring) {
 }
 
 
-//GetCharAPI("KeyBoardwárr", "Silvermoon", "eu")
-var PawnValues = readPawnString("( Pawn: v1: \"Keyboardwárr-Fury\": Class=Warrior, Spec=Fury,reallyCoolStat=1.41 Strength=1.44, Ap=1.36, CritRating=1.19, HasteRating=1.66, MasteryRating=1.32, Versatility=1.19, Dps=5.39 ")
-console.log(PawnValues)
+GenerateCharItemTemplate("KeyBoardwárr", "Silvermoon", "eu")
+//var PawnValues = readPawnString("( Pawn: v1: \"Keyboardwárr-Fury\": Class=Warrior, Spec=Fury,reallyCoolStat=1.41 Strength=1.44, Ap=1.36, CritRating=1.19, HasteRating=1.66, MasteryRating=1.32, Versatility=1.19, Dps=5.39 ")
+
 //var stats =readPawnString("( Pawn: v1: \"Keyboardwárr-Fury\": Class=Warrior, Spec=Fury, Strength=1.46, Ap=1.37, CritRating=1.21, HasteRating=1.68, MasteryRating=1.35, Versatility=1.21, Dps=5.39 )")
