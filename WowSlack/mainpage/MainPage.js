@@ -15,65 +15,74 @@ var config = {
 firebase.initializeApp(config);
 var db = firebase.firestore();
 var auth = firebase.auth();
-db.settings({timestampsInSnapshots:true})
+db.settings({
+        timestampsInSnapshots: true
+})
 
 ipcRenderer.on('info', function (event, data) {
-      
-        var guildList =document.getElementById('guildsDll')
+
+        var guildList = document.getElementById('guildsDll')
         guildList.innerHTML = "";
-        
-        db.collection('Users').where('UserID', '==',data).get().then((snapshot) => {
+
+        db.collection('Users').where('UserID', '==', data).get().then((snapshot) => {
                 snapshot.docs.forEach(doc => {
                         populatePageDetails(doc.data());
                 })
         })
-        
+
 });
-function populatePageDetails(userData)
-{
+
+function populatePageDetails(userData) {
         document.getElementById('userName').innerHTML = userData.UserName;
         populateGuildsDropDown(userData);
+        var itemCalcBtn = document.getElementById("itemCalcBtn");
+        itemCalcBtn.onclick = loadItemCalc;
 
 }
 
 
-function populateGuildsDropDown(userData)
-{
+function populateGuildsDropDown(userData) {
         var addGuldBtn = document.createElement('a');
-        addGuldBtn.className ="dropdown-item"
+        addGuldBtn.className = "dropdown-item"
         addGuldBtn.innerHTML = "Add Guild";
         addGuldBtn.id = "addGuildBtn";
         addGuldBtn.onclick = loadGuildCreate;
         document.getElementById('guildsDll').appendChild(addGuldBtn)
 
-   
 
-                db.collection('Guilds').where('GuildID', '==',userData.GuildID).get().then((snapshot) => {
-                        snapshot.docs.forEach(doc => {
-                                var guildToAppend = document.createElement('a');
-                                guildToAppend.className ="dropdown-item"
-                                guildToAppend.innerHTML = doc.data().GuildName;
-                                guildToAppend.id = doc.id; //again,save id in id
-                                guildToAppend.addEventListener("click", () =>{loadGuildPage(guildToAppend.id)});
-                               document.getElementById('guildsDll').appendChild(guildToAppend)
-                        })
+
+        db.collection('Guilds').where('GuildID', '==', userData.GuildID).get().then((snapshot) => {
+                snapshot.docs.forEach(doc => {
+                        var guildToAppend = document.createElement('a');
+                        guildToAppend.className = "dropdown-item"
+                        guildToAppend.innerHTML = doc.data().GuildName;
+                        guildToAppend.id = doc.id; //again,save id in id
+                        guildToAppend.addEventListener("click", () => {
+                                loadGuildPage(guildToAppend.id)
+                        });
+                        document.getElementById('guildsDll').appendChild(guildToAppend)
                 })
-        
+        })
 
-      
+
+
 }
 
 
 
-function loadGuildCreate()
-{
+function loadGuildCreate() {
         ipcRenderer.send('load-guildCreate')
 }
 
 
-function loadCharpage(name)
-{
+function loadCharpage(name) {
         //code here to load up the char page
+}
+
+function loadItemCalc() {
+        console.log("In mainpage")
+        $("#pageArea").load("../itemCalc/itemcalc.html");
+        ipcRenderer.send("load-itemCalc");
 }
 
 
@@ -89,43 +98,45 @@ signOutBtn.addEventListener('click', function (event) {
                 messagingSenderId: "105436064015"
         };
         firebase.initializeApp(config);
-        firebase.auth().signOut().then(function(){
-                
-         ipcRenderer.send('sign-out')
+        firebase.auth().signOut().then(function () {
+
+                ipcRenderer.send('sign-out')
         }).catch(function (error) {
 
                 if (error != null) {
-                  alert(error.message)
-                  return;
+                        alert(error.message)
+                        return;
                 }
-              })
-  });
+        })
+});
 
-  var profileBtn = document.getElementById('profilePageBtn');
-  profileBtn.addEventListener('click',() =>{loadProfilePage;sendTabChangeMessage;})
+var profileBtn = document.getElementById('profilePageBtn');
+profileBtn.addEventListener('click', () => {
+        loadProfilePage;
+        sendTabChangeMessage;
+})
 
 $(document).ready(function () {
         loadProfilePage(); //default page load here
 });
 
 
-function loadProfilePage()
-{
+function loadProfilePage() {
         console.log("loadprofilehere")
         $("#pageArea").html = "";
         $("#pageArea").load("../ProfilePage/ProfilePage.html");
-        
+
 }
 
 function sendTabChangeMessage()
 
-{console.log("tab change here");ipcRenderer.send("tabChangeProfile");}
-
-function loadGuildPage(id)
 {
-        console.log("In mainpage")
-        $("#pageArea").load("../guildPage/guildPage.html");
-        ipcRenderer.send("load-guildpage",id);
+        console.log("tab change here");
+        ipcRenderer.send("tabChangeProfile");
 }
 
-
+function loadGuildPage(id) {
+        console.log("In mainpage")
+        $("#pageArea").load("../guildPage/guildPage.html");
+        ipcRenderer.send("load-guildpage", id);
+}

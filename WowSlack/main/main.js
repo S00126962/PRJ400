@@ -68,6 +68,12 @@ ipcMain.on('load-guildpage',(sender,args) =>{
     
 })
 
+ipcMain.on('load-itemCalc', (sender,args)=>{
+
+    console.log("item calc load call form main");
+    MainWindow.webContents.send("load-itemCalc")
+})
+
 ipcMain.on('create-account', (event, args) => {
     ChildWindow.loadURL(url.format({
         pathname: path.join(__dirname, '../login/loginWindow.html'),

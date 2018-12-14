@@ -1,4 +1,3 @@
-const calc = require("itemCals.ts")
 
 const blizzard = require('blizzard.js').initialize({
   apikey: 'qupb7zxzkdtzzzt87nnkyny29b289aw9'
@@ -12,7 +11,7 @@ function GetCharacterDetails(_realm, _name, _origin) {
       origin: _origin
     })
     .then(response => {
-      console.log(response.data);
+      console.log(response.data.head);
       return response;
     });
 }
@@ -24,7 +23,7 @@ function GetCharacterItems(_realm, _name, _origin) {
       origin: _origin
     })
     .then(response => {
-      console.log(response.data)
+      console.log(response.data.items.head)
     });
 }
 
@@ -34,7 +33,7 @@ function GetItemDetail(_itemID, _origin) {
       origin: _origin
     })
     .then(response => {
-      //  console.log(response.data);
+        console.log(response.data.azeriteClassPowers);
     });
 
 }
@@ -69,4 +68,5 @@ function GetCharClass() {
     });
 }
 
-GetCharacterItems('Silvermoon', 'Sardarain', 'eu')
+GetItemDetail(157993,"us")
+//GetCharacterItems('Silvermoon', 'KeyboardWárr', 'eu')
