@@ -7,6 +7,8 @@
     <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
     <link href="../mainpage/mainPage.css" rel="stylesheet">
+    <script>var whTooltips = {colorLinks: true, iconizeLinks: true, renameLinks: true};</script>
+    <script src="http://wow.zamimg.com/widgets/power.js"></script>
     <title>Item Calculation</title>
 </head>
 
@@ -29,13 +31,39 @@
     </div>
     </div>
 
-    <div class="container" style="width:25%" style="position: relative;">
-        <ul id="itemListDropDown" class="list-group" style=" position: absolute;right: 10px; top: 75px;">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                Cras justo odio
-                <span class="badge badge-primary badge-pill">14</span>
-            </li>
-        </ul>
+    <div id="ItemListContainer" class="container" style="width:25%" style="position: relative;">
+        <div  class="container">
+            <div id="accordion">
+       
+             
+       
+       
+             <div class="card">
+               <div class="card-header">
+         <a class="card-link" data-toggle="collapse"  href="#menutwo" aria-expanded="false" aria-controls="menutwo">Menu 2<span class="collapsed"><p><b>></b></p></span>
+       <span class="expanded"><p><b></b></p></span></a>
+               </div>
+               <div id="menutwo" class="collapse">
+                 <div class="card-body">   
+                 </div>
+               </div>
+             </div>
+       
+       
+             <div class="card">
+               <div class="card-header">
+         <a class="card-link" data-toggle="collapse"  href="#menu3" aria-expanded="false" aria-controls="menu3">Menu 1<span class="collapsed"><p><b>></b></p></span>
+       <span class="expanded"><p><b></b></p></span></a>
+               </div>
+               <div id="menu3" class="collapse">
+                 <div class="card-body">
+                </div>
+               </div>
+             </div>
+       
+       
+          </div>
+       </div>
     </div>
 </body>
 

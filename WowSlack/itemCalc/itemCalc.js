@@ -33,11 +33,10 @@ var stageOneBtn = document.getElementById('stageOneBtn');
 var StageOnedll = document.getElementById('StageOnedll');
 var itemListDll = document.getElementById('itemListDropDown');
 var personalModeBtn = document.getElementById('personalMode');
+
 personalModeBtn.addEventListener('click', () => {
 
     console.log("personal modeClicked");
-
-
     LoadPersonalMode();
 
 })
@@ -75,7 +74,7 @@ function LoadPersonalMode() {
     })
 }
 
-function loadCharTemplate(id) {
+async function loadCharTemplate(id) {
     //itemListDll
 
     var charCollection = db.collection("Characters")
@@ -87,9 +86,11 @@ function loadCharTemplate(id) {
             var region = snapshot.data().charRegion;
             var sever = snapshot.data().charRealm;      
 
-            var promise = GenerateCharItemTemplate(charName,sever,region);
+             GenerateCharItemTemplate(charName,sever,region).then(result =>{
+                 
+                     AddItemToListview(result,charName) 
+               })
 
-            promise.then((results) =>{console.log(results)})
         })
 
 
@@ -111,8 +112,8 @@ function GetOverallItemValue(itemToCalc, StatWeights) {
                 }
             }
         }
-        return CharObj
-      //  return ItemValue;
+        //return CharObj
+        return ItemValue;
     }
 
 
@@ -123,8 +124,10 @@ function calcItemStatValue(itemStatWeight, ItemStatAmount) {
     return (itemStatWeight * ItemStatAmount);
 }
 
-function GenerateCharItemTemplate(Name, Sever, Region) {
-    
+
+async function GenerateCharItemTemplate(Name, Sever, Region) {
+  
+    return new Promise((resolve,reject) =>{
     try{
     var PawnValues = readPawnString("( Pawn: v1: \"Keyboardwárr-Fury\": Class=Warrior, Spec=Fury, Strength=1.44, Ap=1.36, CritRating=1.19, HasteRating=1.66, MasteryRating=1.32, Versatility=1.19, Dps=5.39 ")
     var CharObj = {}; //create a blank object to build up
@@ -135,24 +138,80 @@ function GenerateCharItemTemplate(Name, Sever, Region) {
             origin: Region
         })
         .then(response => {
-
             itemSlots.forEach(function (itemSlotName) { //loop though each item slot on the character
-
                 var statsObj = GenerateItemValue(response.data.items[itemSlotName].stats); //get the current items stats
                 CharObj[itemSlotName] = statsObj; //assign the name and the stats to the object
                 var itemValue = GetOverallItemValue(CharObj[itemSlotName], PawnValues) //calcaute the value of that item
                 CharitemValue += itemValue;
                 CharObj[itemSlotName].OverAllValue = itemValue; //assign this to the object
+                CharObj[itemSlotName].id = response.data.items[itemSlotName].id
+                CharObj[itemSlotName].ItemName = response.data.items[itemSlotName].name
+                CharObj[itemSlotName].bonusList = response.data.items[itemSlotName].bonusLists
             });
             CharObj.TotalItemValue = CharitemValue
            // console.log(CharObj);
            // CompareItems(CharObj.wrist, 161397, [4798, 1477])
 
-           return CharObj.promise();
+           resolve(CharObj);
 
         })
     }catch(e){console.log(e);throw e;}
+})
+}
 
+function AddItemToListview(CharTemplate,charName)
+{     
+    //assume if this is called we want a new sub section on the list,eg another char
+    //first build out the element to use
+      var cardDiv = document.createElement("div");
+      cardDiv.className = "card";
+
+      var cardHeader = document.createElement("div");
+      cardHeader.className = "card-header"
+      var cardLink = document.createElement("a");
+      cardLink.setAttribute("data-toggle","collapse");
+      cardLink.href = "#Testing";
+      cardLink.setAttribute("aria-expanded","false");
+      cardLink.setAttribute("aria-controls","Testing");
+      cardLink.text = charName;
+      var menuDiv = document.createElement("div");
+      menuDiv.className = "collapse"
+      menuDiv.id = "Testing";
+
+      var cardBody = document.createElement("div");
+      cardBody.className = "card-body"
+
+      for (let index = 0; index < itemSlots.length; index++) {
+        //first things first,get the ID for the current item
+        var itemID = CharTemplate[itemSlots[index]].id;
+        var SlotName = itemSlots[index]; //get the Name of the item slot we are itterating on
+        var itemName = CharTemplate[itemSlots[index]].ItemName
+        //now build the link for the item
+        var slotNameP = document.createElement("p");
+        slotNameP.innerText = SlotName + ":";
+        var bonus = CharTemplate[itemSlots[index]].bonusList;
+        var itemLink = document.createElement("a");
+        itemLink.href = "https://www.wowhead.com/item=" + itemID 
+        var att = document.createAttribute("data-wowhead"); 
+        att.value = "bonus=" +bonus[0] + ":"+bonus[1] + ":"+bonus[2];
+       // itemLink.innerHTML +="data-wowhead=bonus=" + bonus[0] + ":"+bonus[1] + ":"+bonus[2]; 
+       // itemLink["data-wowhead=bonus="] = bonus[0] + ":"+bonus[1] + ":"+bonus[2];
+        itemLink.setAttributeNode(att);
+        itemLink.className = "q4";
+        itemLink.innerHTML = itemName;
+        console.log(itemLink);
+        cardBody.append(slotNameP);
+        cardBody.appendChild(itemLink) //add the link to the body
+        itemLink.appendChild(document.createElement("br"));
+      }
+    //now finaly attach all togethe
+    cardHeader.appendChild(cardLink);
+    cardDiv.appendChild(cardHeader);
+    menuDiv.appendChild(cardBody);
+    cardDiv.appendChild(menuDiv);
+
+    //finally add that to the correct area to the page
+    document.getElementById("accordion").appendChild(cardDiv);
 }
 
 function GenerateItemValue(item) {
