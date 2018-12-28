@@ -36,8 +36,6 @@ var itemListDll = document.getElementById('itemListDropDown');
 var personalModeBtn = document.getElementById('personalMode');
 
 personalModeBtn.addEventListener('click', () => {
-
-    console.log("personal modeClicked");
     LoadPersonalMode();
 
 })
@@ -46,7 +44,6 @@ var guildModeBtn = document.getElementById('guildMode');
 
 guildModeBtn.addEventListener('click', () => {
 
-    console.log("guild modeClicked");
 })
 
 
@@ -132,6 +129,7 @@ async function GenerateCharItemTemplate(Name, Sever, Region) {
     try{
     var PawnValues = readPawnString("( Pawn: v1: \"Keyboardwárr-Fury\": Class=Warrior, Spec=Fury, Strength=1.44, Ap=1.36, CritRating=1.19, HasteRating=1.66, MasteryRating=1.32, Versatility=1.19, Dps=5.39 ")
     var CharObj = {}; //create a blank object to build up
+    CharObj.charName = Name;
     var CharitemValue = 0; //value to add up and get an overall value
     blizzard.wow.character(['profile', 'items'], { //call the api to get the users character
             realm: Sever,
@@ -140,7 +138,8 @@ async function GenerateCharItemTemplate(Name, Sever, Region) {
         })
         .then(response => {
             itemSlots.forEach(function (itemSlotName) { //loop though each item slot on the character
-                var statsObj = GenerateItemValue(response.data.items[itemSlotName].stats); //get the current items stats
+                try {
+                    var statsObj = GenerateItemValue(response.data.items[itemSlotName].stats); //get the current items stats
                 CharObj[itemSlotName] = statsObj; //assign the name and the stats to the object
                 var itemValue = GetOverallItemValue(CharObj[itemSlotName], PawnValues) //calcaute the value of that item
                 CharitemValue += itemValue;
@@ -153,6 +152,10 @@ async function GenerateCharItemTemplate(Name, Sever, Region) {
                     //we have an azerite item,need to add that on
                     CharObj[itemSlotName].azeriteArray= response.data.items[itemSlotName].azeriteEmpoweredItem.azeritePowers
                 }
+                } catch (error) {
+                
+                }
+                
             });
             CharObj.TotalItemValue = CharitemValue
            // console.log(CharObj);
@@ -188,32 +191,38 @@ function AddItemToListview(CharTemplate,charName)
       cardBody.className = "card-body"
 
       for (let index = 0; index < itemSlots.length; index++) {
+          try {
+            var itemID = CharTemplate[itemSlots[index]].id;
+            var SlotName = itemSlots[index]; //get the Name of the item slot we are itterating on
+            var itemName = CharTemplate[itemSlots[index]].ItemName
+            //now build the link for the item
+            var slotNameP = document.createElement("p");
+            slotNameP.innerText = SlotName + ":";
+            slotNameP.id = SlotName;
+            var bonus = CharTemplate[itemSlots[index]].bonusList;
+            var itemLink = document.createElement("a");
+            itemLink.href = "https://www.wowhead.com/item=" + itemID 
+            var att = document.createAttribute("data-wowhead"); 
+            att.value = "bonus=" +bonus[0] + ":"+bonus[1] + ":"+bonus[2] + "&";
+            att.value += "ench=" +CharTemplate[itemSlots[index]].itemEnchant +"&"
+            if (SlotName == "shoulder" || SlotName == "head" ||SlotName == "chest") {
+                //we have an azerite item,need to add that on
+                var azeriteArray = CharTemplate[itemSlots[index]].azeriteArray
+                att.value += "azerite-powers=1" + ":" + azeriteArray[0].id + ":" + azeriteArray[1].id + ":" + azeriteArray[2].id
+            }
+           // itemLink.innerHTML +="data-wowhead=bonus=" + bonus[0] + ":"+bonus[1] + ":"+bonus[2]; 
+           // itemLink["data-wowhead=bonus="] = bonus[0] + ":"+bonus[1] + ":"+bonus[2];
+            itemLink.setAttributeNode(att);
+            itemLink.className = "q4";
+            itemLink.innerHTML = itemName;
+            cardBody.append(slotNameP);
+            cardBody.appendChild(itemLink) //add the link to the body
+            itemLink.appendChild(document.createElement("br"));
+          } catch (error) {
+              
+          }
         //first things first,get the ID for the current item
-        var itemID = CharTemplate[itemSlots[index]].id;
-        var SlotName = itemSlots[index]; //get the Name of the item slot we are itterating on
-        var itemName = CharTemplate[itemSlots[index]].ItemName
-        //now build the link for the item
-        var slotNameP = document.createElement("p");
-        slotNameP.innerText = SlotName + ":";
-        var bonus = CharTemplate[itemSlots[index]].bonusList;
-        var itemLink = document.createElement("a");
-        itemLink.href = "https://www.wowhead.com/item=" + itemID 
-        var att = document.createAttribute("data-wowhead"); 
-        att.value = "bonus=" +bonus[0] + ":"+bonus[1] + ":"+bonus[2] + "&";
-        att.value += "ench=" +CharTemplate[itemSlots[index]].itemEnchant +"&"
-        if (SlotName == "shoulder" || SlotName == "head" ||SlotName == "chest") {
-            //we have an azerite item,need to add that on
-            var azeriteArray = CharTemplate[itemSlots[index]].azeriteArray
-            att.value += "azerite-powers=1" + ":" + azeriteArray[0].id + ":" + azeriteArray[1].id + ":" + azeriteArray[2].id
-        }
-       // itemLink.innerHTML +="data-wowhead=bonus=" + bonus[0] + ":"+bonus[1] + ":"+bonus[2]; 
-       // itemLink["data-wowhead=bonus="] = bonus[0] + ":"+bonus[1] + ":"+bonus[2];
-        itemLink.setAttributeNode(att);
-        itemLink.className = "q4";
-        itemLink.innerHTML = itemName;
-        cardBody.append(slotNameP);
-        cardBody.appendChild(itemLink) //add the link to the body
-        itemLink.appendChild(document.createElement("br"));
+        
       }
     //now finaly attach all togethe
     cardHeader.appendChild(cardLink);
@@ -221,7 +230,6 @@ function AddItemToListview(CharTemplate,charName)
     cardDiv.appendChild(cardHeader);
     menuDiv.appendChild(cardBody);
     cardDiv.appendChild(menuDiv);
-    console.log(cardHeader.charDetails)
 
     //finally add that to the correct area to the page
     document.getElementById("accordion").appendChild(cardDiv);
@@ -258,8 +266,7 @@ function CompareItems() //function to compare two items and get a postive(upgrad
             bonuses: bonusArray,
             origin: 'eu'
         }) //orgin does not matter here,all items will be the same
-        .then(response => {
-            console.log("The item you are comparing is " + "\n" + response.data)
+        .then(response => {  
             var newitem = {};
             var invSlot = InvMap[response.data.inventoryType];
             var statsObj = GenerateItemValue(response.data.bonusStats);
@@ -267,19 +274,46 @@ function CompareItems() //function to compare two items and get a postive(upgrad
             newitem.OverAllValue = GetOverallItemValue(statsObj, PawnValues)
             
             var CharTabs = document.getElementsByClassName("card-header");
-            console.log(CharTabs)
             for (let index = 0; index < CharTabs.length; index++) {
                 var charObj = CharTabs[index].charDetails;
-                console.log(charObj);
+              
                 var currentItem = charObj[invSlot];
-                console.log("Here you go greg" +currentItem);
+                var CharItemSlots = document.getElementById(charObj.charName).firstElementChild.childNodes;
+               
+                for (let i = 0; i < CharItemSlots.length; i++) {
+                    if (CharItemSlots[i].id == invSlot) {
+                       console.log(CharItemSlots[i]);
+                       var result = newitem.OverAllValue - currentItem.OverAllValue
+                       var ItemSpan = document.createElement("span");
+                if (result > 0) {
+                    //this is an upgrade
+                    CharItemSlots[i].innerText = "Upgrade!"
+                    ItemSpan.className = "glyphicon glyphicon-arrow-up"
+                    CharTabs[index].style.backgroundColor = "green"
+                }
+                else if (result < 0) {
+                    //then we have a downgrade
+                    CharItemSlots[i].innerText = "DownGrade!"
+                    ItemSpan.className = "glyphicon glyphicon-arrow-down"
+                    CharTabs[index].style.backgroundColor = "red"
+                }
+                else if (result == 0) {
+                    //very rare,but we have a tie,up to the user at this point
+                    CharItemSlots[index].innerText = "Tie!"
+    
+                }
+                    }
+                    
+                }
+                
                 
             }
-            console.log("New item val:" + " " + newitem.OverAllValue)
-            console.log("Old item val:" + " " + currentItem.OverAllValue)
-            console.log("Result of item calc" + " " + newitem.OverAllValue - currentItem.OverAllValue)
-            var reuslt = newitem.OverAllValue - currentItem.OverAllValue
-            console.log(result);
+         //   console.log("New item val:" + " " + newitem.OverAllValue)
+          //  console.log("Old item val:" + " " + currentItem.OverAllValue)
+          //  console.log("Result of item calc" + " " + newitem.OverAllValue - currentItem.OverAllValue)
+           
+            
+            
         });
 }
 
