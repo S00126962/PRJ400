@@ -23,7 +23,7 @@ function GetCharacterItems(_realm, _name, _origin) {
       origin: _origin
     })
     .then(response => {
-      console.log(response.data.items)
+      console.log(response.data.items["head"].azeriteEmpoweredItem.azeritePowers)
     });
 }
 
@@ -68,5 +68,5 @@ function GetCharClass() {
     });
 }
 
-//GetItemDetail(157993,"us")
-GetCharacterItems('Silvermoon', 'KeyboardWárr', 'eu')
+GetItemDetail(160723,"us")
+//GetCharacterItems('Silvermoon', 'KeyboardWárr', 'eu')

@@ -4,6 +4,7 @@ const blizzard = require('blizzard.js').initialize({
 
 
 const itemMap = require('./itemStatMapping.json'); //call in the mapping for data here
+const InvMap = require('./invSlotMapping.json');
 const itemSlots = ["head", "neck", "shoulder", "back", "chest", "wrist", "hands", "waist", "legs", "feet", "finger1", "finger2", "trinket1", "trinket2", "mainHand", "offHand"];
 var config = {
     apiKey: "AIzaSyBPwA6lwFFahoYIABYpeAvjmSA10gkj040",
@@ -146,7 +147,12 @@ async function GenerateCharItemTemplate(Name, Sever, Region) {
                 CharObj[itemSlotName].OverAllValue = itemValue; //assign this to the object
                 CharObj[itemSlotName].id = response.data.items[itemSlotName].id
                 CharObj[itemSlotName].ItemName = response.data.items[itemSlotName].name
-                CharObj[itemSlotName].bonusList = response.data.items[itemSlotName].bonusLists
+                CharObj[itemSlotName].bonusList = response.data.items[itemSlotName].bonusLists;
+                CharObj[itemSlotName].itemEnchant = response.data.items[itemSlotName].tooltipParams.enchant
+                if (itemSlotName == "shoulder" || itemSlotName == "head" ||itemSlotName == "chest") {
+                    //we have an azerite item,need to add that on
+                    CharObj[itemSlotName].azeriteArray= response.data.items[itemSlotName].azeriteEmpoweredItem.azeritePowers
+                }
             });
             CharObj.TotalItemValue = CharitemValue
            // console.log(CharObj);
@@ -170,13 +176,13 @@ function AddItemToListview(CharTemplate,charName)
       cardHeader.className = "card-header"
       var cardLink = document.createElement("a");
       cardLink.setAttribute("data-toggle","collapse");
-      cardLink.href = "#Testing";
+      cardLink.href = "#" + charName;
       cardLink.setAttribute("aria-expanded","false");
-      cardLink.setAttribute("aria-controls","Testing");
+      cardLink.setAttribute("aria-controls",charName);
       cardLink.text = charName;
       var menuDiv = document.createElement("div");
       menuDiv.className = "collapse"
-      menuDiv.id = "Testing";
+      menuDiv.id = charName;
 
       var cardBody = document.createElement("div");
       cardBody.className = "card-body"
@@ -193,22 +199,29 @@ function AddItemToListview(CharTemplate,charName)
         var itemLink = document.createElement("a");
         itemLink.href = "https://www.wowhead.com/item=" + itemID 
         var att = document.createAttribute("data-wowhead"); 
-        att.value = "bonus=" +bonus[0] + ":"+bonus[1] + ":"+bonus[2];
+        att.value = "bonus=" +bonus[0] + ":"+bonus[1] + ":"+bonus[2] + "&";
+        att.value += "ench=" +CharTemplate[itemSlots[index]].itemEnchant +"&"
+        if (SlotName == "shoulder" || SlotName == "head" ||SlotName == "chest") {
+            //we have an azerite item,need to add that on
+            var azeriteArray = CharTemplate[itemSlots[index]].azeriteArray
+            att.value += "azerite-powers=1" + ":" + azeriteArray[0].id + ":" + azeriteArray[1].id + ":" + azeriteArray[2].id
+        }
        // itemLink.innerHTML +="data-wowhead=bonus=" + bonus[0] + ":"+bonus[1] + ":"+bonus[2]; 
        // itemLink["data-wowhead=bonus="] = bonus[0] + ":"+bonus[1] + ":"+bonus[2];
         itemLink.setAttributeNode(att);
         itemLink.className = "q4";
         itemLink.innerHTML = itemName;
-        console.log(itemLink);
         cardBody.append(slotNameP);
         cardBody.appendChild(itemLink) //add the link to the body
         itemLink.appendChild(document.createElement("br"));
       }
     //now finaly attach all togethe
     cardHeader.appendChild(cardLink);
+    cardHeader.charDetails = CharTemplate;
     cardDiv.appendChild(cardHeader);
     menuDiv.appendChild(cardBody);
     cardDiv.appendChild(menuDiv);
+    console.log(cardHeader.charDetails)
 
     //finally add that to the correct area to the page
     document.getElementById("accordion").appendChild(cardDiv);
@@ -227,9 +240,18 @@ function GenerateItemValue(item) {
     return returnObj;
 }
 
-function CompareItems(currentItem, newitemID, bonusArray) //function to compare two items and get a postive(upgrade)/negative(downgrade) intger 
+
+var compareBtn = document.getElementById("CompareItems");
+compareBtn.addEventListener("click", () =>{
+    CompareItems();
+});
+
+function CompareItems() //function to compare two items and get a postive(upgrade)/negative(downgrade) intger 
 {
     var PawnValues = readPawnString("( Pawn: v1: \"Keyboardwárr-Fury\": Class=Warrior, Spec=Fury, Strength=1.44, Ap=1.36, CritRating=1.19, HasteRating=1.66, MasteryRating=1.32, Versatility=1.19, Dps=5.39 ")
+
+    var newitemID = document.getElementById("LoadedItem").LoadedItem.id;
+    var bonusArray = document.getElementById("LoadedItem").LoadedItem.bonusArray;
 
     blizzard.wow.item({
             id: newitemID,
@@ -239,13 +261,25 @@ function CompareItems(currentItem, newitemID, bonusArray) //function to compare 
         .then(response => {
             console.log("The item you are comparing is " + "\n" + response.data)
             var newitem = {};
-
+            var invSlot = InvMap[response.data.inventoryType];
             var statsObj = GenerateItemValue(response.data.bonusStats);
             newitem[response.data.name] = statsObj;
             newitem.OverAllValue = GetOverallItemValue(statsObj, PawnValues)
+            
+            var CharTabs = document.getElementsByClassName("card-header");
+            console.log(CharTabs)
+            for (let index = 0; index < CharTabs.length; index++) {
+                var charObj = CharTabs[index].charDetails;
+                console.log(charObj);
+                var currentItem = charObj[invSlot];
+                console.log("Here you go greg" +currentItem);
+                
+            }
             console.log("New item val:" + " " + newitem.OverAllValue)
             console.log("Old item val:" + " " + currentItem.OverAllValue)
             console.log("Result of item calc" + " " + newitem.OverAllValue - currentItem.OverAllValue)
+            var reuslt = newitem.OverAllValue - currentItem.OverAllValue
+            console.log(result);
         });
 }
 
@@ -316,19 +350,26 @@ function readPawnString(Pawnstring) {
     return returnObj; //finally return the object
 }
 
+var wowHeadbtn =document.getElementById("findLinkBtn");
+
+wowHeadbtn.addEventListener('click', () =>{
+
+   ReadWowHeadLink();
+})
+
 function ReadWowHeadLink() //alternative to searching an item,let users paste in the link of the item from wowhead and get the info that way
 {
     //item is a 355 wrist plate,140 str/int,47haste,73 vers
-    var testLink = "https://www.wowhead.com/item=160723/imperious-vambraces&bonus=1522:4798"
+    var link = document.getElementById("wowheadLink").value;
 
-    var itemID = testLink.substring(
-        testLink.lastIndexOf("item=") + 5, //Links will always be the same,can grab the item id like this
-        testLink.lastIndexOf("/"));
+    var itemID = link.substring(
+        link.lastIndexOf("item=") + 5, //Links will always be the same,can grab the item id like this
+        link.lastIndexOf("/"));
 
 
-    var BounusIDs = testLink.substring(
-        testLink.lastIndexOf("bonus=") + 6, //Links will always be the same,can grab the item id like this
-        testLink.lastIndexOf("")).split(":");
+    var BounusIDs = link.substring(
+        link.lastIndexOf("bonus=") + 6, //Links will always be the same,can grab the item id like this
+        link.lastIndexOf("")).split(":");
 
     console.log(itemID)
     console.log(BounusIDs);
@@ -341,6 +382,31 @@ function ReadWowHeadLink() //alternative to searching an item,let users paste in
         })
         .then(response => {
             console.log(response.data);
+            //once we are here we know that that is an item,so build a wowhead link
+            var itemHolder = document.getElementById("LoadedItem");
+            var itemLink = document.createElement("a");
+         itemLink.href = "https://www.wowhead.com/item=" + itemID 
+        var att = document.createAttribute("data-wowhead"); 
+        att.value = "bonus=" +BounusIDs[0] + ":"+BounusIDs[1] + ":"+BounusIDs[2] + "&";
+        // if (SlotName == "shoulder" || SlotName == "head" ||SlotName == "chest") {
+        // //need to figure a way to let the user pick the azerite class   
+        // }
+       // itemLink.innerHTML +="data-wowhead=bonus=" + bonus[0] + ":"+bonus[1] + ":"+bonus[2]; 
+       // itemLink["data-wowhead=bonus="] = bonus[0] + ":"+bonus[1] + ":"+bonus[2];
+        itemLink.setAttributeNode(att);
+        itemLink.className = "q4";
+        itemLink.innerHTML = response.data.name;
+        itemHolder.appendChild(itemLink);
+
+        //now make an object to store on the item holder
+        var itemObj = {}
+      //  var PawnValues = readPawnString("( Pawn: v1: \"Keyboardwárr-Fury\": Class=Warrior, Spec=Fury, Strength=1.44, Ap=1.36, CritRating=1.19, HasteRating=1.66, MasteryRating=1.32, Versatility=1.19, Dps=5.39 ")
+         itemObj.id = response.data.id;
+         itemObj.bonusArray = BounusIDs;
+         itemHolder.LoadedItem = itemObj;
+
+         console.log(itemHolder.LoadedItem);
+      
         });
 }
 

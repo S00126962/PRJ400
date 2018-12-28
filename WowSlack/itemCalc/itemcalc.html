@@ -18,6 +18,14 @@
     <div class="btn-group" role="group" aria-label="Basic example">
         <button id="personalMode" type="button" class="btn btn-secondary">Personal</button>
         <button id="guildMode" type="button" class="btn btn-secondary">Guild</button>
+        <div class="form-group mx-sm-3 mb-2">
+            <label for="inputPassword2" class="sr-only">WoW Head Link</label>
+            <input type="text" class="form-control" id="wowheadLink" placeholder="Wow Head Link">
+          </div>
+          <button id="findLinkBtn" type="button" class="btn btn-primary mb-2">Find Item</button>
+          <button id="CompareItems" type="button" class="btn btn-primary mb-2">Compare Items</button>
+          <p id="LoadedItem"></p>
+        </div>
     </div>
     <br>
     </div>
@@ -33,34 +41,9 @@
 
     <div id="ItemListContainer" class="container" style="width:25%" style="position: relative;">
         <div  class="container">
-            <div id="accordion">
-       
-             
-       
-       
-             <div class="card">
-               <div class="card-header">
-         <a class="card-link" data-toggle="collapse"  href="#menutwo" aria-expanded="false" aria-controls="menutwo">Menu 2<span class="collapsed"><p><b>></b></p></span>
-       <span class="expanded"><p><b></b></p></span></a>
-               </div>
-               <div id="menutwo" class="collapse">
-                 <div class="card-body">   
-                 </div>
-               </div>
-             </div>
-       
-       
-             <div class="card">
-               <div class="card-header">
-         <a class="card-link" data-toggle="collapse"  href="#menu3" aria-expanded="false" aria-controls="menu3">Menu 1<span class="collapsed"><p><b>></b></p></span>
-       <span class="expanded"><p><b></b></p></span></a>
-               </div>
-               <div id="menu3" class="collapse">
-                 <div class="card-body">
-                </div>
-               </div>
-             </div>
-       
+            <div id="accordion" style="position: absolute; 
+            right: 0px;
+            top:80px;">
        
           </div>
        </div>

@@ -1,8 +1,9 @@
 body{background-color:#fff;}
-.card-header, .card-link,.card-link:hover{background-color:#000;text-align:left;color:hotpink;}
-.card-body{padding:10px 10px;}
-.card{width:500px;}
-p{position:absolute;top:5px;right:20px;font-size:20px;color:white;
+.card-header, .card-link,.card-link:hover{background-color:#000;text-align:center;color:hotpink;}
+.card-body{padding:0px 0px;}
+
+.card{width:250px;}
+p{position:absolute;top:0px;right:10px;font-size:10px;color:white;
 animation: minus 0.5s;}
 
 @keyframes minus {
