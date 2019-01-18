@@ -1,7 +1,12 @@
 
 const blizzard = require('blizzard.js').initialize({
-  apikey: 'qupb7zxzkdtzzzt87nnkyny29b289aw9'
+  key: 'cc03f6bfa99541d9b2644e450b96eadf',
+  secert : 'jfTKRlzCmeUNlbpNA905QEdpICdJCuJ6',
+  access_token : "USgBRrOmhhW3lJsO6KaFkd30vvc8fqBBS8"
 });
+
+
+
 
 
 function GetCharacterDetails(_realm, _name, _origin) {
@@ -34,7 +39,7 @@ function GetItemDetail(_itemID, _origin) {
     })
     .then(response => {
         console.log(response.data);
-    });
+    }).catch(error => {console.log(error)});
 
 }
 
@@ -68,5 +73,6 @@ function GetCharClass() {
     });
 }
 
-GetItemDetail(160723,"us")
-//GetCharacterItems('Silvermoon', 'KeyboardWárr', 'eu')
+
+//GetItemDetail(160723,"us")
+GetCharacterItems('Silvermoon', 'KeyboardWárr', 'eu')
