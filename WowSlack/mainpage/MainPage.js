@@ -64,10 +64,7 @@ function populateGuildsDropDown(userData) {
                 })
         })
 
-
-
 }
-
 
 
 function loadGuildCreate() {
@@ -76,11 +73,10 @@ function loadGuildCreate() {
 
 
 function loadCharpage(name) {
-        //code here to load up the char page
+        //code here to load up the char page,may/maynot be need in end soultion
 }
 
 function loadItemCalc() {
-        console.log("In mainpage")
         $("#pageArea").load("../itemCalc/itemcalc.html");
         ipcRenderer.send("load-itemCalc");
 }
@@ -112,8 +108,8 @@ signOutBtn.addEventListener('click', function (event) {
 
 var profileBtn = document.getElementById('profilePageBtn');
 profileBtn.addEventListener('click', () => {
-        loadProfilePage;
-        sendTabChangeMessage;
+        loadProfilePage();
+      //  sendTabChangeMessage;
 })
 
 $(document).ready(function () {
@@ -122,18 +118,16 @@ $(document).ready(function () {
 
 
 function loadProfilePage() {
-        console.log("loadprofilehere")
-        $("#pageArea").html = "";
+        console.log("Boom");
         $("#pageArea").load("../ProfilePage/ProfilePage.html");
-
+         ipcRenderer.send("tabChangeProfile");
 }
 
-function sendTabChangeMessage()
-
-{
-        console.log("tab change here");
-        ipcRenderer.send("tabChangeProfile");
-}
+//function sendTabChangeMessage()
+//{
+    //    console.log("tab change here");
+  //      ipcRenderer.send("tabChangeProfile");
+//}
 
 function loadGuildPage(id) {
         console.log("In mainpage")

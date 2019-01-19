@@ -2,21 +2,23 @@ const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
 
 
-var defualt = firebase.app();
+var usernameLbl = document.getElementById('profileUserName');
+var userEmailLbl = document.getElementById('profileuserEmail');
+var userRegion = document.getElementById('profileUserRegion');
+
+const defualt = firebase.app();
 const db = defualt.firestore();
 db.settings({timestampsInSnapshots:true})
 
 
-var usernameLbl = document.getElementById('profileUserName');
-var userEmailLbl = document.getElementById('profileuserEmail');
-var userRegion = document.getElementById('profileUserRegion');
+
 ipcRenderer.on('loadProfilePage',() =>{
-    db.collection('Users').where('UserID', '==',(defualt.auth().currentUser.uid)).get().then((snapshot) => {
+
+    db.collection('Users').where('UserID', '==',defualt.auth().currentUser.uid).get().then((snapshot) => {
         snapshot.docs.forEach(doc => {
             usernameLbl.innerHTML = doc.data().UserName;
             userEmailLbl.innerHTML = doc.data().userEmail;  
-            userRegion.innerHTML = doc.data().userRegion;
-                //add more on here mate! it works now
+            userRegion.innerHTML = doc.data().userRegion;        
         })
         var tbody= document.getElementById('charTable');
         while (tbody.childNodes.length) {

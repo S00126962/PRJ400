@@ -11,10 +11,6 @@ const ipcMain = electron.ipcMain;
 let MainWindow;
 let ChildWindow;
 
-
-
-
-
 app.on('ready', function () {
     MainWindow = new BrowserWindow({
         width: 1281,
@@ -58,7 +54,7 @@ ipcMain.on('asynchronous-message', (event, args) => {
 
 ipcMain.on('tabChangeProfile',(sender,args) =>{
     console.log("LoadProfilePage from main")
-    MainWindow.webContents.send('loadProfilePage');
+    MainWindow.webContents.send('loadProfilePage',args);
 })
 
 ipcMain.on('load-guildpage',(sender,args) =>{

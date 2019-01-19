@@ -1,7 +1,7 @@
 const blizzard = require('blizzard.js').initialize({
     key: 'cc03f6bfa99541d9b2644e450b96eadf',
     secert : 'jfTKRlzCmeUNlbpNA905QEdpICdJCuJ6',
-    access_token : "USgBRrOmhhW3lJsO6KaFkd30vvc8fqBBS8" //This technically works,need better OAuth implentation
+    access_token : "USgBRrOmhhW3lJsO6KaFkd30vvc8fqBBS8" //This technically works,need better OAuth implentation 
   });
 
 
@@ -89,10 +89,11 @@ async function loadCharTemplate(id) {
             var charName =snapshot.data().charName;
             var region = snapshot.data().charRegion;
             var sever = snapshot.data().charRealm;      
-
+            var classID = snapshot.data().classID; //need this for azerite traits
+            var pawnString = snapshot.data().charPawnString; //need to check this for a null val later on
             //Call the promise to generate a character template,once its down,sent it to get added to the listview
-             GenerateCharItemTemplate(charName,sever,region).then(result =>{
-                     AddItemToListview(result,charName) //send the resulting template and name off to be put on screen
+             GenerateCharItemTemplate(charName,sever,region,pawnString,classID).then(result =>{
+                     AddItemToListview(result) //send the resulting template and name off to be put on screen
                })
 
         })
@@ -117,6 +118,7 @@ function GetOverallItemValue(itemToCalc, StatWeights) {
             }
         }
         //return CharObj
+
         return ItemValue;
     }
 
@@ -129,14 +131,42 @@ function calcItemStatValue(itemStatWeight, ItemStatAmount) {
 }
 
 //promised based function to create an object to use for working with Wow Characters
-async function GenerateCharItemTemplate(Name, Sever, Region) {
+async function GenerateCharItemTemplate(Name, Sever, Region,Pawnstring,classID) {
   
     return new Promise((resolve,reject) =>{
     try{
     //TODO,Add option to use this during item calc rather than provide this
-    var PawnValues = readPawnString("( Pawn: v1: \"Keyboardwárr-Fury\": Class=Warrior, Spec=Fury, Strength=1.44, Ap=1.36, CritRating=1.19, HasteRating=1.66, MasteryRating=1.32, Versatility=1.19, Dps=5.39 ")
+    var PawnValues; //declare this here
+    //now decide which one to use during the template generatetion
+    if(Pawnstring || Pawnstring != "") //if it is there
+    {
+        PawnValues = readPawnString(Pawnstring); //use the one pulled from the database
+    }
+    else{ //otherwise go and find the default weights from the database
+        //needs replacing with a reading system,rebuild class database
+        var classRef = db.collection("Class")
+        var classInQuestion = classRef.doc("Warrior");
+        var specs = classInQuestion.collection('Specs');
+        var statWeights = specs.doc("Fury");
+        statWeights.get().then((snapshot) =>{ //need to wait here,look back into this
+            //create the same object,just use the vals from the database
+            PawnValues = {
+                "PrimWeight": snapshot.data().PrimWeight,
+                "HasteWeight": snapshot.data().HasteWeight,
+                "CritWeight": snapshot.data().CritWeight,
+                "ArmorWeight": snapshot.data().ArmorWeight,
+                "LeechWeight": snapshot.data().LeechWeight,
+                "MasteryWeight": snapshot.data().MasteryWeight,
+                "StaminaWeight": snapshot.data().StaminaWeight,
+                "VersatilityWeight": snapshot.data().VersatilityWeight,
+                "WepDpsWeight": snapshot.data().WepDpsWeight
+            };
+        })
+    }
     var CharObj = {}; //create a blank object to build up
     CharObj.charName = Name; //set the name on the object
+    CharObj.classID = classID; //use this for wowheadTooltips later
+    CharObj.StatWeights = PawnValues; //save these for later
     var CharitemValue = 0; //value to add up and get an overall value
     blizzard.wow.character(['profile', 'items'], { //call the api to get the users character,more specficly their items
             realm: Sever,
@@ -149,6 +179,7 @@ async function GenerateCharItemTemplate(Name, Sever, Region) {
                 var statsObj = GenerateItemValue(response.data.items[itemSlotName].stats); //get the current items stats
                 CharObj[itemSlotName] = statsObj; //assign the name and the stats to the object
                 var itemValue = GetOverallItemValue(CharObj[itemSlotName], PawnValues) //calcaute the value of that item
+                
                 CharitemValue += itemValue;
                 CharObj[itemSlotName].OverAllValue = itemValue; //assign this to the object,have the overall value ready for comparsion
                 CharObj[itemSlotName].id = response.data.items[itemSlotName].id //get the Item ID
@@ -173,7 +204,7 @@ async function GenerateCharItemTemplate(Name, Sever, Region) {
 }
 
 //Function to generate a list item of the character,needs a character template from above to work
-function AddItemToListview(CharTemplate,charName)
+function AddItemToListview(CharTemplate)
 {     
     //assume if this is called we want a new sub section on the list,eg another char
     //first build out the element to use
@@ -183,13 +214,13 @@ function AddItemToListview(CharTemplate,charName)
       cardHeader.className = "card-header"
       var cardLink = document.createElement("a");
       cardLink.setAttribute("data-toggle","collapse");
-      cardLink.href = "#" + charName; //used for datatoggle
+      cardLink.href = "#" + CharTemplate.charName; //used for datatoggle
       cardLink.setAttribute("aria-expanded","false");
-      cardLink.setAttribute("aria-controls",charName);
-      cardLink.text = charName;
+      cardLink.setAttribute("aria-controls",CharTemplate.charName);
+      cardLink.text = CharTemplate.charName;
       var menuDiv = document.createElement("div");
       menuDiv.className = "collapse"
-      menuDiv.id = charName;//used for datatoggle
+      menuDiv.id = CharTemplate.charName;//used for datatoggle
       var cardBody = document.createElement("div");
       cardBody.className = "card-body"
 
@@ -216,7 +247,11 @@ function AddItemToListview(CharTemplate,charName)
             if (SlotName == "shoulder" || SlotName == "head" ||SlotName == "chest") { //check to see if this is an azerite item
                 //we have an azerite item,need to add that on
                 var azeriteArray = CharTemplate[itemSlots[index]].azeriteArray
-                att.value += "azerite-powers=1" + ":" + azeriteArray[0].id + ":" + azeriteArray[1].id + ":" + azeriteArray[2].id //need to replace one with the characters classID
+                att.value += "azerite-powers=" + CharTemplate.classID + ":";
+                for (let Azeriteindex = 0; Azeriteindex < azeriteArray.length; Azeriteindex++) {
+                    att.value +=azeriteArray[Azeriteindex].id + ":"                   
+                }
+                 azeriteArray[0].id + ":" + azeriteArray[1].id + ":" + azeriteArray[2].id //need to replace one with the characters classID
             }
            // itemLink.innerHTML +="data-wowhead=bonus=" + bonus[0] + ":"+bonus[1] + ":"+bonus[2]; 
            // itemLink["data-wowhead=bonus="] = bonus[0] + ":"+bonus[1] + ":"+bonus[2];
@@ -295,7 +330,7 @@ function CompareItems() //function to compare two items and get a postive(upgrad
         return;
     }
     //REPLACE WITH VAL FROM DB
-    var PawnValues = readPawnString("( Pawn: v1: \"Keyboardwárr-Fury\": Class=Warrior, Spec=Fury, Strength=1.44, Ap=1.36, CritRating=1.19, HasteRating=1.66, MasteryRating=1.32, Versatility=1.19, Dps=5.39 ")
+   // var PawnValues = readPawnString("( Pawn: v1: \"Keyboardwárr-Fury\": Class=Warrior, Spec=Fury, Strength=1.44, Ap=1.36, CritRating=1.19, HasteRating=1.66, MasteryRating=1.32, Versatility=1.19, Dps=5.39 ")
 
     //get the new item's ID and bounus array(For contacting API)
     var newitemID = document.getElementById("LoadedItem").LoadedItem.id;
@@ -311,21 +346,22 @@ function CompareItems() //function to compare two items and get a postive(upgrad
             var invSlot = InvMap[response.data.inventoryType];
             var statsObj = GenerateItemValue(response.data.bonusStats);
             newitem[response.data.name] = statsObj;
-            newitem.OverAllValue = GetOverallItemValue(statsObj, PawnValues)
+          //  newitem.OverAllValue = GetOverallItemValue(statsObj, PawnValues);
             
             
             for (let index = 0; index < CharTabs.length; index++) {
                 var charObj = CharTabs[index].charDetails;
               
                 var currentItem = charObj[invSlot];
+                newitem.OverAllValue = GetOverallItemValue(newitem[response.data.name],charObj.StatWeights);
                 var CharItemSlotsDivs = document.getElementById(charObj.charName).firstElementChild.childNodes;
                 var CharItemSlots = [];
                 CharItemSlotsDivs.forEach(item =>{
                     CharItemSlots.push(item.firstChild);
                 })
+                
                 for (let i = 0; i < CharItemSlots.length; i++) {
                     if (CharItemSlots[i].id == invSlot) {
-                       console.log(CharItemSlots[i]);
                        var result = (newitem.OverAllValue - currentItem.OverAllValue).toFixed(2); //round to two decimal places
                 if (result > 0) {
                     //this is an upgrade
@@ -423,6 +459,20 @@ function readPawnString(Pawnstring) {
     }
     return returnObj; //finally return the object
 }
+
+//function to read in azerite weights(from bloodmallet.com) and get a useable array
+function ReadAzeriteVals(AzeriteString)
+{
+     var vals = azeriteString.split(",");
+    var AzeriteDict = {};
+
+    for (let index = 0; index < vals.length; index++) {
+      var holder = vals[index].split("=");
+      AzeriteDict[holder[0]] = holder[1];
+      
+    }
+}
+ReadAzeriteVals()
 
 var wowHeadbtn =document.getElementById("findLinkBtn");
 wowHeadbtn.addEventListener('click', () =>{

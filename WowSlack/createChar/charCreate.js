@@ -1,8 +1,8 @@
 
 
 const blizzard = require('blizzard.js').initialize({
-    apikey: 'qupb7zxzkdtzzzt87nnkyny29b289aw9'
-});
+    apikey: 'qupb7zxzkdtzzzt87nnkyny29b289aw9',
+    access_token : 'USgBRrOmhhW3lJsO6KaFkd30vvc8fqBBS8'});
 var config = {
     apiKey: "AIzaSyBPwA6lwFFahoYIABYpeAvjmSA10gkj040",
     authDomain: "wow-slack.firebaseapp.com",
