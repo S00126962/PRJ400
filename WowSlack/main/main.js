@@ -67,7 +67,7 @@ ipcMain.on('load-guildpage',(sender,args) =>{
 ipcMain.on('load-itemCalc', (sender,args)=>{
 
     console.log("item calc load call form main");
-    MainWindow.webContents.send("load-itemCalc")
+    MainWindow.webContents.send("load-itemCalc");
 })
 
 ipcMain.on('create-account', (event, args) => {
@@ -80,6 +80,11 @@ ipcMain.on('create-account', (event, args) => {
 
 
 ipcMain.on('sign-out', (event, args) => {
+    ChildWindow.loadURL(url.format({
+        pathname: path.join(__dirname, '../login/loginWindow.html'),
+        protocol: 'file',
+        slashes: true
+    }));
     ChildWindow.show(); //when we do login,close the login window
 });
 

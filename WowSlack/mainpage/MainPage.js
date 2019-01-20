@@ -42,14 +42,13 @@ function populatePageDetails(userData) {
 
 
 function populateGuildsDropDown(userData) {
+        document.getElementById('guildsDll').innerHTML = "";
         var addGuldBtn = document.createElement('a');
         addGuldBtn.className = "dropdown-item"
         addGuldBtn.innerHTML = "Add Guild";
         addGuldBtn.id = "addGuildBtn";
         addGuldBtn.onclick = loadGuildCreate;
         document.getElementById('guildsDll').appendChild(addGuldBtn)
-
-
 
         db.collection('Guilds').where('GuildID', '==', userData.GuildID).get().then((snapshot) => {
                 snapshot.docs.forEach(doc => {
@@ -96,7 +95,7 @@ signOutBtn.addEventListener('click', function (event) {
         firebase.initializeApp(config);
         firebase.auth().signOut().then(function () {
 
-                ipcRenderer.send('sign-out')
+        ipcRenderer.send('sign-out')
         }).catch(function (error) {
 
                 if (error != null) {

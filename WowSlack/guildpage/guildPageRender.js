@@ -18,9 +18,10 @@ var db = firebase.firestore();
 db.settings({timestampsInSnapshots:true})
 
 ipcRenderer.on("load-guildpage",(sender,args)=>{
-    alert("hi");
     //first get a ref to that guild
+    console.log(args);
     var sideBar = document.getElementById("guildSideBar");
+    sideBar.innerHTML = ""; //clear it out of anything that was there before
     var guildref = db.collection("Guilds")
     var guildInQuestions = guildref.doc(args);
     var chatChanne = guildInQuestions.collection('ChatChannels');
@@ -36,11 +37,9 @@ ipcRenderer.on("load-guildpage",(sender,args)=>{
             channelLink.id = doc.id;
             var channelText = document.createElement('span');
             channelText.innerHTML = doc.data().ChannelName;
-
             //now tie all together
             channelLink.appendChild(channelText);
             channelToAppend.appendChild(channelLink);
-
             console.log(channelToAppend);
             //finally,add this to the sidebar
             sideBar.appendChild(channelToAppend);

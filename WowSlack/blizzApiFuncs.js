@@ -2,7 +2,7 @@
 const blizzard = require('blizzard.js').initialize({
   key: 'cc03f6bfa99541d9b2644e450b96eadf',
   secert : 'jfTKRlzCmeUNlbpNA905QEdpICdJCuJ6',
-  //access_token : "USgBRrOmhhW3lJsO6KaFkd30vvc8fqBBS8"
+  access_token : "USwlVmpPagAFo9cHTQ8cLc2yNMY6r7rDXG"
 });
 
 
@@ -28,17 +28,18 @@ function GetCharacterItems(_realm, _name, _origin) {
       origin: _origin
     })
     .then(response => {
-      console.log(response.data.items["head"].azeriteEmpoweredItem.azeritePowers)
+      console.log(response.data.items["head"].azeriteEmpoweredItem)
     });
 }
 
 function GetItemDetail(_itemID, _origin) {
   blizzard.wow.item({
       id: _itemID,
-      origin: _origin
+      origin: _origin,
+      bonus :[1547, 5136, 5378]
     })
     .then(response => {
-        console.log(response.data);
+        console.log(response.data.azeriteClassPowers);
     }).catch(error => {console.log(error)});
 
 }
@@ -74,5 +75,5 @@ function GetCharClass() {
 }
 
 
-GetItemDetail(160723,"us")
+GetItemDetail(157993,"us")
 //GetCharacterItems('Silvermoon', 'KeyboardWárr', 'eu')
