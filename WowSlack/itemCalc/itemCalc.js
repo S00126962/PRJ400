@@ -398,18 +398,32 @@ function CompareItems() //function to compare two items and get a postive(upgrad
                             var teir1 = newAzeriteIDs.filter(function (el) {
                                 return el.tier === 1
                             });
-
+                            var optiomalT1 =OptimalAzeriteTeir(teir1,charObj.classID)
+                           
                             var teir2 = newAzeriteIDs.filter(function (el) {
                                 return el.tier === 2
                             });
+                            var optiomalT2 = OptimalAzeriteTeir(teir2,charObj.classID)
 
                             var teir3 = newAzeriteIDs.filter(function (el) {
                                 return el.tier === 3
                             });
+                            var optiomalT3 = OptimalAzeriteTeir(teir3,charObj.classID);
 
                             var teir4 = newAzeriteIDs.filter(function (el) {
                                 return el.tier === 4
                             });
+                            var optiomalT4 = OptimalAzeriteTeir(teir4,charObj.classID);
+                            console.log("Before")
+                            console.log(newitem.OverAllValue);
+                            //once all the values are returned,add each to the overall value of the new item
+                            Promise.all([optiomalT1,optiomalT2, optiomalT3, optiomalT4]).then(function(values) {
+                                for (let i = 0; i < values.length; i++) {
+                                    newitem.OverAllValue += Number(values[i]); 
+                                    //great sucess
+                                }
+                                
+                              });
                         }
                         var result = (newitem.OverAllValue - currentItem.OverAllValue).toFixed(2); //round to two decimal places
                         if (result > 0) {
@@ -438,6 +452,45 @@ function CompareItems() //function to compare two items and get a postive(upgrad
             //  console.log("Result of item calc" + " " + newitem.OverAllValue - currentItem.OverAllValue)
 
         });
+}
+
+
+function OptimalAzeriteTeir(azeriteTeir,classID) { //used to find the best azerite value for a teir and return the dps value
+    
+    return new Promise((resolve, reject) => {
+    var classRef = db.collection("Class"); //very bad greg,change the DB!!!
+    var classInQuestion = classRef.doc("Warrior");
+    var specs = classInQuestion.collection('Specs');
+    var azeriteWeights = specs.doc("Fury");
+    var returnAzeriteVal = 0;
+     //then with the data
+     azeriteWeights.get().then(snapsnot => {
+        var weights = snapsnot.data().AzeriteVals //get the trait/value pairs from the database
+        ReadAzeriteVals(weights).then(obj => { //get them into a useble form,once we have that
+            for (let index = 0; index < azeriteTeir.length; index++) {
+
+                var traitID = azeriteTeir[index].id; //get the trait ID
+                var traitValue = obj[traitID]; //get the value from the azierte object
+
+                //bloodmallet only keep track of relevant traits,some may not be in there
+                if (traitValue != undefined) //so make sure we have a vaule before adding it onto the item
+                {
+                    //if the current trait has a higher value,set the value to that
+                    if (traitValue > returnAzeriteVal) {
+                        returnAzeriteVal= traitValue;
+                    }
+                }
+        
+            }
+
+            resolve(returnAzeriteVal)
+        
+        });
+    
+        });
+        
+    })
+
 }
 
 
