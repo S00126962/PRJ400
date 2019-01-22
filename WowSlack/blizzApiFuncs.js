@@ -2,7 +2,7 @@
 const blizzard = require('blizzard.js').initialize({
   key: 'cc03f6bfa99541d9b2644e450b96eadf',
   secert : 'jfTKRlzCmeUNlbpNA905QEdpICdJCuJ6',
-  access_token : "USwlVmpPagAFo9cHTQ8cLc2yNMY6r7rDXG"
+  access_token : "USrNZIXG43xDgMkKL6yOC7DfgaMI1UDnYx"
 });
 
 
@@ -75,5 +75,5 @@ function GetCharClass() {
 }
 
 
-GetItemDetail(157993,"us")
-//GetCharacterItems('Silvermoon', 'KeyboardWárr', 'eu')
+//GetItemDetail(157993,"us")
+GetCharacterItems('Silvermoon', 'KeyboardWárr', 'eu')

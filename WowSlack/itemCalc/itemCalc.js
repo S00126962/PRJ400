@@ -1,7 +1,7 @@
 const blizzard = require('blizzard.js').initialize({
     key: 'cc03f6bfa99541d9b2644e450b96eadf',
     secert: 'jfTKRlzCmeUNlbpNA905QEdpICdJCuJ6',
-    access_token: "USwlVmpPagAFo9cHTQ8cLc2yNMY6r7rDXG" //This technically works,need better OAuth implentation 
+    access_token: "USrNZIXG43xDgMkKL6yOC7DfgaMI1UDnYx" //This technically works,need better OAuth implentation 
 });
 
 
@@ -102,6 +102,7 @@ async function loadCharTemplate(id) {
 
 }
 
+//important function,used to generate a value for items on char/new items
 function GetOverallItemValue(itemToCalc, StatWeights, SlotName) {
     var ItemValue = 0; //var to hold the overallValue for the item
     var PrimaryArrray = [itemMap["3"], itemMap["4"], itemMap["5"], itemMap["71"], itemMap["72"], itemMap["73"], itemMap["74"]]; //array containing all the "Primary" keys
@@ -446,11 +447,7 @@ function CompareItems() //function to compare two items and get a postive(upgrad
                 }
 
 
-            }
-            //   console.log("New item val:" + " " + newitem.OverAllValue)
-            //  console.log("Old item val:" + " " + currentItem.OverAllValue)
-            //  console.log("Result of item calc" + " " + newitem.OverAllValue - currentItem.OverAllValue)
-
+            }     
         });
 }
 
