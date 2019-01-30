@@ -39,6 +39,7 @@ var itemListDll = document.getElementById('itemListDropDown');
 var personalModeBtn = document.getElementById('personalMode');
 
 personalModeBtn.addEventListener('click', () => {
+
     LoadPersonalMode();
 
 })
@@ -53,6 +54,7 @@ guildModeBtn.addEventListener('click', () => {
 
 //Personal mode is just the users characters
 function LoadPersonalMode() {
+    StageOnedll.innerHTML = "";
     stageOneBtn.innerText = "Select Char";
     stageOneDiv.style.visibility = "visible";
 
@@ -311,6 +313,10 @@ function AddItemToListview(CharTemplate) {
     document.getElementById("accordion").appendChild(cardDiv);
 }
 
+var clearCharBtn = document.getElementById("resetChars");
+clearCharBtn.addEventListener("click", () => {
+    ClearTemplateCards();
+});
 //function to clear any characters loaded in
 function ClearTemplateCards() {
     //loop though the child nodes and remove the character templates
@@ -583,6 +589,8 @@ wowHeadbtn.addEventListener('click', () => {
 
 function ReadWowHeadLink() //alternative to searching an item,let users paste in the link of the item from wowhead and get the info that way
 {
+
+    ClearLoadItem(); //make sure to clear out the old item first regardless
     ///check to make sure something is their before we try and find it,also check to see if item is there(should be in a wowhead link)
     var link = document.getElementById("wowheadLink").value;
     if (link == "" || link == null || !link.includes("item=")) {
