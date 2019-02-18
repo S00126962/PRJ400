@@ -36,7 +36,7 @@ app.on('ready', function () {
 
         ChildWindow.loadURL(url.format({
          //   pathname: path.join(__dirname, '../login/loginWindow.html'),
-            pathname: path.join(__dirname, '../login/loginWindow.html'),
+            pathname: path.join(__dirname, '../TryWebRTC/testingvoice.html'),
             protocol: 'file',
             slashes: true
         }));
