@@ -1,8 +1,10 @@
 const blizzard = require('blizzard.js').initialize({
     key: 'cc03f6bfa99541d9b2644e450b96eadf',
     secert: 'jfTKRlzCmeUNlbpNA905QEdpICdJCuJ6',
-    access_token: "USrNZIXG43xDgMkKL6yOC7DfgaMI1UDnYx" //This technically works,need better OAuth implentation 
-});
+    access_token : 'USSt8C61cdMub9FUCFpXFOvYN9XqYrYJ9C'
+    });
+
+
 
 
 const itemMap = require('./itemStatMapping.json'); //call in the mapping for data here

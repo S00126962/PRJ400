@@ -1,9 +1,27 @@
-
+var axios = require('axios');
+https://{region}.battle.net/oauth/authorize
+axios.request({
+  url: "/oauth/authorize",
+  method: "post",
+  baseURL: "https://eu.battle.net/",
+  auth: {
+    username: "vaf7vX0LpsL5",
+    password: "pVEosNa5TuK2x7UBG_ZlONonDsgJc3L1"
+  },
+  data: {
+    "grant_type": "client_credentials",
+    "scope": "public"    
+  }
+}).then(function(res) {
+  console.log(res);  
+});
 const blizzard = require('blizzard.js').initialize({
   key: 'cc03f6bfa99541d9b2644e450b96eadf',
-  secert : 'jfTKRlzCmeUNlbpNA905QEdpICdJCuJ6',
-  access_token : "USrNZIXG43xDgMkKL6yOC7DfgaMI1UDnYx"
+  secert : 'e1rRSqs6k5QES9yxMaDNV1PXL4QrDDQI',
+  access_token : 'USSt8C61cdMub9FUCFpXFOvYN9XqYrYJ9C'
 });
+
+
 
 
 
@@ -76,4 +94,7 @@ function GetCharClass() {
 
 
 //GetItemDetail(157993,"us")
-GetCharacterItems('Silvermoon', 'KeyboardWárr', 'eu')
+blizzard.wow.character(['profile'], { origin: 'us', realm: 'amanthul', name: 'charni' })
+  .then(response => {
+    console.log(response.data);
+  });

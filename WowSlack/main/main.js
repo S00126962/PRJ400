@@ -35,6 +35,7 @@ app.on('ready', function () {
     if (!isLogedInAlready) {
 
         ChildWindow.loadURL(url.format({
+         //   pathname: path.join(__dirname, '../login/loginWindow.html'),
             pathname: path.join(__dirname, '../login/loginWindow.html'),
             protocol: 'file',
             slashes: true
