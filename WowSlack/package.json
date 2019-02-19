@@ -18,6 +18,7 @@
     "bootstrap-electron": "^1.0.10",
     "easyrtc": "^1.1.0",
     "electron": "^3.1.3",
+    "electron-webrtc": "^0.3.0",
     "firebase": "^5.8.2",
     "jquery": "^3.3.1",
     "popper.js": "^1.14.7",

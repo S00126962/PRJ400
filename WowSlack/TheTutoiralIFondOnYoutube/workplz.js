@@ -1,21 +1,29 @@
-//var getUserMedia = require('getusermedia')
-navigator.getUserMedia({
-    video: false,
-    audio: true
-}, (stream) => {
-    getUserMedia({
-        video: true,
-        audio: false
-    }, function (err, stream) {
-        if (err) return console.error(err)
-
+// call exported function to create Electron process
+var wrtc = require('electron-webrtc')()
+ 
+// handle errors that may occur when trying to communicate with Electron
+wrtc.on('error', function (err) { console.log(err) })
+ 
+// uses the same API as the `wrtc` package
+var pc = new wrtc.RTCPeerConnection(config)
+ 
+// compatible with `simple-peer`
+var peer = new SimplePeer({
+  initiator: true,
+  wrtc: wrtc
+})
+ 
+// listen for errors
+wrtc.on('error', function (err, source) {
+  console.error(err)
+})
         var Peer = require('simple-peer')
         var peer = new Peer({
             initiator: true,
             trickle: false,
-            stream: stream
+            wrtc: wrtc
         })
-    })
+
     peer.on('signal', function (data) {
         document.getElementById('yourId').value = JSON.stringify(data)
     })
@@ -41,4 +49,3 @@ navigator.getUserMedia({
         video.src = window.URL.createObjectURL(stream)
         video.play()
     })
-})
