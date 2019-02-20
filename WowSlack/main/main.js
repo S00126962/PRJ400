@@ -35,8 +35,8 @@ app.on('ready', function () {
     if (!isLogedInAlready) {
 
         ChildWindow.loadURL(url.format({
-         //   pathname: path.join(__dirname, '../login/loginWindow.html'),
-            pathname: path.join(__dirname, '../TheTutoiralIFondOnYoutube/workplz.html'),
+             pathname: path.join(__dirname, '../login/loginWindow.html'),
+           // pathname: path.join(__dirname, '../TheTutoiralIFondOnYoutube/workplz.html'),
             protocol: 'file',
             slashes: true
         }));

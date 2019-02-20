@@ -1,7 +1,7 @@
 const blizzard = require('blizzard.js').initialize({
     key: 'cc03f6bfa99541d9b2644e450b96eadf',
     secert: 'jfTKRlzCmeUNlbpNA905QEdpICdJCuJ6',
-    access_token : 'USSt8C61cdMub9FUCFpXFOvYN9XqYrYJ9C'
+    access_token : 'USpsSVbE429t15GcN5y2E0N5mFyv4m6AN7'
     });
 
 
