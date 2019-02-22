@@ -35,8 +35,9 @@ ipcRenderer.on("load-guildpage",(sender,args)=>{
             var channelLink = document.createElement('a');
             channelLink.className = "nav-link";
             channelLink.id = doc.id;
+            channelLink.guildID = args
             channelLink.addEventListener('click', () => {
-                loadChatPage(doc.id);
+                loadChatPage(doc.id,args);
             })
             var channelText = document.createElement('span');
             channelText.innerHTML = doc.data().ChannelName;
@@ -51,11 +52,11 @@ ipcRenderer.on("load-guildpage",(sender,args)=>{
     });
 
 
-    function loadChatPage(chatId)
+    function loadChatPage(chatId,guildID)
     {
-        console.log("At least the click is working")
+        console.log("At least the click is working" + guildID + " " + chatId)
         $("#chatArea").load("../guildChatpage/guildChatPage.html");
-        ipcRenderer.send("load-guildChatpage",chatId);
+        ipcRenderer.send("load-guildChatpage",chatId,guildID);
     }
 
     

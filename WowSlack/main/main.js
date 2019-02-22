@@ -108,8 +108,8 @@ ipcMain.on('load-guildCreate', (event, args) => {
     ChildWindow.show(); //when we do login,close the login window
 });
 
-ipcMain.on('load-guildChatpage', (event,args) => {
-    console.log("load guild chat called in Main page"); 
-     MainWindow.webContents.send("load-guildChatpage",args); 
+ipcMain.on('load-guildChatpage', (event,args,args2) => {
+    console.log("load guild chat called in Main page args"); 
+     MainWindow.webContents.send("load-guildChatpage",args,args2); 
 })
 
