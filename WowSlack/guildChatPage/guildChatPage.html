@@ -1,28 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <link href= "chat.css" rel="stylesheet">
+        <link href= "../guildChatPage/chat.css" rel="stylesheet">
+        <link href= "../mainpage/mainPage.css" rel="stylesheet">
 </head>
 <body>
-        <div class="container">
-                <p>Hello. How are you today?</p>
-                <span class="time-right">11:00</span>
-              </div>
-              
-              <div class="container darker">
-                <p>Hey! I'm fine. Thanks for asking!</p>
-                <span class="time-left">11:01</span>
-              </div>
-              
-              <div class="container">
-                <p>Sweet! So, what do you wanna do today?</p>
-                <span class="time-right">11:02</span>
-              </div>
-              
-              <div class="container darker">
-                <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
-                <span class="time-left">11:05</span>
-              </div>
+       <div id="temp"></div>
+       
+        <textarea class="form-control" id="message"></textarea>
+        <button class="btn btn-primary" id="postMessage">
+
 </body>
 <script>
     require("../guildChatPage/guildChatPageRender.js");

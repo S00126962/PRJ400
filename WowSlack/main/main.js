@@ -46,16 +46,16 @@ app.on('ready', function () {
 //reload function,this will reload all details into the mainPage.html
 ipcMain.on('asynchronous-message', (event, args) => {
     ChildWindow.hide(); //when we do login,close the login window
-    console.log("login")
-    global.uid = args;
-    MainWindow.webContents.send('info', args);
+    console.log("login" + " " + args)
+    global.uid = args 
+   MainWindow.webContents.send('info', args);
     MainWindow.webContents.send('loadProfilePage');
 
 });
 
 ipcMain.on('tabChangeProfile',(sender,args) =>{
     console.log("LoadProfilePage from main")
-    MainWindow.webContents.send('loadProfilePage',args);
+    MainWindow.webContents.send('loadProfilePage');
 })
 
 ipcMain.on('load-guildpage',(sender,args) =>{
@@ -79,6 +79,11 @@ ipcMain.on('create-account', (event, args) => {
     }));
 });
 
+ipcMain.on( "storeUserDetails", ( event, userDetails ) => { //handly way I can set global vars for the users when logging in
+
+    global.userDetails = userDetails;
+    console.log(global.userDetails)
+  } );
 
 ipcMain.on('sign-out', (event, args) => {
     ChildWindow.loadURL(url.format({

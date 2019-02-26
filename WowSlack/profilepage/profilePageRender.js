@@ -1,6 +1,6 @@
 const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
-
+const remote = require('electron').remote
 
 var usernameLbl = document.getElementById('profileUserName');
 var userEmailLbl = document.getElementById('profileuserEmail');
@@ -14,12 +14,25 @@ db.settings({timestampsInSnapshots:true})
 
 ipcRenderer.on('loadProfilePage',() =>{
 
-    db.collection('Users').where('UserID', '==',defualt.auth().currentUser.uid).get().then((snapshot) => {
+    var uID = remote.getGlobal("uid");
+    console.log(uID)
+
+    if (remote.getGlobal('userDetails')==null) {
+      db.collection('Users').where('UserID', '==',uID).get().then((snapshot) => {
         snapshot.docs.forEach(doc => {
-            usernameLbl.innerHTML = doc.data().UserName;
-            userEmailLbl.innerHTML = doc.data().userEmail;  
-            userRegion.innerHTML = doc.data().userRegion;        
+            if (remote.getGlobal("userDetails") == null) { //check to see if the userData is there
+              ipcRenderer.send( "storeUserDetails", [doc.data().UserName,doc.data().userEmail,doc.data().userRegion] );
+              usernameLbl.innerHTML = doc.data().UserName;
+              userEmailLbl.innerHTML = doc.data().userEmail;  
+              userRegion.innerHTML = doc.data().userRegion;     
+            }
+    
+
+          
+              
         })
+
+        
         var tbody= document.getElementById('charTable');
         while (tbody.childNodes.length) {
             tbody.removeChild(tbody.childNodes[0]);
@@ -63,7 +76,8 @@ ipcRenderer.on('loadProfilePage',() =>{
     }
   })
 
-})
+}})
+
 
 function delteChar()
 { 

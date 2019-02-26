@@ -3,6 +3,7 @@ window.Bootstrap = require('bootstrap')
 
 var electron = require('electron');
 var ipcRenderer = electron.ipcRenderer;
+const remote = require('electron').remote
 var config = {
         apiKey: "AIzaSyBPwA6lwFFahoYIABYpeAvjmSA10gkj040",
         authDomain: "wow-slack.firebaseapp.com",
@@ -24,7 +25,8 @@ ipcRenderer.on('info', function (event, data) {
         var guildList = document.getElementById('guildsDll')
         guildList.innerHTML = "";
 
-        db.collection('Users').where('UserID', '==', data).get().then((snapshot) => {
+        var uID = remote.getGlobal("uid");
+        db.collection('Users').where('UserID', '==', uID).get().then((snapshot) => {
                 snapshot.docs.forEach(doc => {
                         populatePageDetails(doc.data());
                 })
