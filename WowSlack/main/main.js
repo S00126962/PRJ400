@@ -18,6 +18,7 @@ app.on('ready', function () {
         minWidth: 1281,
         minHeight: 800,
     })
+    MainWindow.hide(); //dont want to show this until user logs in
     ChildWindow = new BrowserWindow({
         width: 800,
         height: 600,
@@ -45,6 +46,7 @@ app.on('ready', function () {
 
 //reload function,this will reload all details into the mainPage.html
 ipcMain.on('asynchronous-message', (event, args) => {
+    MainWindow.show();
     ChildWindow.hide(); //when we do login,close the login window
     console.log("login" + " " + args)
     global.uid = args 

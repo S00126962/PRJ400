@@ -1,7 +1,9 @@
 
 var electron = require('electron');
 var ipcRenderer = electron.ipcRenderer;
-
+var remote = electron.remote;
+const request = require('request');
+window.$ = window.jQuery = require('jquery');
 var config = {
     apiKey: "AIzaSyBPwA6lwFFahoYIABYpeAvjmSA10gkj040",
     authDomain: "wow-slack.firebaseapp.com",
@@ -11,12 +13,18 @@ var config = {
     messagingSenderId: "105436064015"
 };
 
+//when a user enters a channel,I want to keep these details around
+var gID;
+var chanID;
 firebase.initializeApp(config);
 var db = firebase.firestore();
 db.settings({timestampsInSnapshots:true})
 
 ipcRenderer.on('load-guildChatpage',(event, data,data2) => {
 
+     gID = data;
+     chanID = data2;
+     console.log(gID,chanID)
     var guildref = db.collection("Guilds")
     var guildInQuestions = guildref.doc(data);
     var chatChannels = guildInQuestions.collection('ChatChannels');
@@ -45,13 +53,26 @@ function AppendMessage(sender,message,timeStamp)
     textP.innerHTML = sender + "\n" + message;
     var spanTime = document.createElement('span');
     spanTime.className = "time-right";
-    spanTime.innerHTML = "timeStamp";
+    spanTime.innerHTML = timeStamp;
     var messageDiv = document.createElement('div');
     messageDiv.className = "container"
     messageDiv.appendChild(textP);
     messageDiv.appendChild(spanTime);
     document.getElementById("temp").appendChild(messageDiv);
+
+    if (message.indexOf("http://")>-1) {
+	console.log("This string has a link");
 }
+    if (textP.contains) {
+      request('https://api.linkpreview.net?key=5c742d7e3a29617fafdf83f40c1f65914304d453b6f88&q=https://www.google.com', { json: true }, (err, res, body) => {
+        if (err) { return console.log(err); }
+        console.log(body);
+      });
+    }
+   
+    
+}
+  
 
 var guildref = db.collection("Guilds")
 var guildInQuestions = guildref.doc("1");
@@ -59,24 +80,35 @@ var chatChannels = guildInQuestions.collection('ChatChannels');
 var channelInQuestion = chatChannels.doc("1");
 var chatMessages = channelInQuestion.collection("Messages");
 
+chatMessages.orderBy('MessageTimeStamp').onSnapshot(snapshot => {
+  let changes = snapshot.docChanges();
+  console.log(changes);
 
-var observer = chatMessages.onSnapshot(docSnapshot => {
-  //its picking up the event,might not need to do the read in on init
-  docSnapshot.forEach(doc =>{
-     console.log(doc.data())
-     var sender = doc.data().MessageSender;
-     var message = doc.data().MessageText;
-     var timeStamp = doc.data().MessageTimeStamp;
-     AppendMessage(sender,message,timeStamp)
- })
-
-}, err => {
-  console.log(`Encountered error: ${err}`);
-});
+  changes.forEach(change => {
+    var messageData = change.doc.data()
+    AppendMessage(messageData.MessageSender,messageData.MessageText,messageData.MessageTimeStamp);
+  })
+})
 
 var postBtn = document.getElementById('postMessage');
 postBtn.addEventListener('click', () => {
-    var messageBody = document.getElementById('message');
-    console.log(messageBody);
+    var messageBody = document.getElementById('message').value;
+    var sender = remote.getGlobal('userDetails')[0]; // userName of the 
+    var today = new Date();
+  var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var timeStamp = date+' '+time;
+   
+
+    chatMessages.add({
+     MessageSender : sender ,
+     MessageText : messageBody,
+     MessageTimeStamp : timeStamp
+  }).then(function () {
+      
+  })
+  .catch(function (error) {
+      console.error("Error writing document: ", error);
+  });
 })
 
