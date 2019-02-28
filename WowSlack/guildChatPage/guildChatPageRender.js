@@ -58,20 +58,30 @@ function AppendMessage(sender,message,timeStamp)
     messageDiv.className = "container"
     messageDiv.appendChild(textP);
     messageDiv.appendChild(spanTime);
-    document.getElementById("temp").appendChild(messageDiv);
-
-    if (message.indexOf("http://")>-1) {
-	console.log("This string has a link");
-}
-    if (textP.contains) {
-      request('https://api.linkpreview.net?key=5c742d7e3a29617fafdf83f40c1f65914304d453b6f88&q=https://www.google.com', { json: true }, (err, res, body) => {
-        if (err) { return console.log(err); }
-        console.log(body);
-      });
-    }
-   
     
+    console.log(message)
+    try {
+      var urlRegex = /(https?:\/\/[^ ]*)/;
+     var url = message.match(urlRegex)[1];
+     request('https://api.linkpreview.net?key=5c742d7e3a29617fafdf83f40c1f65914304d453b6f88&q='+url, { json: true }, (err, res, body) => {
+      if (err) { return console.log(err); }
+      console.log(body);
+      var image = body.title;
+      var descrip = body.description;
+      var image = body.image;
+      var url = body.url;
+
+    });
+      } catch (error) {
+     
+   }
+
+   document.getElementById("temp").appendChild(messageDiv); //finally, attach the message onto the div
 }
+    
+      
+
+
   
 
 var guildref = db.collection("Guilds")
