@@ -38,7 +38,7 @@ ipcRenderer.on('load-guildChatpage',(event, data,data2) => {
             var sender = doc.MessageSender;
             var message = doc.MessageText;
             var timeStamp = doc.MessageTimeStamp;
-            //AppendMessage(sender,message,timeStamp)
+            
         })
     })
 
@@ -61,17 +61,49 @@ function AppendMessage(sender,message,timeStamp)
     
     console.log(message)
     try {
-      var urlRegex = /(https?:\/\/[^ ]*)/;
+     var urlRegex = /(https?:\/\/[^ ]*)/;
      var url = message.match(urlRegex)[1];
-     request('https://api.linkpreview.net?key=5c742d7e3a29617fafdf83f40c1f65914304d453b6f88&q='+url, { json: true }, (err, res, body) => {
-      if (err) { return console.log(err); }
-      console.log(body);
-      var image = body.title;
-      var descrip = body.description;
-      var image = body.image;
-      var url = body.url;
+    // if (url.indexOf("youtube.com/watch") >= 0) { //check to see if someone send a youtube vid
+    //   var youtubeFrame = document.createElement('iframe');
+    //   youtubeFrame.width = "300px";
+    //   youtubeFrame.height = "100px";
+    //   src = "https://www.youtube.com/embed/_KsaWpeCj98"
+     //  messageDiv.appendChild(youtubeFrame);
+  //   }
 
-    });
+    // else{
+      request('https://api.linkpreview.net?key=5c742d7e3a29617fafdf83f40c1f65914304d453b6f88&q='+url, { json: true }, (err, res, body) => {
+        if (err) { return console.log(err); }
+        console.log(body);
+        var title = body.title;
+        var descrip = body.description;
+        var image = body.image;
+        var url = body.url;
+  
+        var cardDiv =document.createElement('div');
+        cardDiv.classList.add("card");
+        var cardImg = document.createElement('img');
+        cardImg.src = image;
+  
+        var cardDesc = document.createElement('p');
+        cardDesc.innerHTML = descrip;
+        var cardURl = document.createElement('a');
+        cardURl.innerHTML = title;
+        cardURl.onclick = function () {
+          require('electron').shell.openExternal(url);
+        }
+        var containerDiv = document.createElement('div');
+        containerDiv.class = "container";
+  
+        containerDiv.appendChild(cardURl);
+        containerDiv.appendChild(cardDesc);
+        cardDiv.appendChild(cardImg);
+        cardDiv.appendChild(containerDiv);
+        messageDiv.appendChild(cardDiv)
+      
+      });
+   //  }
+   
       } catch (error) {
      
    }
