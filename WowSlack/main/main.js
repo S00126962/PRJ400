@@ -36,8 +36,8 @@ app.on('ready', function () {
     if (!isLogedInAlready) {
 
         ChildWindow.loadURL(url.format({
-            // pathname: path.join(__dirname, '../login/loginWindow.html'),
-            pathname: path.join(__dirname, '../guildCalendar/guildCalendar.html'),
+          pathname: path.join(__dirname, '../login/loginWindow.html'),
+           // pathname: path.join(__dirname, '../guildCalendar/guildCalendar.html'),
             protocol: 'file',
             slashes: true
         }));
@@ -62,7 +62,7 @@ ipcMain.on('tabChangeProfile',(sender,args) =>{
 
 ipcMain.on('load-guildpage',(sender,args) =>{
      
-    console.log("In main process");
+    console.log("load guild page in main process");
     MainWindow.webContents.send('load-guildpage',args);
     
 })
@@ -118,5 +118,10 @@ ipcMain.on('load-guildCreate', (event, args) => {
 ipcMain.on('load-guildChatpage', (event,args,args2) => {
     console.log("load guild chat called in Main page args"); 
      MainWindow.webContents.send("load-guildChatpage",args,args2); 
+})
+
+ipcMain.on('load-guildEventPage', (event,args) => {
+    console.log("load guild event called in Main page args"); 
+     MainWindow.webContents.send("load-guildEventPage",args); 
 })
 

@@ -20,8 +20,14 @@ db.settings({timestampsInSnapshots:true})
 ipcRenderer.on("load-guildpage",(sender,args)=>{
     //first get a ref to that guild
     console.log(args);
+    
     var sideBar = document.getElementById("guildSideBar");
-    sideBar.innerHTML = ""; //clear it out of anything that was there before
+   // sideBar.innerHTML = ""; //clear it out of anything that was there before
+
+var eventspage = document.getElementById('eventslbl');
+eventspage.addEventListener('click', () =>{
+    loadEventPage(args);
+});
     var guildref = db.collection("Guilds")
     var guildInQuestions = guildref.doc(args);
     var chatChanne = guildInQuestions.collection('ChatChannels');
@@ -52,6 +58,11 @@ ipcRenderer.on("load-guildpage",(sender,args)=>{
     });
 
 
+    function loadEventPage(gID)
+    {
+        $("#chatArea").load("../guildCalendar/guildCalendar.html");
+        ipcRenderer.send("load-guildEventPage",gID);
+    }
     function loadChatPage(chatId,guildID)
     {
         console.log("At least the click is working" + guildID + " " + chatId)
