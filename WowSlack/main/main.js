@@ -123,5 +123,19 @@ ipcMain.on('load-guildChatpage', (event,args,args2) => {
 ipcMain.on('load-guildEventPage', (event,args) => {
     console.log("load guild event called in Main page args"); 
      MainWindow.webContents.send("load-guildEventPage",args); 
-})
+});
+
+ipcMain.on('load-eventCreate', (event, args) => {
+    console.log(args)
+    ChildWindow.loadURL(url.format({
+        pathname: path.join(__dirname, '../guildCalendar/AddEvent/AddEvent.html'),
+        protocol: 'file',
+        show:false,
+        slashes: true
+    }));
+
+    global.Gid = args; //fucking terrible idea,really bad
+    ChildWindow.show();
+   
+});
 

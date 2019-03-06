@@ -2,21 +2,22 @@ var electron = require('electron');
 var ipcRenderer = electron.ipcRenderer;
 
 window.$ = window.Jquery = require("jquery");
+var Gid = ""; //change when loading in
 $(document ).ready(function() {
     console.log( "ready!" );
     $('#calendar').fullCalendar({
         header: {
-          left: 'month,agendaWeek,agendaDay custom1',
+          left: 'month,agendaWeek,agendaDay,AddEventBTN',
           center: 'title',
-          right: 'custom2 prevYear,prev,next,nextYear'
+          right: 'prevYear,prev,next,nextYear'
         },
         footer: {
-          left: 'custom1,custom2',
+          left: 'AddEventBTN',
           center: '',
           right: 'prev,next'
         },
         customButtons: {
-          custom1: {
+          AddEventBTN: {
             text: 'Add Event',
             click: AddEvent
           } 
@@ -28,12 +29,13 @@ $(document ).ready(function() {
 
     ipcRenderer.on('load-guildEventPage', (event,args) => {
       console.log("Gid" + args); 
-      
+      Gid = args;
+ 
   });
 
   function AddEvent()
   {
-    console.log("Add event Clicked");
+    ipcRenderer.send('load-eventCreate',Gid)
     
   }
 

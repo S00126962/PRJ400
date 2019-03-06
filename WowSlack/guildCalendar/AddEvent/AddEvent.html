@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Create a Character</title>
+    <script lang="JavaScript" type="text/javascript" src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
+    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../login/loginForm.css">
+
+
+</head>
+
+<body>
+    <form class="form-signin" id="createEventForm">
+        <div class="container">
+            <div class="card card-container">
+                <input type="text" id="inputEventName" class="form-control" placeholder="Event Name" required><br>
+                <input type="date" id="eventStartDate" class="form-control">
+                <input type="date" id="eventStartDate" class="form-control">
+                <button type="submit">Submit</button>
+            </div>
+        </div>
+    </form><!-- /form -->
+    <script>
+        window.$ = window.Jquery = require("jquery")
+    </script>
+    <script>
+        require("./AddEvent.js");
+    </script>
+</body>
+
+</html>
