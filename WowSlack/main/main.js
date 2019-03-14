@@ -126,7 +126,8 @@ ipcMain.on('load-guildEventPage', (event,args) => {
 });
 
 ipcMain.on('load-eventCreate', (event, args) => {
-    console.log(args)
+    global.Gid = args; //fucking terrible idea,really bad
+    console.log("event create" + " " +args)
     ChildWindow.loadURL(url.format({
         pathname: path.join(__dirname, '../guildCalendar/AddEvent/AddEvent.html'),
         protocol: 'file',
@@ -134,8 +135,6 @@ ipcMain.on('load-eventCreate', (event, args) => {
         slashes: true
     }));
 
-    global.Gid = args; //fucking terrible idea,really bad
     ChildWindow.show();
-   
 });
 
