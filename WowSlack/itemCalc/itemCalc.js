@@ -46,9 +46,7 @@ var itemListDll = document.getElementById('itemListDropDown');
 var personalModeBtn = document.getElementById('personalMode');
 
 personalModeBtn.addEventListener('click', () => {
-
     LoadPersonalMode();
-
 })
 
 var guildModeBtn = document.getElementById('guildMode');
@@ -112,7 +110,7 @@ async function loadCharTemplate(id) {
 }
 
 //important function,used to generate a value for items on char/new items
-function GetOverallItemValue(itemToCalc, StatWeights, SlotName) {
+function GetOverallItemValue(itemToCalc, StatWeights, SlotName , classID) {
     var ItemValue = 0; //var to hold the overallValue for the item
     var PrimaryArrray = [itemMap["3"], itemMap["4"], itemMap["5"], itemMap["71"], itemMap["72"], itemMap["73"], itemMap["74"]]; //array containing all the "Primary" keys
     for (var key in itemToCalc) {
@@ -134,7 +132,7 @@ function GetOverallItemValue(itemToCalc, StatWeights, SlotName) {
             //needs replaceing with acutal pointers
             //get the values from the azerite traits from the DB
             var classRef = db.collection("Class");
-            var classInQuestion = classRef.doc("Warrior");
+            var classInQuestion = classRef.doc(classID.toString());
             var specs = classInQuestion.collection('Specs');
             var statWeights = specs.doc("Fury");
 
@@ -176,35 +174,30 @@ async function GenerateCharItemTemplate(Name, Sever, Region, Pawnstring, classID
     return new Promise((resolve, reject) => {
         try {
             //TODO,Add option to use this during item calc rather than provide this
-            var PawnValues; //declare this here
+            var CustomPawnValues; //declare this here
+            var PawnValues = {}
             //now decide which one to use during the template generatetion
             if (Pawnstring || Pawnstring != "") //if it is there
             {
-                PawnValues = readPawnString(Pawnstring); //use the one pulled from the database
-            } else { //otherwise go and find the default weights from the database
-                var classRef = db.collection("Class")
-                var classInQuestion = classRef.doc(classID); //get the doc related to the 
-                var specs = classInQuestion.collection('Specs');
-                var statWeights = specs.doc("Fury");
-                statWeights.get().then((snapshot) => { //need to wait here,look back into this
-                    //create the same object,just use the vals from the database
-                    PawnValues = {
-                        "PrimWeight": snapshot.data().PrimWeight,
-                        "HasteWeight": snapshot.data().HasteWeight,
-                        "CritWeight": snapshot.data().CritWeight,
-                        "ArmorWeight": snapshot.data().ArmorWeight,
-                        "LeechWeight": snapshot.data().LeechWeight,
-                        "MasteryWeight": snapshot.data().MasteryWeight,
-                        "StaminaWeight": snapshot.data().StaminaWeight,
-                        "VersatilityWeight": snapshot.data().VersatilityWeight,
-                        "WepDpsWeight": snapshot.data().WepDpsWeight
-                    };
-                })
+                CustomPawnValues = readPawnString(Pawnstring); //use the one pulled from the database
+                PawnValues["CustomValues"] = CustomPawnValues
             }
+            //otherwise go and find the default weights from the database
+                var classRef = db.collection("Class")
+                var classInQuestion = classRef.doc(classID.toString()); //get the doc related to the 
+                var specs = classInQuestion.collection('Specs');
+
+                 specs.get().then((snapshot) =>{
+                    snapshot.forEach((doc) =>{
+                        PawnValues[doc.id] = readPawnString(doc.data().PawnString)
+                    })
+               
+                 
             var CharObj = {}; //create a blank object to build up
             CharObj.charName = Name; //set the name on the object
             CharObj.classID = classID; //use this for wowheadTooltips later
             CharObj.StatWeights = PawnValues; //save these for later
+            CharObj.PawnObjs = {}; // define this for later
             var CharitemValue = 0; //value to add up and get an overall value
             blizzard.wow.character(['profile', 'items'], { //call the api to get the users character,more specficly their items
                     realm: Sever,
@@ -212,36 +205,42 @@ async function GenerateCharItemTemplate(Name, Sever, Region, Pawnstring, classID
                     origin: Region
                 })
                 .then(response => {
+                    for (var key in CharObj.StatWeights) {
+                    var ValsObj = {};
                     itemSlots.forEach(function (itemSlotName) { //loop though each item slot on the character
-                        try {
+                        try {    
                             var statsObj = GenerateItemValue(response.data.items[itemSlotName].stats); //get the current items stats
-                            CharObj[itemSlotName] = statsObj; //assign the name and the stats to the object
-                            var itemValue = GetOverallItemValue(CharObj[itemSlotName], PawnValues, itemSlotName) //calcaute the value of that item
+                            ValsObj[itemSlotName] = statsObj; //assign the name and the stats to the object
 
+                            var itemValue = GetOverallItemValue(ValsObj[itemSlotName], CharObj.StatWeights[key], itemSlotName,CharObj.classID) //calcaute the value of that item
                             CharitemValue += itemValue;
-                            CharObj[itemSlotName].OverAllValue = itemValue; //assign this to the object,have the overall value ready for comparsion
-                            CharObj[itemSlotName].id = response.data.items[itemSlotName].id //get the Item ID
-                            CharObj[itemSlotName].ItemName = response.data.items[itemSlotName].name //get the name of the name
-                            CharObj[itemSlotName].bonusList = response.data.items[itemSlotName].bonusLists; //pull out the bonus lists on the item
-                            CharObj[itemSlotName].itemEnchant = response.data.items[itemSlotName].tooltipParams.enchant //get any enchants on the item
+                            ValsObj[itemSlotName].OverAllValue = itemValue; //assign this to the object,have the overall value ready for comparsion
+                            ValsObj[itemSlotName].id = response.data.items[itemSlotName].id //get the Item ID
+                            ValsObj[itemSlotName].ItemName = response.data.items[itemSlotName].name //get the name of the name
+                            ValsObj[itemSlotName].bonusList = response.data.items[itemSlotName].bonusLists; //pull out the bonus lists on the item
+                            ValsObj[itemSlotName].itemEnchant = response.data.items[itemSlotName].tooltipParams.enchant //get any enchants on the item
                             if (itemSlotName == "shoulder" || itemSlotName == "head" || itemSlotName == "chest") { //if this is a azerite item we are looking at
                                 //we have an azerite item,need to add that on
-                                CharObj[itemSlotName].azeriteArray = response.data.items[itemSlotName].azeriteEmpoweredItem.azeritePowers //get the list of pwoers on that
+                                ValsObj[itemSlotName].azeriteArray = response.data.items[itemSlotName].azeriteEmpoweredItem.azeritePowers //get the list of pwoers on that
                             }
+                            CharObj.PawnObjs[key] = ValsObj; 
                         } catch (error) {
                             console.log(error);
                         }
-
-                    });
+                    })
+                    
+                    };
                     CharObj.TotalItemValue = CharitemValue //assign the overvall value for a character
                     resolve(CharObj); //return the object
 
                 })
+            })
         } catch (e) {
             console.log(e);
             throw e;
         }
     })
+    
 }
 
 //Function to generate a list item of the character,needs a character template from above to work
@@ -263,12 +262,12 @@ function AddItemToListview(CharTemplate) {
     menuDiv.id = CharTemplate.charName; //used for datatoggle
     var cardBody = document.createElement("div");
     cardBody.className = "card-body"
-
+    for (var key in CharTemplate.PawnObjs) {
     for (let index = 0; index < itemSlots.length; index++) {
         try {
-            var itemID = CharTemplate[itemSlots[index]].id;
+            var itemID = CharTemplate.PawnObjs[key][itemSlots[index]].id;
             var SlotName = itemSlots[index]; //get the Name of the item slot we are itterating on
-            var itemName = CharTemplate[itemSlots[index]].ItemName
+            var itemName = CharTemplate.PawnObjs[key][itemSlots[index]].ItemName
 
             var borderDiv = document.createElement("div");
             borderDiv.style = "border-style: groove;";
@@ -276,17 +275,17 @@ function AddItemToListview(CharTemplate) {
             var slotNameP = document.createElement("p");
             slotNameP.innerText = SlotName + ":";
             slotNameP.id = SlotName;
-            var bonus = CharTemplate[itemSlots[index]].bonusList;
+            var bonus = CharTemplate.PawnObjs[key][itemSlots[index]].bonusList;
             var itemLink = document.createElement("a");
             itemLink.href = "https://www.wowhead.com/item=" + itemID
             var att = document.createAttribute("data-wowhead");
             //assign the custom wowhead attributes to an item,this will allow us to show the item correclty to the user
             //Eg if its warforogred for +10 ilvls,it will show on the tooltip
             att.value = "bonus=" + bonus[0] + ":" + bonus[1] + ":" + bonus[2] + "&"; //attach any bonuses
-            att.value += "ench=" + CharTemplate[itemSlots[index]].itemEnchant + "&" //attach any enchats
+            att.value += "ench=" + CharTemplate.PawnObjs[key][itemSlots[index]].itemEnchant + "&" //attach any enchats
             if (SlotName == "shoulder" || SlotName == "head" || SlotName == "chest") { //check to see if this is an azerite item
                 //we have an azerite item,need to add that on
-                var azeriteArray = CharTemplate[itemSlots[index]].azeriteArray
+                var azeriteArray = CharTemplate.PawnObjs[key][itemSlots[index]].azeriteArray
                 att.value += "azerite-powers=" + CharTemplate.classID + ":";
                 for (let Azeriteindex = 0; Azeriteindex < azeriteArray.length; Azeriteindex++) {
                     att.value += azeriteArray[Azeriteindex].id + ":"
@@ -307,6 +306,8 @@ function AddItemToListview(CharTemplate) {
         } catch (error) {
 
         }
+        //nest everything again in another div,clopaseable
+    }
 
     }
     //now attach all together
@@ -397,8 +398,6 @@ function CompareItems() //function to compare two items and get a postive(upgrad
                 CharItemSlotsDivs.forEach(item => {
                     CharItemSlots.push(item.firstChild);
                 })
-
-
                 for (let i = 0; i < CharItemSlots.length; i++) {
                     //first lets see if we are dealing with an azerite item
 
@@ -519,7 +518,7 @@ function readPawnString(Pawnstring) {
         "VersatilityWeight": 0,
         "WepDpsWeight": 0
     };
-
+    Pawnstring = Pawnstring.replace(')','');
     try {
         while (Pawnstring.includes(":")) {
             Pawnstring = Pawnstring.substring(Pawnstring.indexOf(":") + 1);
@@ -530,39 +529,39 @@ function readPawnString(Pawnstring) {
         //check for the equal
         var PrimWeight = PawnArray.filter(s => s.includes('Strength') || s.includes('Intellect') || s.includes('Agility')); //allows me to treat all these are the same value
         if (PrimWeight && PrimWeight.length) { //make sure that there is stuff in the array
-            returnObj.PrimWeight = PrimWeight[0].split("=")[1]; //get the decimal value out
+            returnObj.PrimWeight = Number(PrimWeight[0].split("=")[1]); //get the decimal value out
         }
         var CritRating = PawnArray.filter(s => s.includes('Crit'));
         if (CritRating && CritRating.length) {
-            returnObj.CritWeight = CritRating[0].split("=")[1];
+            returnObj.CritWeight = Number(CritRating[0].split("=")[1]);
         }
         var HasteWeight = PawnArray.filter(s => s.includes('Haste'));
         if (HasteWeight && HasteWeight.length) {
-            returnObj.HasteWeight = HasteWeight[0].split("=")[1];
+            returnObj.HasteWeight = Number(HasteWeight[0].split("=")[1]);
         }
         var LeechWeight = PawnArray.filter(s => s.includes('Leech'));
         if (LeechWeight && LeechWeight.length) {
-            returnObj.LeechWeight = LeechWeight[0].split("=")[1];
+            returnObj.LeechWeight = Number(LeechWeight[0].split("=")[1]);
         }
         var MasteryWeight = PawnArray.filter(s => s.includes('Mast'));
         if (MasteryWeight && MasteryWeight.length) {
-            returnObj.MasteryWeight = MasteryWeight[0].split("=")[1];
+            returnObj.MasteryWeight = Number(MasteryWeight[0].split("=")[1]);
         }
         var StaminaWeight = PawnArray.filter(s => s.includes('Stam'));
         if (StaminaWeight && StaminaWeight.length) {
-            returnObj.StaminaWeight = StaminaWeight[0].split("=")[1];
+            returnObj.StaminaWeight = Number(StaminaWeight[0].split("=")[1]);
         }
         var ArmorWeight = PawnArray.filter(s => s.includes('Armor'));
         if (ArmorWeight && ArmorWeight.length) {
-            returnObj.ArmorWeight = ArmorWeight[0].split("=")[1];
+            returnObj.ArmorWeight = Number(ArmorWeight[0].split("=")[1]);
         }
         var VersatilityWeight = PawnArray.filter(s => s.includes('Vers'));
         if (VersatilityWeight && VersatilityWeight.length) {
-            returnObj.VersatilityWeight = VersatilityWeight[0].split("=")[1];
+            returnObj.VersatilityWeight = Number(VersatilityWeight[0].split("=")[1]);
         }
         var WepDpsWeight = PawnArray.filter(s => s.includes('Dps'));
         if (WepDpsWeight && WepDpsWeight.length) {
-            returnObj.WepDpsWeight = WepDpsWeight[0].split("=")[1];
+            returnObj.WepDpsWeight = Number(WepDpsWeight[0].split("=")[1]);
         }
 
     } catch (error) {
