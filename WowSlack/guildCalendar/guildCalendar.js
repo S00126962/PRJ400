@@ -33,7 +33,7 @@ $(document).ready(function() {
           console.log(eventObj)
           $el.popover({
             title: eventObj.title,
-            content: eventObj.description,
+            content:'Description:' + eventObj.description + 'Memebers:' + eventObj.eventMemebers,
             trigger: 'hover',
             placement: 'top',
             container: 'body'
@@ -62,17 +62,25 @@ var events = guildInQuestions.collection('GuildEvents');
 
 events.onSnapshot(snapshot => {
   let changes = snapshot.docChanges();
-  console.log(changes);
-
   changes.forEach(change => {
     //add events here
-    var EventData = change.doc.data()
+    var EventData = change.doc.data();
+    var memeberNames = [];
+    //get get the memeber names
+    EventData.Memebers.forEach((mID) =>{
+      db.collection('Users').where('UserID', '==', mID).get().then((snapshot) => {
+        snapshot.docs.forEach(doc => {
+          memeberNames.push(doc.data().UserName)
+        })
+})
+    })
+
     $('#calendar').fullCalendar('renderEvent', {
       title: EventData.title,
       start: EventData.start,
       end : EventData.end,
       description : EventData.description,
-      eventMemebers : EventData.Memebers
+      eventMemebers : memeberNames
     });
   })
 })
