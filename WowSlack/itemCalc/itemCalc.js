@@ -1,10 +1,16 @@
+const request = require('request');
+var electron = require('electron');
+var ipcRenderer = electron.ipcRenderer;
+var remote = electron.remote;
+
+var token = remote.getGlobal('Token');
+console.log(token)
+
 const blizzard = require('blizzard.js').initialize({
-    key: 'cc03f6bfa99541d9b2644e450b96eadf',
-    secert: 'jfTKRlzCmeUNlbpNA905QEdpICdJCuJ6',
-    access_token : 'USpsSVbE429t15GcN5y2E0N5mFyv4m6AN7'
-    });
-
-
+key: 'cc03f6bfa99541d9b2644e450b96eadf',
+secert : 'e1rRSqs6k5QES9yxMaDNV1PXL4QrDDQI',
+access_token : remote.getGlobal('Token')
+});
 
 
 const itemMap = require('./itemStatMapping.json'); //call in the mapping for data here
@@ -26,8 +32,7 @@ var defualt = firebase.app();
 db.settings({
     timestampsInSnapshots: true
 })
-var electron = require('electron');
-var ipcRenderer = electron.ipcRenderer;
+
 
 ipcRenderer.on("load-itemCalc", (sender, args) => {
 
@@ -177,9 +182,8 @@ async function GenerateCharItemTemplate(Name, Sever, Region, Pawnstring, classID
             {
                 PawnValues = readPawnString(Pawnstring); //use the one pulled from the database
             } else { //otherwise go and find the default weights from the database
-                //needs replacing with a reading system,rebuild class database
                 var classRef = db.collection("Class")
-                var classInQuestion = classRef.doc("Warrior");
+                var classInQuestion = classRef.doc(classID); //get the doc related to the 
                 var specs = classInQuestion.collection('Specs');
                 var statWeights = specs.doc("Fury");
                 statWeights.get().then((snapshot) => { //need to wait here,look back into this
@@ -407,32 +411,32 @@ function CompareItems() //function to compare two items and get a postive(upgrad
                             var teir1 = newAzeriteIDs.filter(function (el) {
                                 return el.tier === 1
                             });
-                            var optiomalT1 =OptimalAzeriteTeir(teir1,charObj.classID)
-                           
+                            var optiomalT1 = OptimalAzeriteTeir(teir1, charObj.classID)
+
                             var teir2 = newAzeriteIDs.filter(function (el) {
                                 return el.tier === 2
                             });
-                            var optiomalT2 = OptimalAzeriteTeir(teir2,charObj.classID)
+                            var optiomalT2 = OptimalAzeriteTeir(teir2, charObj.classID)
 
                             var teir3 = newAzeriteIDs.filter(function (el) {
                                 return el.tier === 3
                             });
-                            var optiomalT3 = OptimalAzeriteTeir(teir3,charObj.classID);
+                            var optiomalT3 = OptimalAzeriteTeir(teir3, charObj.classID);
 
                             var teir4 = newAzeriteIDs.filter(function (el) {
                                 return el.tier === 4
                             });
-                            var optiomalT4 = OptimalAzeriteTeir(teir4,charObj.classID);
+                            var optiomalT4 = OptimalAzeriteTeir(teir4, charObj.classID);
                             console.log("Before")
                             console.log(newitem.OverAllValue);
                             //once all the values are returned,add each to the overall value of the new item
-                            Promise.all([optiomalT1,optiomalT2, optiomalT3, optiomalT4]).then(function(values) {
+                            Promise.all([optiomalT1, optiomalT2, optiomalT3, optiomalT4]).then(function (values) {
                                 for (let i = 0; i < values.length; i++) {
-                                    newitem.OverAllValue += Number(values[i]); 
+                                    newitem.OverAllValue += Number(values[i]);
                                     //great sucess
                                 }
-                                
-                              });
+
+                            });
                         }
                         var result = (newitem.OverAllValue - currentItem.OverAllValue).toFixed(2); //round to two decimal places
                         if (result > 0) {
@@ -455,45 +459,45 @@ function CompareItems() //function to compare two items and get a postive(upgrad
                 }
 
 
-            }     
+            }
         });
 }
 
 
-function OptimalAzeriteTeir(azeriteTeir,classID) { //used to find the best azerite value for a teir and return the dps value
-    
+function OptimalAzeriteTeir(azeriteTeir, classID) { //used to find the best azerite value for a teir and return the dps value
+
     return new Promise((resolve, reject) => {
-    var classRef = db.collection("Class"); //very bad greg,change the DB!!!
-    var classInQuestion = classRef.doc("Warrior");
-    var specs = classInQuestion.collection('Specs');
-    var azeriteWeights = specs.doc("Fury");
-    var returnAzeriteVal = 0;
-     //then with the data
-     azeriteWeights.get().then(snapsnot => {
-        var weights = snapsnot.data().AzeriteVals //get the trait/value pairs from the database
-        ReadAzeriteVals(weights).then(obj => { //get them into a useble form,once we have that
-            for (let index = 0; index < azeriteTeir.length; index++) {
+        var classRef = db.collection("Class"); //very bad greg,change the DB!!!
+        var classInQuestion = classRef.doc("Warrior");
+        var specs = classInQuestion.collection('Specs');
+        var azeriteWeights = specs.doc("Fury");
+        var returnAzeriteVal = 0;
+        //then with the data
+        azeriteWeights.get().then(snapsnot => {
+            var weights = snapsnot.data().AzeriteVals //get the trait/value pairs from the database
+            ReadAzeriteVals(weights).then(obj => { //get them into a useble form,once we have that
+                for (let index = 0; index < azeriteTeir.length; index++) {
 
-                var traitID = azeriteTeir[index].id; //get the trait ID
-                var traitValue = obj[traitID]; //get the value from the azierte object
+                    var traitID = azeriteTeir[index].id; //get the trait ID
+                    var traitValue = obj[traitID]; //get the value from the azierte object
 
-                //bloodmallet only keep track of relevant traits,some may not be in there
-                if (traitValue != undefined) //so make sure we have a vaule before adding it onto the item
-                {
-                    //if the current trait has a higher value,set the value to that
-                    if (traitValue > returnAzeriteVal) {
-                        returnAzeriteVal= traitValue;
+                    //bloodmallet only keep track of relevant traits,some may not be in there
+                    if (traitValue != undefined) //so make sure we have a vaule before adding it onto the item
+                    {
+                        //if the current trait has a higher value,set the value to that
+                        if (traitValue > returnAzeriteVal) {
+                            returnAzeriteVal = traitValue;
+                        }
                     }
-                }
-        
-            }
 
-            resolve(returnAzeriteVal)
-        
+                }
+
+                resolve(returnAzeriteVal)
+
+            });
+
         });
-    
-        });
-        
+
     })
 
 }

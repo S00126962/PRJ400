@@ -1,6 +1,7 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
+const request = require('request');
 
 const {
     app,
@@ -18,7 +19,7 @@ app.on('ready', function () {
         minWidth: 1281,
         minHeight: 800,
     })
-    MainWindow.hide(); //dont want to show this until user logs in
+  //  MainWindow.hide(); //dont want to show this until user logs in
     ChildWindow = new BrowserWindow({
         width: 800,
         height: 600,
@@ -37,11 +38,19 @@ app.on('ready', function () {
 
         ChildWindow.loadURL(url.format({
           pathname: path.join(__dirname, '../login/loginWindow.html'),
-           // pathname: path.join(__dirname, '../guildCalendar/guildCalendar.html'),
+         //  pathname: path.join(__dirname, '../TheTutoiralIFondOnYoutube/workplz.html'),
             protocol: 'file',
             slashes: true
         }));
     }
+    request('https://eu.battle.net/oauth/token?grant_type=client_credentials&client_id=cc03f6bfa99541d9b2644e450b96eadf&client_secret=e1rRSqs6k5QES9yxMaDNV1PXL4QrDDQI', {
+        json: true
+    }, (err, res, body) => {
+        console.log(body.access_token)
+        global.Token = body.access_token
+    })
+
+
 });
 
 //reload function,this will reload all details into the mainPage.html
@@ -85,6 +94,11 @@ ipcMain.on( "storeUserDetails", ( event, userDetails ) => { //handly way I can s
 
     global.userDetails = userDetails;
     console.log(global.userDetails)
+  } );
+
+  ipcMain.on( "storeAuthToken", ( event, authToken ) => { //handly way I can set global vars for the users when logging in
+    console.log(authToken)
+    global.Token = authToken;
   } );
 
 ipcMain.on('sign-out', (event, args) => {

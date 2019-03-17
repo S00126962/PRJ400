@@ -1,6 +1,11 @@
+const electron = require('electron');
+const ipcRenderer = electron.ipcRenderer;
+var remote = electron.remote;
 const blizzard = require('blizzard.js').initialize({
-    apikey: 'qupb7zxzkdtzzzt87nnkyny29b289aw9'
-});
+    key: 'cc03f6bfa99541d9b2644e450b96eadf',
+    secert : 'e1rRSqs6k5QES9yxMaDNV1PXL4QrDDQI',
+    access_token : remote.getGlobal('Token')
+    });
 
 var config = {
     apiKey: "AIzaSyBPwA6lwFFahoYIABYpeAvjmSA10gkj040",
@@ -15,8 +20,7 @@ firebase.initializeApp(config);
 const db = firebase.firestore();
 db.settings({timestampsInSnapshots:true})
 
-const electron = require('electron');
-const ipcRenderer = electron.ipcRenderer;
+
 var guildCreateForm = document.getElementById('guildCreateForm');
 var guildName = document.getElementById('inputGuildName');
 var guildDescrip = document.getElementById('guildDescrip');

@@ -1,5 +1,4 @@
-var electron = require('electron');
-var ipcRenderer = electron.ipcRenderer;
+
 
 window.$ = window.Jquery = require("jquery");
 
@@ -15,11 +14,10 @@ firebase.initializeApp(config);
 var db = firebase.firestore();
 db.settings({timestampsInSnapshots:true})
 var Gid = ""; //change when loading in
+var electron = require('electron');
+var ipcRenderer = electron.ipcRenderer;
 
-
-$(document ).ready(function() {
-  
-    console.log( "ready!" );
+$(document).ready(function() {
     $('#calendar').fullCalendar({
         header: {
           left: 'month,agendaWeek,agendaDay,AddEventBTN',
