@@ -1,18 +1,11 @@
-
-
 var getUserMedia = require('get-user-media');
+console.log("I am here")
+getUserMedia({ video: false, audio: true }, function (err, stream) {
 
-getUserMedia({ video: true, audio: false }, function (err, stream) {
-
+  if(err){console.log(err)}
   var Peer = require('simple-peer')
   var peer = new Peer({
-    initiator: location.hash === '#init',
-    trickle: false,
-    stream: stream
-  })
-  var Peer = require('simple-peer')
-  var peer = new Peer({
-    initiator: location.hash === '#init',
+    initiator: true,
     trickle: false,
     stream: stream
   })

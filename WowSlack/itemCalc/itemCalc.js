@@ -207,7 +207,7 @@ async function GenerateCharItemTemplate(Name, Sever, Region, Pawnstring, classID
                 .then(response => {
                     for (var key in CharObj.StatWeights) {
                     var ValsObj = {};
-                    itemSlots.forEach(function (itemSlotName) { //loop though each item slot on the character
+                    itemSlots.forEach(function(itemSlotName) { //loop though each item slot on the character
                         try {    
                             var statsObj = GenerateItemValue(response.data.items[itemSlotName].stats); //get the current items stats
                             ValsObj[itemSlotName] = statsObj; //assign the name and the stats to the object
@@ -219,6 +219,7 @@ async function GenerateCharItemTemplate(Name, Sever, Region, Pawnstring, classID
                             ValsObj[itemSlotName].ItemName = response.data.items[itemSlotName].name //get the name of the name
                             ValsObj[itemSlotName].bonusList = response.data.items[itemSlotName].bonusLists; //pull out the bonus lists on the item
                             ValsObj[itemSlotName].itemEnchant = response.data.items[itemSlotName].tooltipParams.enchant //get any enchants on the item
+                            ValsObj[itemSlotName].itemImg = "https://wow.zamimg.com/images/wow/icons/medium/" + response.data.items[itemSlotName].icon + ".jpg"
                             if (itemSlotName == "shoulder" || itemSlotName == "head" || itemSlotName == "chest") { //if this is a azerite item we are looking at
                                 //we have an azerite item,need to add that on
                                 ValsObj[itemSlotName].azeriteArray = response.data.items[itemSlotName].azeriteEmpoweredItem.azeritePowers //get the list of pwoers on that
@@ -268,13 +269,14 @@ function AddItemToListview(CharTemplate) {
             var itemID = CharTemplate.PawnObjs[key][itemSlots[index]].id;
             var SlotName = itemSlots[index]; //get the Name of the item slot we are itterating on
             var itemName = CharTemplate.PawnObjs[key][itemSlots[index]].ItemName
-
             var borderDiv = document.createElement("div");
             borderDiv.style = "border-style: groove;";
             //now build the link for the item
             var slotNameP = document.createElement("p");
             slotNameP.innerText = SlotName + ":";
             slotNameP.id = SlotName;
+            var itemImg = document.createElement('img');
+            itemImg.src = CharTemplate.PawnObjs[key][itemSlots[index]].itemImg
             var bonus = CharTemplate.PawnObjs[key][itemSlots[index]].bonusList;
             var itemLink = document.createElement("a");
             itemLink.href = "https://www.wowhead.com/item=" + itemID
@@ -292,16 +294,13 @@ function AddItemToListview(CharTemplate) {
                 }
                 azeriteArray[0].id + ":" + azeriteArray[1].id + ":" + azeriteArray[2].id //need to replace one with the characters classID
             }
-            // itemLink.innerHTML +="data-wowhead=bonus=" + bonus[0] + ":"+bonus[1] + ":"+bonus[2]; 
-            // itemLink["data-wowhead=bonus="] = bonus[0] + ":"+bonus[1] + ":"+bonus[2];
             itemLink.setAttributeNode(att);
             itemLink.className = "q4";
             itemLink.innerHTML = itemName;
             borderDiv.append(slotNameP);
+            borderDiv.append(itemImg);
             borderDiv.append(itemLink);
             cardBody.append(borderDiv)
-            //   cardBody.append(slotNameP);
-            // cardBody.appendChild(itemLink) //add the link to the body
             itemLink.appendChild(document.createElement("br"));
         } catch (error) {
 

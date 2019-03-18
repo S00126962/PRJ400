@@ -30,10 +30,9 @@ $(document).ready(function() {
           right: 'prev,next'
         },
         eventRender: function(eventObj, $el) {
-          console.log(eventObj)
           $el.popover({
             title: eventObj.title,
-            content:'Description:' + eventObj.description + 'Memebers:' + eventObj.eventMemebers,
+            content:eventObj.description,
             trigger: 'hover',
             placement: 'top',
             container: 'body'
@@ -75,11 +74,17 @@ events.onSnapshot(snapshot => {
 })
     })
 
+    var eventContent = ""
+    eventContent += 'Description:' + EventData.description + "\n";
+    for (let index = 0; index < memeberNames.length; index++) {
+      eventContent += memeberNames[index] + "\n"
+      console.log(eventContent)
+    }
     $('#calendar').fullCalendar('renderEvent', {
       title: EventData.title,
       start: EventData.start,
       end : EventData.end,
-      description : EventData.description,
+      description : eventContent,
       eventMemebers : memeberNames
     });
   })

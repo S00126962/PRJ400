@@ -37,11 +37,10 @@ function GetCharacterItems(_realm, _name, _origin) {
 function GetItemDetail(_itemID, _origin) {
   blizzard.wow.item({
       id: _itemID,
-      origin: _origin,
-      bonus: [1547, 5136, 5378]
+      origin: _origin
     })
     .then(response => {
-      console.log(response.data.azeriteClassPowers);
+      console.log(response.data);
     }).catch(error => {
       console.log(error)
     });
@@ -78,5 +77,5 @@ function GetCharClass() {
     });
 }
 
-
-GetCharacterDetails("Silvermoon", "Keyboardwárr", "eu")
+GetItemDetail('4777', 'eu')
+//GetCharacterDetails("Silvermoon", "Keyboardwárr", "eu")
