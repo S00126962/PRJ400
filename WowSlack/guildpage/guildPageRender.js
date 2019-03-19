@@ -18,8 +18,7 @@ var db = firebase.firestore();
 db.settings({timestampsInSnapshots:true})
 
 ipcRenderer.on("load-guildpage",(sender,args)=>{
-    //first get a ref to that guild
-    console.log(args);
+
     
     var sideBar = document.getElementById("guildSideBar");
    // sideBar.innerHTML = ""; //clear it out of anything that was there before

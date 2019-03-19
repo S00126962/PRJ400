@@ -3,8 +3,8 @@ console.log("I am here")
 getUserMedia({ video: false, audio: true }, function (err, stream) {
 
   if(err){console.log(err)}
-  var Peer = require('simple-peer')
-  var peer = new Peer({
+  const Peer = require('simple-peer')
+  const peer = new Peer({
     initiator: true,
     trickle: false,
     stream: stream
