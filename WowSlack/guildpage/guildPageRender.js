@@ -5,15 +5,15 @@ var electron = require('electron');
 var ipcRenderer = electron.ipcRenderer;
 
 var config = {
-    apiKey: "AIzaSyBPwA6lwFFahoYIABYpeAvjmSA10gkj040",
-    authDomain: "wow-slack.firebaseapp.com",
-    databaseURL: "https://wow-slack.firebaseio.com",
-    projectId: "wow-slack",
-    storageBucket: "wow-slack.appspot.com",
-    messagingSenderId: "105436064015"
+    apiKey: "AIzaSyBPwA6lwFFahoYIABYpeAvjmSA10gkj040", //api key for my app
+    authDomain: "wow-slack.firebaseapp.com", //Points to the auth for this app
+    databaseURL: "https://wow-slack.firebaseio.com", //Points to the database for this app
+    projectId: "wow-slack", //Id for Firebase
+    storageBucket: "wow-slack.appspot.com", //points to the file storage for this app
+    messagingSenderId: "105436064015" //use for cloud messaging
 };
+firebase.initializeApp(config); //pass the config to the init function
 
-firebase.initializeApp(config);
 var db = firebase.firestore();
 db.settings({timestampsInSnapshots:true})
 

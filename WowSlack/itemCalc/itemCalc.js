@@ -1,11 +1,8 @@
 const request = require('request');
 var electron = require('electron');
 var ipcRenderer = electron.ipcRenderer;
+
 var remote = electron.remote;
-
-var token = remote.getGlobal('Token');
-console.log(token)
-
 const blizzard = require('blizzard.js').initialize({
 key: 'cc03f6bfa99541d9b2644e450b96eadf',
 secert : 'e1rRSqs6k5QES9yxMaDNV1PXL4QrDDQI',
@@ -101,7 +98,9 @@ async function loadCharTemplate(id) {
         var pawnString = snapshot.data().charPawnString; //need to check this for a null val later on
         //Call the promise to generate a character template,once its down,sent it to get added to the listview
         GenerateCharItemTemplate(charName, sever, region, pawnString, classID).then(result => {
-            AddItemToListview(result) //send the resulting template and name off to be put on screen
+            console.log(result);
+            AddCharToTable(result);
+          //  AddItemToListview(result) //send the resulting template and name off to be put on screen
         })
 
     })
@@ -244,6 +243,106 @@ async function GenerateCharItemTemplate(Name, Sever, Region, Pawnstring, classID
     
 }
 
+function AddCharToTable(CharTemplate)
+{
+    //first make the nav for the character
+    var charNav = document.createElement('a');
+    charNav.id = "nav" + "-" + CharTemplate.charName + "-" + "tab";
+    charNav.setAttribute("data-toggle", "tab");
+    charNav.className = "nav-item nav-link";
+    charNav.href = "#nav-" +  CharTemplate.charName
+    charNav.setAttribute("aria-controls", "nav-" +CharTemplate.charName);
+    charNav.innerHTML = CharTemplate.charName
+    if (document.getElementById('nav-tab').hasChildNodes()) {
+        charNav.setAttribute("aria-selected", "true");
+    }
+    else {
+        charNav.setAttribute("aria-selected", "false");
+    }
+
+    var charTblDiv = document.createElement('div');
+    charTblDiv.className = "tab-pane fade";
+    charTblDiv.id = "nav-" +  CharTemplate.charName;
+    charTblDiv.setAttribute("role" , "tabpanel");
+    charTblDiv.setAttribute("aria-labelledby" , charNav.id);
+
+    var charTbl = document.createElement('table');
+    charTbl.className = "table";
+    
+    var charTblHead = document.createElement('thead');
+    var charTableRow = document.createElement('tr');
+    var itemHead = document.createElement('th');
+    itemHead.innerHTML = "Items";
+    charTableRow.appendChild(itemHead);
+    var charTblBody = document.createElement('tbody');
+
+
+    for (var key in CharTemplate.PawnObjs) {
+        // skip loop if the property is from prototype
+        if (!CharTemplate.PawnObjs.hasOwnProperty(key)) continue;
+        var pawnHead = document.createElement('th');
+        pawnHead.innerHTML = key;
+        charTableRow.appendChild(pawnHead); 
+    }
+       var da = Object.keys(CharTemplate.PawnObjs)[0];
+      //now lets handle the rows,go for each item,append a row for it
+      for (let index = 0; index < itemSlots.length; index++) {
+        try {
+            var itemRowTr = document.createElement('tr');
+    
+            var items = CharTemplate.PawnObjs[da];
+            var itemID = items[itemSlots[index]].id;
+            var itemLink = document.createElement("a");
+            itemLink.href = "https://www.wowhead.com/item=" + itemID;
+            itemLink.innerHTML = items[itemSlots[index]].ItemName;
+            var att = document.createAttribute("data-wowhead");
+            var itemImg = document.createElement('img');
+            itemImg.src = items[itemSlots[index]].itemImg
+            itemImg.style = "border-style: groove;";
+            var bonus =  items[itemSlots[index]].bonusList;
+            att.value = "bonus=" + bonus[0] + ":" + bonus[1] + ":" + bonus[2] + "&"; //attach any bonuses
+            att.value += "ench=" +  items[itemSlots[index]].itemEnchant + "&" //attach any enchats
+            if (itemSlots[index] == "shoulder" || itemSlots[index] == "head" || itemSlots[index] == "chest") { //check to see if this is an azerite item
+                //we have an azerite item,need to add that on
+                var azeriteArray =  items[itemSlots[index]].azeriteArray
+                att.value += "azerite-powers=" + CharTemplate.classID + ":";
+                for (let Azeriteindex = 0; Azeriteindex < azeriteArray.length; Azeriteindex++) {
+                    att.value += azeriteArray[Azeriteindex].id + ":"
+                }
+                azeriteArray[0].id + ":" + azeriteArray[1].id + ":" + azeriteArray[2].id //need to replace one with the characters classID
+            }
+            itemLink.setAttributeNode(att);
+            var itemTd = document.createElement('td');
+            itemTd.appendChild(itemImg);
+            itemTd.appendChild(itemLink);
+
+            
+            
+            itemRowTr.appendChild(itemTd)
+
+            for (var key in CharTemplate.PawnObjs) {   
+                //now add the specifc values for the item, for each possible PawnString
+                var ValTd = document.createElement('td');
+                var currentItem = CharTemplate.PawnObjs[key];
+                var itemVal = currentItem[itemSlots[index]].OverAllValue;
+                ValTd.innerHTML = parseFloat(itemVal.toFixed(2));
+                itemRowTr.appendChild(ValTd);
+            }
+            charTblBody.appendChild(itemRowTr);
+        }
+         catch (error) {
+            
+        }
+    }
+    charTbl.appendChild(charTblBody);
+    charTblHead.appendChild(charTableRow);
+    charTblDiv.appendChild(charTbl);
+    charTbl.appendChild(charTblHead);
+    document.getElementById('nav-tab').appendChild(charNav); //link ready to go, need to build char table frist
+    document.getElementById('nav-tabContent').append(charTblDiv); //now that the div is there, we need a table for our data
+
+
+}
 //Function to generate a list item of the character,needs a character template from above to work
 function AddItemToListview(CharTemplate) {
     //assume if this is called we want a new sub section on the list,eg another char

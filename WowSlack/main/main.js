@@ -103,7 +103,7 @@ ipcMain.on("storeUserDetails", (event, userDetails) => { //handly way I can set 
     console.log(global.userDetails)
 });
 
-ipcMain.on("storeAuthToken", (event, authToken) => { //handly way I can set global vars for the users when logging in
+ipcMain.on("storeAuthToken", (event, authToken) => { //store the Auth token in the global namespace
     console.log(authToken)
     global.Token = authToken;
 });
