@@ -21,19 +21,17 @@ $(document).ready(function(){
 })
 
 signInBtn.addEventListener('click', function (event) {
-
-  
   event.preventDefault();
   var email = document.getElementById('inputEmail').value;
   var pw = document.getElementById('inputPassword').value;
 
   firebase.auth().signInWithEmailAndPassword(email, pw).then(function () {
     var userRef = firebase.auth().currentUser.uid
+
+    
     ipcRenderer.send('asynchronous-message',userRef)
     ipcRenderer.send('LoadProfilePage')
-
   }).catch(function (error) {
-
     if (error != null) {
       alert(error.message)
       return;
