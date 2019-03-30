@@ -63,15 +63,6 @@ function AppendMessage(sender, message, timeStamp) {
   try {
     var urlRegex = /(https?:\/\/[^ ]*)/;
     var url = message.match(urlRegex)[1];
-    // if (url.indexOf("youtube.com/watch") >= 0) { //check to see if someone send a youtube vid
-    //   var youtubeFrame = document.createElement('iframe');
-    //   youtubeFrame.width = "300px";
-    //   youtubeFrame.height = "100px";
-    //   src = "https://www.youtube.com/embed/_KsaWpeCj98"
-    //  messageDiv.appendChild(youtubeFrame);
-    //   }
-
-    // else{
     request('https://api.linkpreview.net?key=5c742d7e3a29617fafdf83f40c1f65914304d453b6f88&q=' + url, {
       json: true
     }, (err, res, body) => {
@@ -87,6 +78,7 @@ function AppendMessage(sender, message, timeStamp) {
       var cardDiv = document.createElement('div');
       cardDiv.classList.add("card");
       var cardImg = document.createElement('img');
+      
       cardImg.src = image;
 
       var cardDesc = document.createElement('p');

@@ -16,6 +16,7 @@
     "blizzhub": "^1.0.15",
     "bootstrap": "^4.3.1",
     "bootstrap-electron": "^1.0.10",
+    "bootstrap-select": "^1.13.9",
     "easyrtc": "^1.1.0",
     "electron": "^3.1.6",
     "electron-webrtc": "^0.3.0",
@@ -27,6 +28,7 @@
     "moment": "^2.24.0",
     "popper.js": "^1.14.7",
     "react": "^16.8.4",
+    "select2": "^4.0.6-rc.1",
     "simple-peer": "^9.2.1",
     "socket.io": "^2.2.0"
   },

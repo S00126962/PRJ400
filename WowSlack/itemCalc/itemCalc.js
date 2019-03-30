@@ -1,3 +1,5 @@
+window.$ = window.Jquery = require("jquery")
+
 const request = require('request');
 var electron = require('electron');
 var ipcRenderer = electron.ipcRenderer;
@@ -34,44 +36,31 @@ db.settings({
 ipcRenderer.on("load-itemCalc", (sender, args) => {
 
     //will need to add more here If I need anything happenings on loading this page
-})
-
-var stageOneDiv = document.getElementById('stageOneDiv');
-var stageOneBtn = document.getElementById('stageOneBtn');
-var StageOnedll = document.getElementById('StageOnedll');
-var itemListDll = document.getElementById('itemListDropDown');
-var personalModeBtn = document.getElementById('personalMode');
-
-personalModeBtn.addEventListener('click', () => {
     LoadPersonalMode();
+    LoadGuildMode();
 })
 
-var guildModeBtn = document.getElementById('guildMode');
-
-guildModeBtn.addEventListener('click', () => {
-
-    //need to be implented
+$(document).ready(function() {
+    $('.js-example-basic-single').select2();
+  //  $('#charSelect').trigger('change',loadCharTemplate($('#charSelect').val()))
 });
 
+$('#charSelect').on('select2:select', function (e) {
+    var id = $('#charSelect').val();
+    loadCharTemplate(id);
+  });
 
 //Personal mode is just the users characters
 function LoadPersonalMode() {
-    StageOnedll.innerHTML = "";
-    stageOneBtn.innerText = "Select Char";
-    stageOneDiv.style.visibility = "visible";
-
+    
+    var playerCharGroup = document.createElement("optgroup");
+    playerCharGroup.label = "Your Characters";
     //get a collection of the users characters from the db
-    db.collection('Characters').where('userID', '==', defualt.auth().currentUser.uid).get().then((snapshot) => {
+    db.collection('Characters').where('userID', '==', remote.getGlobal("uid")).get().then((snapshot) => {
         snapshot.docs.forEach(doc => { //loop though and add them to the dropdown
 
-            var charli = document.createElement('li');
-            charli.innerHTML = doc.data().charName;
-            charli.id = doc.id;
-            charli.addEventListener('click', () => {
-                loadCharTemplate(charli.id) //whenever someone clicks on a character,I want to load that character in for the calcuation
-            })
-            StageOnedll.append(charli);
-
+            var newOption = new Option(doc.data().charName, doc.id, false, false);
+            playerCharGroup.appendChild(newOption);
         })
     }).catch(function (error) {
 
@@ -80,7 +69,55 @@ function LoadPersonalMode() {
             return;
         }
     })
+    $('#charSelect').append(playerCharGroup).trigger('change');
 }
+
+function LoadGuildMode() {
+
+    var guildMemebersOBJ = {}
+    //I need to get a collection of Uids to get their characters
+    db.collection('Guilds').where('GuildMemebers', 'array-contains', remote.getGlobal("uid")).get().then((snapshot) => {
+        snapshot.docs.forEach(doc => {
+            var memebers = [];
+            for (let index = 0; index < doc.data().GuildMemebers.length; index++) {
+                if (memebers.indexOf(doc.data().GuildMemebers[index]) === -1) { //only get me unquie ids
+                    memebers.push(doc.data().GuildMemebers[index]);
+                }
+            }
+            guildMemebersOBJ[doc.data().GuildName] = memebers;
+        });
+        //now that I have the IDs, I need a list of characters
+
+        for (key in guildMemebersOBJ) {
+            var currentGuild = guildMemebersOBJ[key];
+            for (let index = 0; index < currentGuild.length; index++) {
+                var guildCharGroup = document.createElement("optgroup");
+                guildCharGroup.label = "Characters from " + " " + key;
+                db.collection('Characters').where('userID', '==', currentGuild[index]).get().then((snapshot) => {
+                    snapshot.docs.forEach(doc => { //loop though and add them to the dropdown
+                        var newOption = new Option(doc.data().charName, doc.id, false, false);
+                        guildCharGroup.appendChild(newOption); 
+                    })
+                    $('#charSelect').append(guildCharGroup).trigger('change');
+                }).catch(function (error) {
+
+                    if (error != null) {
+                        alert(error.message)
+                        return;
+                    }
+                })
+
+            }
+        }
+    }).catch(function (error) {
+
+        if (error != null) {
+            console.log(error.message)
+            return;
+        }
+    })
+}
+
 
 //load in the character selected into the calcuation system
 async function loadCharTemplate(id) {
@@ -361,10 +398,6 @@ function ClearTemplateCards() {
         charNode.removeChild(charNode.firstChild);
     }
 }
-//function to clear any item loaded in
-function ClearLoadItem() {
-    document.getElementById("LoadedItem").innerHTML = "";
-}
 
 //function to attach item's stat values to an object,used in the generatechartemplate function
 function GenerateItemValue(item) {
@@ -632,9 +665,14 @@ function LoadItemViaWowHead() {
 
     //try and get the itemID out of the link
     var itemID = link.substring(
-        link.lastIndexOf("item=") + 5, //Links will always be the same,can grab the item id like this
-        link.lastIndexOf("/"));
+        link.lastIndexOf("item=") + 5); //this will get use the ID,followed by other data
 
+    //handle differnt forms of links,just need the id of the item
+    if (itemID.indexOf('/') > -1) {
+        itemID = itemID.slice(0, itemID.indexOf("/"))
+    } else if (itemID.indexOf('&') > -1) {
+        itemID = itemID.slice(0, itemID.indexOf("&"))
+    }
     //try and get any bonus IDs from the link
     var BounusIDs = link.substring(
         link.lastIndexOf("bonus=") + 6, //Links will always be the same,can grab the item id like this
@@ -675,15 +713,6 @@ function LoadItemViaWowHead() {
     itemTblTRow.appendChild(itemHead);
     var itemTblBody = document.createElement('tbody');
     itemTblBody.id = "itemTblBody"
-
-    var itemID = link.substring(
-        link.lastIndexOf("item=") + 5, //Links will always be the same,can grab the item id like this
-        link.lastIndexOf("/"));
-
-    //try and get any bonus IDs from the link
-    var BounusIDs = link.substring(
-        link.lastIndexOf("bonus=") + 6, //Links will always be the same,can grab the item id like this
-        link.lastIndexOf("")).split(":");
 
     //now call the API with the data we pulled
     blizzard.wow.item({

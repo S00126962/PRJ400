@@ -3,29 +3,39 @@
 
 <head>
 
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
     <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
+    <link href="../node_modules/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="../node_modules/select2/dist/js/select2.js"></script>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
     <link href="../mainpage/mainPage.css" rel="stylesheet">
     <link href="../itemCalc/table.css" rel="stylesheet">
+    <link href="../itemCalc/dropDown.css" rel="stylesheet">
     <script>var whTooltips = {colorLinks: true, iconizeLinks: true, renameLinks: true};</script>
     <script src="http://wow.zamimg.com/widgets/power.js"></script>
-    <title>Item Calculation</title>
+
+    <script>if (window.module) module = window.module;</script>
+
+
 </head>
 
 <body>
 
     <h5>Mode Select</h5><button id="resetChars" type="button" class="btn btn-secondary">Reset</button>
     <div class="btn-group" role="group" aria-label="Basic example">
-        <button id="personalMode" type="button" class="btn btn-secondary">Personal</button>
-        <button id="guildMode" type="button" class="btn btn-secondary">Guild</button>
         <div class="form-group mx-sm-3 mb-2">
-            <label for="inputPassword2" class="sr-only">WoW Head Link</label>
+            <label class="sr-only">WoW Head Link</label>
             <input type="text" class="form-control" id="wowheadLink" placeholder="Wow Head Link">
           </div>
           <button id="findLinkBtn" type="button" class="btn btn-primary mb-2">Find Item</button>
           <button id="CompareItems" type="button" class="btn btn-primary mb-2">Compare Items</button>
+
           <p id="LoadedItem"></p>
+          <select id="charSelect" class="js-example-basic-single" style="width:95%;" name="state">
+          </select>
+          
         </div>
     </div>
     <br>
@@ -40,15 +50,6 @@
     </div>
     </div>
 
-    <div id="ItemListContainer" class="container" style="width:25%" style="position: relative;">
-        <div  class="container">
-            <div id="accordion" style="position: absolute; 
-            right: 0px;
-            top:80px;">
-       
-          </div>
-       </div>
-    </div>
 
     <section id="tabs" class="project-tab">
         <div class="container">
@@ -69,7 +70,7 @@
 
 
 <script>
-    window.$ = window.Jquery = require("jquery")
+    window.$ = window.Jquery = require("jquery");
 </script>
 
 <script>
