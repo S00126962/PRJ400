@@ -21,7 +21,8 @@ app.on('ready', function () {
     })
     //  MainWindow.hide(); //dont want to show this until user logs in
 
-
+    let $ = require('jquery');
+    MainWindow.$ = $;
     ChildWindow = new BrowserWindow({
         width: 800,
         height: 600,

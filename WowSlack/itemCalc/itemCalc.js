@@ -1,5 +1,5 @@
 window.$ = window.Jquery = require("jquery")
-
+window.$ = window.Jquery = require("jquery")
 const request = require('request');
 var electron = require('electron');
 var ipcRenderer = electron.ipcRenderer;

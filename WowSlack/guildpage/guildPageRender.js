@@ -13,7 +13,7 @@ var config = {
     messagingSenderId: "105436064015" //use for cloud messaging
 };
 if (!firebase.apps.length) {
-    firebase.initializeApp(config); //pass the config to the init function
+    
 }
 
 var db = firebase.firestore();

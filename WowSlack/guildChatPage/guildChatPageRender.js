@@ -2,7 +2,6 @@ var electron = require('electron');
 var ipcRenderer = electron.ipcRenderer;
 var remote = electron.remote;
 const request = require('request');
-window.$ = window.jQuery = require('jquery');
 var config = {
   apiKey: "AIzaSyBPwA6lwFFahoYIABYpeAvjmSA10gkj040",
   authDomain: "wow-slack.firebaseapp.com",

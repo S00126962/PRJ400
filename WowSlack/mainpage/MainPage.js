@@ -22,8 +22,6 @@ db.settings({
 
 ipcRenderer.on('info', function (event, data) {
 
-        var guildList = document.getElementById('guildsDll')
-        guildList.innerHTML = "";
 
         var uID = remote.getGlobal("uid");
         db.collection('Users').where('UserID', '==', uID).get().then((snapshot) => {
@@ -44,14 +42,16 @@ function populatePageDetails(userData) {
 
 
 function populateGuildsDropDown(userData) {
-        document.getElementById('guildsDll').innerHTML = "";
+        document.getElementById('guildDropDown').innerHTML = "";
         var addGuldBtn = document.createElement('a');
         addGuldBtn.className = "dropdown-item"
         addGuldBtn.innerHTML = "Add Guild";
         addGuldBtn.id = "addGuildBtn";
         addGuldBtn.onclick = loadGuildCreate;
-        document.getElementById('guildsDll').appendChild(addGuldBtn)
-
+        document.getElementById('guildDropDown').appendChild(addGuldBtn)
+        var divder = document.createElement('div');
+        divder.className = "dropdown-divider";
+        document.getElementById('guildDropDown').appendChild(divder)
         db.collection('Guilds').where('GuildID', '==', userData.GuildID).get().then((snapshot) => {
                 snapshot.docs.forEach(doc => {
                         var guildToAppend = document.createElement('a');
@@ -59,9 +59,9 @@ function populateGuildsDropDown(userData) {
                         guildToAppend.innerHTML = doc.data().GuildName;
                         guildToAppend.id = doc.id; //again,save id in id
                         guildToAppend.addEventListener("click", () => {
-                                loadGuildPage(guildToAppend.id)
+                                loadGuildOpts(guildToAppend.id,doc.data().GuildName);
                         });
-                        document.getElementById('guildsDll').appendChild(guildToAppend)
+                        document.getElementById('guildDropDown').appendChild(guildToAppend)
                 })
         })
 
@@ -72,9 +72,69 @@ function loadGuildCreate() {
         ipcRenderer.send('load-guildCreate')
 }
 
+function loadGuildOpts(id,name) {
 
-function loadCharpage(name) {
-        //code here to load up the char page,may/maynot be need in end soultion
+        if (document.getElementById('loadedGuildTChannelsDDL') ==undefined ) {
+                //attach a new item to the side bar
+                var li = document.createElement('li');
+                li.className= "nav-item dropdown";
+                var a = document.createElement('a');
+                a.className = "nav-link dropdown-toggle";
+                a.id = "navDropDown" + ":" + id;
+                a.innerHTML = name + "'s" + " " +"Channels"
+                a.setAttribute("data-toggle","dropdown")
+                a.setAttribute("aria-haspopup","true")
+                a.setAttribute("aria-expanded","false")
+                li.appendChild(a);
+                var dropdown = document.createElement('div');
+                dropdown.id = "loadedGuildTChannelsDDL";
+                dropdown.classList = "dropdown-menu";
+                dropdown.setAttribute("aria-labelledby","navDropDown" + ":" + id);
+                li.appendChild(dropdown);
+                document.getElementById('sidebar').appendChild(li);
+        }
+        if (document.getElementById('loadedGuildEventLink') ==undefined ) {
+                var eventLi = document.createElement('li');
+                eventLi.className = "nav-item"
+                var eventA = document.createElement('a');
+                eventA.id = "loadedGuildEventLink"
+                eventA.innerHTML = name + "'s" + " " +"Events"
+                eventA.className = "nav-link";
+                eventA.addEventListener('click', () => {
+                        loadEventPage(id)
+               })
+                eventLi.appendChild(eventA);
+                document.getElementById('sidebar').appendChild(eventLi);
+        }
+        console.log(id);
+        document.getElementById("loadedGuildTChannelsDDL").innerHTML = "";
+        var guildref = db.collection("Guilds")
+        var guildInQuestions = guildref.doc(id);
+        var chatChanne = guildInQuestions.collection('ChatChannels');
+        var divder = document.createElement('div');
+        divder.className = "dropdown-divider";
+        var channelTxt = document.createElement('a');
+        channelTxt.className = "dropdown-item"
+        channelTxt.innerHTML = "Text Channels";
+        document.getElementById('loadedGuildTChannelsDDL').appendChild(channelTxt)
+        document.getElementById('loadedGuildTChannelsDDL').appendChild(divder)
+        chatChanne.get().then((snapshot) => {
+                snapshot.forEach(doc => {
+                        console.log(doc.data())
+                        //create all the elements needed
+                        var channelToAppend = document.createElement('a');
+                        channelToAppend.className = "dropdown-item"
+                        channelToAppend.id = doc.id;
+                        channelToAppend.guildID = id
+                        channelToAppend.innerHTML = doc.data().ChannelName;
+                        channelToAppend.addEventListener('click', () => {
+                                 loadChatPage(doc.id,id)
+                        })
+                        document.getElementById('loadedGuildTChannelsDDL').appendChild(channelToAppend)
+                });
+
+        })
+
 }
 
 function loadItemCalc() {
@@ -82,6 +142,18 @@ function loadItemCalc() {
         ipcRenderer.send("load-itemCalc");
 }
 
+function loadChatPage(chatId,guildID)
+{
+    console.log("At least the click is working" + guildID + " " + chatId)
+    $("#pageArea").load("../guildChatpage/guildChatPage.html");
+    ipcRenderer.send("load-guildChatpage",chatId,guildID);
+}
+
+function loadEventPage(gID)
+{
+    $("#pageArea").load("../guildCalendar/guildCalendar.html");
+    ipcRenderer.send("load-guildEventPage",gID);
+}
 
 
 var signOutBtn = document.getElementById('signoutBtn');
@@ -97,7 +169,7 @@ signOutBtn.addEventListener('click', function (event) {
         firebase.initializeApp(config);
         firebase.auth().signOut().then(function () {
 
-        ipcRenderer.send('sign-out')
+                ipcRenderer.send('sign-out')
         }).catch(function (error) {
 
                 if (error != null) {
@@ -110,7 +182,7 @@ signOutBtn.addEventListener('click', function (event) {
 var profileBtn = document.getElementById('profilePageBtn');
 profileBtn.addEventListener('click', () => {
         loadProfilePage();
-      //  sendTabChangeMessage;
+        //  sendTabChangeMessage;
 })
 
 $(document).ready(function () {
@@ -121,13 +193,13 @@ $(document).ready(function () {
 function loadProfilePage() {
         console.log("Boom");
         $("#pageArea").load("../ProfilePage/ProfilePage.html");
-         ipcRenderer.send("tabChangeProfile");
+        ipcRenderer.send("tabChangeProfile");
 }
 
 //function sendTabChangeMessage()
 //{
-    //    console.log("tab change here");
-  //      ipcRenderer.send("tabChangeProfile");
+//    console.log("tab change here");
+//      ipcRenderer.send("tabChangeProfile");
 //}
 
 function loadGuildPage(id) {
