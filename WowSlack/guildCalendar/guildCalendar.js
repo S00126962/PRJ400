@@ -10,7 +10,9 @@ var config = {
   storageBucket: "wow-slack.appspot.com",
   messagingSenderId: "105436064015"
 };
-firebase.initializeApp(config);
+if (!firebase.apps.length) {
+  firebase.initializeApp(config); //pass the config to the init function
+}
 var db = firebase.firestore();
 db.settings({timestampsInSnapshots:true})
 var Gid = ""; //change when loading in
@@ -18,40 +20,42 @@ var electron = require('electron');
 var ipcRenderer = electron.ipcRenderer;
 
 $(document).ready(function() {
-    $('#calendar').fullCalendar({
-        header: {
-          left: 'month,agendaWeek,agendaDay,AddEventBTN',
-          center: 'title',
-          right: 'prevYear,prev,next,nextYear'
-        },
-        footer: {
-          left: 'AddEventBTN',
-          center: '',
-          right: 'prev,next'
-        },
-        eventRender: function(eventObj, $el) {
-          $el.popover({
-            title: eventObj.title,
-            content:eventObj.description,
-            trigger: 'hover',
-            placement: 'top',
-            container: 'body'
-          });
-        },
-        customButtons: {
-          AddEventBTN: {
-            text: 'Add Event',
-            click: AddEvent
-          } 
-        }
-      });
+   
     
     });
 
-
     ipcRenderer.on('load-guildEventPage', (event,args) => {
-      console.log("Gid" + args); 
-      Gid = args;
+      var tid = setInterval( function () {
+        if ( document.readyState !== 'complete' ) return;
+        clearInterval( tid );       
+        $('#calendar').fullCalendar({
+          header: {
+            left: 'month,agendaWeek,agendaDay,AddEventBTN',
+            center: 'title',
+            right: 'prevYear,prev,next,nextYear'
+          },
+          footer: {
+            left: 'AddEventBTN',
+            center: '',
+            right: 'prev,next'
+          },
+          eventRender: function(eventObj, $el) {
+            $el.popover({
+              title: eventObj.title,
+              content:eventObj.description,
+              trigger: 'hover',
+              placement: 'top',
+              container: 'body'
+            });
+          },
+          customButtons: {
+            AddEventBTN: {
+              text: 'Add Event',
+              click: AddEvent
+            } 
+          }
+        });
+    }, 100 );
   });
 
   

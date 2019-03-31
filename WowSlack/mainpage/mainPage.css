@@ -45,6 +45,11 @@
       padding-left: 90px;
     }
   }
+  #pageArea{
+    overflow: scroll;
+    height: 100%;
+    width: 100%;
+  }
   
   .scroll-to-top {
     position: fixed;
@@ -207,7 +212,6 @@
       display: block;
     }
     .sidebar.toggled {
-      overflow: visible;
       width: 90px !important;
     }
     .sidebar.toggled .nav-item:last-child {
@@ -241,7 +245,6 @@
   .sidebar.fixed-top {
     top: 56px;
     height: calc(100vh - 56px);
-    overflow-y: auto;
   }
   
   .card-body-icon {

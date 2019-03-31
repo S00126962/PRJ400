@@ -15,7 +15,9 @@ var config = {
 //when a user enters a channel,I want to keep these details around
 var gID;
 var chanID;
-firebase.initializeApp(config);
+if (!firebase.apps.length) {
+  firebase.initializeApp(config); //pass the config to the init function
+}
 var db = firebase.firestore();
 db.settings({
   timestampsInSnapshots: true

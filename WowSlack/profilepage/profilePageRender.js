@@ -2,9 +2,6 @@ const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
 const remote = require('electron').remote
 
-var usernameLbl = document.getElementById('profileUserName');
-var userEmailLbl = document.getElementById('profileuserEmail');
-var userRegion = document.getElementById('profileUserRegion');
 
 const defualt = firebase.app();
 const db = defualt.firestore();
@@ -14,10 +11,14 @@ db.settings({timestampsInSnapshots:true})
 
 ipcRenderer.on('loadProfilePage',() =>{
 
+  var tid = setInterval( function () {
+    if ( document.readyState !== 'complete' ) return;
+    clearInterval( tid );       
     var uID = remote.getGlobal("uid");
-    console.log(uID)
-
-    if (remote.getGlobal('userDetails')==null) {
+    console.log(uID);
+    var usernameLbl = document.getElementById('profileUserName');
+var userEmailLbl = document.getElementById('profileuserEmail');
+var userRegion = document.getElementById('profileUserRegion');
       db.collection('Users').where('UserID', '==',uID).get().then((snapshot) => {
         snapshot.docs.forEach(doc => {
             if (remote.getGlobal("userDetails") == null) { //check to see if the userData is there
@@ -75,8 +76,8 @@ ipcRenderer.on('loadProfilePage',() =>{
       return;
     }
   })
-
-}})
+}, 100 );
+  })
 
 
 function delteChar()

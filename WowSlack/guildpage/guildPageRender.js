@@ -12,16 +12,19 @@ var config = {
     storageBucket: "wow-slack.appspot.com", //points to the file storage for this app
     messagingSenderId: "105436064015" //use for cloud messaging
 };
-firebase.initializeApp(config); //pass the config to the init function
+if (!firebase.apps.length) {
+    firebase.initializeApp(config); //pass the config to the init function
+}
 
 var db = firebase.firestore();
 db.settings({timestampsInSnapshots:true})
 
 ipcRenderer.on("load-guildpage",(sender,args)=>{
 
-    
-    var sideBar = document.getElementById("guildSideBar");
-   // sideBar.innerHTML = ""; //clear it out of anything that was there before
+    var tid = setInterval( function () {
+        if ( document.readyState !== 'complete' ) return;
+        clearInterval( tid );       
+        var sideBar = document.getElementById("guildSideBar");
 
 var eventspage = document.getElementById('eventslbl');
 eventspage.addEventListener('click', () =>{
@@ -54,7 +57,9 @@ eventspage.addEventListener('click', () =>{
             sideBar.appendChild(channelToAppend);
             console.log(sideBar);
         })
-    });
+   
+    }, 100 );
+     });
 
 
     function loadEventPage(gID)

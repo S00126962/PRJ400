@@ -34,16 +34,16 @@ db.settings({
 
 
 ipcRenderer.on("load-itemCalc", (sender, args) => {
-
-    //will need to add more here If I need anything happenings on loading this page
-    LoadPersonalMode();
-    LoadGuildMode();
+    var tid = setInterval( function () { //ensure that doc is ready before firing anything, this fixs issues with page loading
+        if ( document.readyState !== 'complete' ) return;
+        clearInterval( tid );       
+        $('.js-example-basic-single').select2();
+             LoadPersonalMode();
+             LoadGuildMode();
+    }, 100 );
 })
 
-$(document).ready(function() {
-    $('.js-example-basic-single').select2();
-  //  $('#charSelect').trigger('change',loadCharTemplate($('#charSelect').val()))
-});
+
 
 $('#charSelect').on('select2:select', function (e) {
     var id = $('#charSelect').val();
@@ -118,6 +118,10 @@ function LoadGuildMode() {
     })
 }
 
+document.getElementById('refreshChars').addEventListener('click', () =>{
+    LoadPersonalMode();
+    LoadGuildMode();
+})
 
 //load in the character selected into the calcuation system
 async function loadCharTemplate(id) {

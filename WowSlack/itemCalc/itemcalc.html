@@ -12,7 +12,7 @@
     <script src="../node_modules/jquery/dist/jquery.min.js"></script>
     <link href="../mainpage/mainPage.css" rel="stylesheet">
     <link href="../itemCalc/table.css" rel="stylesheet">
-    <link href="../itemCalc/dropDown.css" rel="stylesheet">
+    <link href="../itemCalc/tooltip.css" rel="stylesheet">
     <script>var whTooltips = {colorLinks: true, iconizeLinks: true, renameLinks: true};</script>
     <script src="http://wow.zamimg.com/widgets/power.js"></script>
 
@@ -23,38 +23,48 @@
 
 <body>
 
-    <h5>Mode Select</h5><button id="resetChars" type="button" class="btn btn-secondary">Reset</button>
-    <div class="btn-group" role="group" aria-label="Basic example">
-        <div class="form-group mx-sm-3 mb-2">
-            <label class="sr-only">WoW Head Link</label>
-            <input type="text" class="form-control" id="wowheadLink" placeholder="Wow Head Link">
+    <div class="container">
+            <div class="row">
+              <div class="col-sm">
+                    <h5>Character Select</h5>
+                    <div class="tooltip"> What is this?
+                            <span class="tooltiptext">Select characters to compare items with, they will be loaded into the table below</span>
+                          </div>
+                    <select id="charSelect" class="js-example-basic-single" style="width:95%;" name="state">
+                        </select>
+              </div>
+              <div class="col-sm">
+                   
+                    <h5>Load item by WowHeadLink</h5>
+                    <div class="tooltip">?
+                            <span class="tooltiptext">In order to load an item to compare, we need a Wowhead item. You can use the addon "Wowhead Link Generator" and paste the link here</span>
+                          </div>
+                    <input type="text" class="form-control" id="wowheadLink" placeholder="Wow Head Link"><br>
+                    <button id="findLinkBtn" type="button" class="btn btn-primary mb-2">Find Item</button>
+              </div>
+              <div class="col-sm">
+                    <h5>Options</h5>
+                   
+                    <button id="CompareItems" type="button" class="btn btn-primary ">Compare Items</button>
+                    <button id="resetChars" type="button" class="btn btn-secondary">Reset</button>
+                    <button id="refreshChars" type="button" class="btn btn-secondary">Refresh</button>
+              </div>
+            </div>
           </div>
-          <button id="findLinkBtn" type="button" class="btn btn-primary mb-2">Find Item</button>
-          <button id="CompareItems" type="button" class="btn btn-primary mb-2">Compare Items</button>
-
-          <p id="LoadedItem"></p>
-          <select id="charSelect" class="js-example-basic-single" style="width:95%;" name="state">
-          </select>
+            
+      
           
-        </div>
-    </div>
+          
+          
+        
+  
+</div>
     <br>
     </div>
-    <div id="stageOneDiv" class="container" style="visibility: hidden;">
-        <div class="dropdown">
-            <button id="stageOneBtn" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                <span class="caret"></span></button>
-            <ul id="StageOnedll" class="dropdown-menu">
-            </ul>
-        </div>
-    </div>
-    </div>
-
-
     <section id="tabs" class="project-tab">
         <div class="container">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-14">
                     <nav>
                         <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist"></div>
                     </nav>
