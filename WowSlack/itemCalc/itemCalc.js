@@ -25,12 +25,10 @@ var config = {
     messagingSenderId: "105436064015"
 };
 
-firebase.initializeApp(config);
-var db = firebase.firestore();
-var defualt = firebase.app();
-db.settings({
-    timestampsInSnapshots: true
-})
+if (!firebase.apps.lenth) {
+    firebase.initializeApp(config);
+    console.log("Hi i inited firebase");
+}
 
 
 ipcRenderer.on("load-itemCalc", (sender, args) => {
@@ -40,15 +38,13 @@ ipcRenderer.on("load-itemCalc", (sender, args) => {
         $('.js-example-basic-single').select2();
              LoadPersonalMode();
              LoadGuildMode();
+             $('#charSelect').on('select2:select', function (e) {
+                var id = $('#charSelect').val();
+                loadCharTemplate(id);
+              });
     }, 100 );
 })
 
-
-
-$('#charSelect').on('select2:select', function (e) {
-    var id = $('#charSelect').val();
-    loadCharTemplate(id);
-  });
 
 //Personal mode is just the users characters
 function LoadPersonalMode() {
@@ -121,6 +117,7 @@ function LoadGuildMode() {
 document.getElementById('refreshChars').addEventListener('click', () =>{
     LoadPersonalMode();
     LoadGuildMode();
+    
 })
 
 //load in the character selected into the calcuation system
@@ -774,3 +771,4 @@ function LoadItemViaWowHead() {
 
 
 }
+

@@ -26,23 +26,24 @@ ipcRenderer.on('load-guildChatpage', (event, data, data2) => {
 
   gID = data;
   chanID = data2;
-  console.log(gID, chanID)
-  var guildref = db.collection("Guilds")
-  var guildInQuestions = guildref.doc(data);
-  var chatChannels = guildInQuestions.collection('ChatChannels');
-  var channelInQuestion = chatChannels.doc(data2);
-  var chatMessages = channelInQuestion.collection("Messages");
+  var tid = setInterval(function () {
+    if (document.readyState !== 'complete') return;
+    clearInterval(tid);
+    var guildref = db.collection("Guilds")
+    var guildInQuestions = guildref.doc(data);
+    var chatChannels = guildInQuestions.collection('ChatChannels');
+    var channelInQuestion = chatChannels.doc(data2);
+    var chatMessages = channelInQuestion.collection("Messages");
 
-  var messageDoc = channelInQuestion.collection("Messages");
-  messageDoc.get().then((snapshot) => {
-    snapshot.forEach(doc => {
-      // console.log(doc.data())
-      var sender = doc.MessageSender;
-      var message = doc.MessageText;
-      var timeStamp = doc.MessageTimeStamp;
+    chatMessages.orderBy('MessageTimeStamp').onSnapshot(snapshot => {
+      let changes = snapshot.docChanges();
 
+      changes.forEach(change => {
+        var messageData = change.doc.data()
+        AppendMessage(messageData.MessageSender, messageData.MessageText, messageData.MessageTimeStamp);
+      })
     })
-  })
+  }, 100);
 
 })
 
@@ -79,7 +80,7 @@ function AppendMessage(sender, message, timeStamp) {
       var cardDiv = document.createElement('div');
       cardDiv.classList.add("card");
       var cardImg = document.createElement('img');
-      
+
       cardImg.src = image;
 
       var cardDesc = document.createElement('p');
@@ -110,30 +111,12 @@ function AppendMessage(sender, message, timeStamp) {
 
 
 
-
-
-
-var guildref = db.collection("Guilds")
-var guildInQuestions = guildref.doc("1");
-var chatChannels = guildInQuestions.collection('ChatChannels');
-var channelInQuestion = chatChannels.doc("1");
-var chatMessages = channelInQuestion.collection("Messages");
-
-chatMessages.orderBy('MessageTimeStamp').onSnapshot(snapshot => {
-  let changes = snapshot.docChanges();
-
-  changes.forEach(change => {
-    var messageData = change.doc.data()
-    AppendMessage(messageData.MessageSender, messageData.MessageText, messageData.MessageTimeStamp);
-  })
-})
-
 var postBtn = document.getElementById('postMessage');
 
 
 postBtn.addEventListener('click', () => {
   var messageBody = document.getElementById('message').value;
-  var sender = remote.getGlobal('userDetails')[0]; 
+  var sender = remote.getGlobal('userDetails')[0];
   var today = new Date();
   var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
   var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
