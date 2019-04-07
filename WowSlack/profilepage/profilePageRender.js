@@ -10,35 +10,38 @@ db.settings({timestampsInSnapshots:true})
 
 
 ipcRenderer.on('loadProfilePage',() =>{
-
   var tid = setInterval( function () {
-    if ( document.readyState !== 'complete' ) return;
+    if ( document.readyState !== 'complete' || remote.getGlobal("uid") == undefined) return;
     clearInterval( tid );       
+    
     var uID = remote.getGlobal("uid");
     console.log(uID);
     var usernameLbl = document.getElementById('profileUserName');
-var userEmailLbl = document.getElementById('profileuserEmail');
-var userRegion = document.getElementById('profileUserRegion');
+    var userEmailLbl = document.getElementById('profileuserEmail');
+    var userRegion = document.getElementById('profileUserRegion');
+    if (remote.getGlobal("userDetails") == null) {
       db.collection('Users').where('UserID', '==',uID).get().then((snapshot) => {
-        snapshot.docs.forEach(doc => {
-            if (remote.getGlobal("userDetails") == null) { //check to see if the userData is there
+        snapshot.docs.forEach(doc => {     
               ipcRenderer.send( "storeUserDetails", [doc.data().UserName,doc.data().userEmail,doc.data().userRegion] );
               usernameLbl.innerHTML = doc.data().UserName;
-              userEmailLbl.innerHTML = doc.data().userEmail;  
-              userRegion.innerHTML = doc.data().userRegion;     
-            }
-    
-
-          
-              
+              userEmailLbl.innerHTML =doc.data().userEmail;
+              userRegion.innerHTML = doc.data().userRegion;    
+                  
         })
+      })
+      }
+      else{
+        var userDetails =  remote.getGlobal("userDetails");
+        usernameLbl.innerHTML = userDetails[0];
+        userEmailLbl.innerHTML =userDetails[1];  
+        userRegion.innerHTML = userDetails[2];     
+      }
 
-        
         var tbody= document.getElementById('charTable');
         while (tbody.childNodes.length) {
             tbody.removeChild(tbody.childNodes[0]);
           }
-        db.collection('Characters').where('userID', '==',defualt.auth().currentUser.uid).get().then((snapshot) => {
+        db.collection('Characters').where('userID', '==',uID).get().then((snapshot) => {
             snapshot.docs.forEach(doc => {
               
                 var row = document.createElement("tr");
@@ -69,15 +72,10 @@ var userRegion = document.getElementById('profileUserRegion');
       return;
     }
   })
-}).catch(function (error) {
-
-    if (error != null) {
-      alert(error.message)
-      return;
-    }
-  })
+    
 }, 100 );
-  })
+})
+
 
 
 function delteChar()

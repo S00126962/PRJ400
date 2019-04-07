@@ -74,6 +74,7 @@ function loadGuildCreate() {
 
 function loadGuildOpts(id,name) {
 
+        ipcRenderer.send("load-Guild" , id) //store the current guild gloably
         if (document.getElementById('loadedGuildTChannelsDDL') ==undefined ) {
                 //attach a new item to the side bar
                 var li = document.createElement('li');
@@ -149,10 +150,11 @@ function loadChatPage(chatId,guildID)
     ipcRenderer.send("load-guildChatpage",chatId,guildID);
 }
 
-function loadEventPage(gID)
+function loadEventPage(id)
 {
+        console.log(id)
     $("#pageArea").load("../guildCalendar/guildCalendar.html");
-    ipcRenderer.send("load-guildEventPage",gID);
+    ipcRenderer.send("load-guildEventPage",id);
 }
 
 

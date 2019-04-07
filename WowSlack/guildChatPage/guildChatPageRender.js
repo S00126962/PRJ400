@@ -49,8 +49,6 @@ ipcRenderer.on('load-guildChatpage', (event, data, data2) => {
 
 
 function AppendMessage(sender, message, timeStamp) {
-  console.log(sender, message, timeStamp);
-  //need code here to build a message template and attach it.
   var textP = document.createElement('p');
   textP.innerHTML = sender + "\n" + message;
   var spanTime = document.createElement('span');

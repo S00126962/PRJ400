@@ -25,30 +25,38 @@ var config = {
     messagingSenderId: "105436064015"
 };
 
-if (!firebase.apps.lenth) {
+if (!firebase.apps.length) {
     firebase.initializeApp(config);
     console.log("Hi i inited firebase");
 }
 
 
 ipcRenderer.on("load-itemCalc", (sender, args) => {
-    var tid = setInterval( function () { //ensure that doc is ready before firing anything, this fixs issues with page loading
-        if ( document.readyState !== 'complete' ) return;
-        clearInterval( tid );       
+    var tid = setInterval(function () { //ensure that doc is ready before firing anything, this fixs issues with page loading
+        if (document.readyState !== 'complete') return;
+        clearInterval(tid);
         $('.js-example-basic-single').select2();
-             LoadPersonalMode();
-             LoadGuildMode();
-             $('#charSelect').on('select2:select', function (e) {
-                var id = $('#charSelect').val();
-                loadCharTemplate(id);
-              });
-    }, 100 );
+        LoadPersonalMode();
+        LoadGuildMode();
+        var wowHeadbtn = document.getElementById("findLinkBtn");
+        wowHeadbtn.addEventListener('click', () => {
+            LoadItemViaWowHead();
+        });
+        var clearCharBtn = document.getElementById("resetTable");
+        clearCharBtn.addEventListener("click", () => {
+            clearCharTables();
+        });
+        $('#charSelect').on('select2:select', function (e) {
+            var id = $('#charSelect').val();
+            loadCharTemplate(id);
+        });
+    }, 100);
 })
 
 
 //Personal mode is just the users characters
 function LoadPersonalMode() {
-    
+
     var playerCharGroup = document.createElement("optgroup");
     playerCharGroup.label = "Your Characters";
     //get a collection of the users characters from the db
@@ -92,7 +100,7 @@ function LoadGuildMode() {
                 db.collection('Characters').where('userID', '==', currentGuild[index]).get().then((snapshot) => {
                     snapshot.docs.forEach(doc => { //loop though and add them to the dropdown
                         var newOption = new Option(doc.data().charName, doc.id, false, false);
-                        guildCharGroup.appendChild(newOption); 
+                        guildCharGroup.appendChild(newOption);
                     })
                     $('#charSelect').append(guildCharGroup).trigger('change');
                 }).catch(function (error) {
@@ -114,10 +122,10 @@ function LoadGuildMode() {
     })
 }
 
-document.getElementById('refreshChars').addEventListener('click', () =>{
+document.getElementById('refreshChars').addEventListener('click', () => {
     LoadPersonalMode();
     LoadGuildMode();
-    
+
 })
 
 //load in the character selected into the calcuation system
@@ -305,6 +313,7 @@ function AddCharToTable(CharTemplate) {
     var charTblDiv = document.createElement('div');
     charTblDiv.className = "tab-pane fade";
     charTblDiv.id = "nav-" + CharTemplate.charName;
+    charTblDiv.name = "charTblDiv"
     charTblDiv.setAttribute("role", "tabpanel");
     charTblDiv.setAttribute("aria-labelledby", charNav.id);
 
@@ -371,6 +380,7 @@ function AddCharToTable(CharTemplate) {
                 ValTd.innerHTML = parseFloat(itemVal.toFixed(2));
                 ValTd.id = CharTemplate.charName + ":" + itemSlots[index] + ":" + key;
                 itemRowTr.appendChild(ValTd);
+                
             }
             charTblBody.appendChild(itemRowTr);
         } catch (error) {
@@ -387,17 +397,18 @@ function AddCharToTable(CharTemplate) {
 
 }
 
-var clearCharBtn = document.getElementById("resetChars");
-clearCharBtn.addEventListener("click", () => {
-    ClearTemplateCards();
-});
+
 //function to clear any characters loaded in
-function ClearTemplateCards() {
-    //loop though the child nodes and remove the character templates
-    var charNode = document.getElementById("accordion");
-    while (charNode.firstChild) {
-        charNode.removeChild(charNode.firstChild);
+function clearCharTables() {
+    var charTables = document.getElementsByName('charObj');
+    for (let index = 0; index < charTables.length; index++) {
+        charTables[index].parentNode.removeChild(charTables[index])
     }
+    document.getElementById("nav-tabContent").innerHTML = null;
+}
+
+function clearitemFromTable() {
+    
 }
 
 //function to attach item's stat values to an object,used in the generatechartemplate function
@@ -487,6 +498,7 @@ async function CompareItems() //function to compare two items and get a postive(
                                 newitem.azeriteArray = [optiomalT1, optiomalT2, optiomalT3, optiomalT4]
                             });
                         }
+                        //need to edit to include all values, not just for custom
                         var newitemValue = GetOverallItemValue(newitem[response.data.name], currentChar.StatWeights[key], currentChar.AzeriteValues[key], InvMap[response.data.inventoryType], currentChar.classID);
                         //now that we have the result,we can append to to the relevant tag in the character
                         var itemLink = document.getElementById(currentChar.charName + ":" + InvMap[response.data.inventoryType] + ":" + key)
@@ -526,11 +538,6 @@ async function CompareItems() //function to compare two items and get a postive(
                         } catch (error) {
                             resultP.innerHTML = "No matching Slot"
                         }
-
-
-
-
-
 
                     }
                 })
@@ -652,10 +659,7 @@ async function ReadAzeriteVals(AzeriteString) {
     })
 }
 
-var wowHeadbtn = document.getElementById("findLinkBtn");
-wowHeadbtn.addEventListener('click', () => {
-    LoadItemViaWowHead();
-})
+
 
 function LoadItemViaWowHead() {
     var link = document.getElementById("wowheadLink").value;
@@ -748,7 +752,19 @@ function LoadItemViaWowHead() {
             var itemTd = document.createElement('td');
             itemTd.appendChild(itemImg);
             itemTd.appendChild(itemLink); //back here gre   
+
+                   //now lets add a button to remove that item
+                   var removeTd = document.createElement('td');
+                   var removeBtn = document.createElement('button');
+                   removeBtn.addEventListener('click',() =>{
+                      document.getElementById('itemTblBody').removeChild(itemRowTr);
+                });
+                   removeBtn.innerHTML = "Remove Item";
+                   removeBtn.className = "btn btn-danger"
+                   removeTd.appendChild(removeBtn);
+                 
             itemRowTr.appendChild(itemTd);
+            itemRowTr.appendChild(removeTd);
             itemTblBody.appendChild(itemRowTr);
             if (document.getElementById("itemTable") != null) {
                 document.getElementById("itemTblBody").appendChild(itemRowTr);
@@ -771,4 +787,3 @@ function LoadItemViaWowHead() {
 
 
 }
-
