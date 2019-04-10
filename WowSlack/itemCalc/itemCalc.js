@@ -35,6 +35,7 @@ ipcRenderer.on("load-itemCalc", (sender, args) => {
     var tid = setInterval(function () { //ensure that doc is ready before firing anything, this fixs issues with page loading
         if (document.readyState !== 'complete') return;
         clearInterval(tid);
+        $('[data-toggle="tooltip"]').tooltip(); //tooltips are static
         $('.js-example-basic-single').select2();
         LoadPersonalMode();
         LoadGuildMode();
@@ -233,9 +234,6 @@ async function GenerateCharItemTemplate(Name, Sever, Region, Pawnstring, classID
                     })
                 })
 
-
-
-
                 var CharObj = {}; //create a blank object to build up
                 CharObj.charName = Name; //set the name on the object
                 CharObj.classID = classID; //use this for wowheadTooltips later
@@ -347,6 +345,9 @@ function AddCharToTable(CharTemplate) {
             itemLink.href = "https://www.wowhead.com/item=" + itemID;
             itemLink.innerHTML = items[itemSlots[index]].ItemName;
             itemLink.id = CharTemplate.charName + ":" + itemSlots[index];
+            itemLink.onclick = function (e) {
+                e.preventDefault(); //prevent users from click the link
+              }
             var att = document.createAttribute("data-wowhead");
             var itemImg = document.createElement('img');
             itemImg.src = items[itemSlots[index]].itemImg
@@ -407,9 +408,6 @@ function clearCharTables() {
     document.getElementById("nav-tabContent").innerHTML = null;
 }
 
-function clearitemFromTable() {
-    
-}
 
 //function to attach item's stat values to an object,used in the generatechartemplate function
 function GenerateItemValue(item) {
@@ -446,13 +444,60 @@ async function CompareItems() //function to compare two items and get a postive(
         charArray.push(document.getElementsByName("charObj")[x].charObj);
     }
 
+    //now create a results table we can append the results on
+    //if (document.getElementById("nav" + "-" + "results" + "-" + "tab") == null) {
+//var resultsNav = document.createElement('a');
+     //   resultsNav.id = "nav" + "-" + "results" + "-" + "tab";
+     //   resultsNav.setAttribute("data-toggle", "tab");
+      //  resultsNav.className = "nav-item nav-link";
+     //   resultsNav.href = "#nav-" + "results"
+     //   resultsNav.setAttribute("aria-controls", "nav-" + "results");
+     //   resultsNav.innerHTML = "Results"
+     //   if (document.getElementById('nav-tab').hasChildNodes()) {
+     //       resultsNav.setAttribute("aria-selected", "true");
+     //   } else {
+      //      resultsNav.setAttribute("aria-selected", "false");
+      //  }
+
+  //  }
+
+    //var resultsTblDiv = document.createElement('div');
+    //resultsTblDiv.className = "tab-pane fade";
+    //resultsTblDiv.id = "nav-" + "results";
+    //resultsTblDiv.setAttribute("role", "tabpanel");
+    //resultsTblDiv.setAttribute("aria-labelledby", resultsTblDiv.id);
+
+    //var resultsTbl = document.createElement('table');
+    //resultsTbl.className = "table";
+    //resultsTbl.id = "resultsTable"
+
+    //var resultsTblHead = document.createElement('thead');
+    //var resultsTblTRow = document.createElement('tr');
+    //var resultsHead = document.createElement('th');
+    //resultsHead.innerHTML = "Characters";
+    //resultsTblTRow.appendChild(resultsHead);
+    //var itemHead = document.createElement('th');
+    //itemHead.innerHTML = "items";
+    //resultsTblTRow.appendChild(itemHead);
+    //var resultsTblBody = document.createElement('tbody');
+   // resultsTblBody.id = "resultsTblBody"
+
+
     //loop though every character and run the math
     for (let charIndex = 0; charIndex < charArray.length; charIndex++) { //for every char
+      //  var charTr = document.createElement('tr');
+      //  var nameTd = document.createElement('td');
+      //  nameTd.innerHTML = charArray[charIndex].charName;
+       // charTr.appendChild(nameTd);
         for (let itemIndex = 0; itemIndex < itemArray.length; itemIndex++) {
             var currentChar = charArray[charIndex]; //get the current character being iterated on
             var newtItem = itemArray[itemIndex];
             var newitemID = newtItem.id;
             var newItemBonusArray = newtItem.bonusArray;
+
+          //  var itemTd =document.createElement('td');
+           // itemTd.innerHTML = newtItem;
+          //  charTr.appendChild(itemTd);
             await blizzard.wow.item({
                     id: newitemID,
                     bonuses: newItemBonusArray,
@@ -499,6 +544,7 @@ async function CompareItems() //function to compare two items and get a postive(
                             });
                         }
                         //need to edit to include all values, not just for custom
+
                         var newitemValue = GetOverallItemValue(newitem[response.data.name], currentChar.StatWeights[key], currentChar.AzeriteValues[key], InvMap[response.data.inventoryType], currentChar.classID);
                         //now that we have the result,we can append to to the relevant tag in the character
                         var itemLink = document.getElementById(currentChar.charName + ":" + InvMap[response.data.inventoryType] + ":" + key)
@@ -506,35 +552,30 @@ async function CompareItems() //function to compare two items and get a postive(
                         var resultP = document.createElement('p')
                         resultP.style.border = '5px solid black';
                         resultP.name = "results" //can use this for reset
+
+                      //  var specTh = document.createElement('th');
+                       // specTh.innerHTML = key;
+                      //  resultsTblTRow.appendChild(specTh);
+
                         try { //some class/specs dont wear certain peices of gear,so a good chance it just cant be equiped,handle it with a try catch
                             var resultPercentage = (currentItem.OverAllValue - newitemValue) / currentItem.OverAllValue * 100.0;
                             if (resultPercentage < 0) { //downgrade
                                 resultP.innerHTML = Math.abs(resultPercentage).toFixed(2) + "%";
                                 resultP.style.color = "green"
 
-                                //I also want to append this information to the ItemRow
-                                // itemRowTr.id = "compareTR" + ":" + itemID;
-                                var itemRowTr = document.getElementById("compareTR" + ":" + newitemID);
-                                //back here greg
-                                var charNavLink = document.createElement('a');
-                                charNavLink.id = "nav" + "-" + currentChar.charName + "-" + "tab";
-                                charNavLink.setAttribute("data-toggle", "tab");
-                                charNavLink.className = "nav-item nav-link";
-                                charNavLink.href = "#nav-" + currentChar.charName
-                                charNavLink.setAttribute("aria-controls", "nav-" + currentChar.charName);
-                                charNavLink.onclick = function () {
-                                    document.getElementById("nav" + "-" + currentChar.charName + "-" + "tab").setAttribute("aria-selected", "true");
-                                }
-                                charNavLink.innerHTML = "Upgrade found for:" + currentChar.charName + " for : " + key
-                                var itemTd = document.createElement('td');
-                                itemTd.appendChild(charNavLink);
-                                itemRowTr.appendChild(itemTd);
+
                             } else { //upgrade
                                 resultP.innerHTML = Math.abs(resultPercentage).toFixed(2) + "%";
                                 resultP.style.color = "red"
                             }
 
                             itemLink.appendChild(resultP);
+                         //   var resultTd = document.createElement('td');
+                         //   resultTd.appendChild(resultP);
+                        //    charTr.appendChild(itemArray[itemIndex]);
+                        //    charTr.appendChild(resultTd);
+                            //now append this info to the table
+                            
                         } catch (error) {
                             resultP.innerHTML = "No matching Slot"
                         }
@@ -542,9 +583,15 @@ async function CompareItems() //function to compare two items and get a postive(
                     }
                 })
 
+                
+               // resultsTbl.appendChild(resultsTblBody);
+              //  resultsTblHead.appendChild(resultsTblTRow);
+              //  resultsTblDiv.appendChild(resultsTbl);
+               // document.getElementById('nav-tab').appendChild(resultsNav);
+               // document.getElementById('nav-tabContent').append(resultsTblDiv);
 
-
-
+              //  resultsTblBody.appendChild(charTr)
+              //  resultsTbl.appendChild(resultsTblHead);
 
         }
     }
@@ -732,6 +779,9 @@ function LoadItemViaWowHead() {
             itemLink.href = "https://www.wowhead.com/item=" + itemID;
             itemLink.innerHTML = response.data.name;
             itemLink.name = "compareItem";
+            itemLink.onclick = function (e) {
+                e.preventDefault(); //prevent users from click the link
+              }
             var itemObj = {}
             itemObj.id = response.data.id;
             itemObj.bonusArray = BounusIDs; //obj here=

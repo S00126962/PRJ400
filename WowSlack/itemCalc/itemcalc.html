@@ -27,18 +27,16 @@
             <div class="row">
               <div class="col-sm">
                     <h5>Character Select</h5>
-                    <div class="tooltip"> What is this?
-                            <span class="tooltiptext">Select characters to compare items with, they will be loaded into the table below</span>
-                          </div>
+                    <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="You can add characters here, search a character in the search box and click to add it to the comparsion">
+                        ?</button>
                     <select id="charSelect" class="js-example-basic-single" style="width:95%;" name="state">
                         </select>
               </div>
               <div class="col-sm">
                    
                     <h5>Load item by WowHeadLink</h5>
-                    <div class="tooltip">?
-                            <span class="tooltiptext">In order to load an item to compare, we need a Wowhead item. You can use the addon "Wowhead Link Generator" and paste the link here</span>
-                          </div>
+                    <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="We use Wowhead links to pull items in to compare, you can look up an item on Wowhead, or use Wowhead Link Grabber(availble on the Twitch client) to get item links in game ">
+                        ?</button>
                     <input type="text" class="form-control" id="wowheadLink" placeholder="Wow Head Link"><br>
                     <button id="findLinkBtn" type="button" class="btn btn-primary mb-2">Find Item</button>
               </div>
