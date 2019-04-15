@@ -1,5 +1,5 @@
 window.$ = window.Jquery = require("jquery")
-window.$ = window.Jquery = require("jquery")
+//window.$ = window.Jquery = require("jquery")
 const request = require('request');
 var electron = require('electron');
 var ipcRenderer = electron.ipcRenderer;
@@ -42,6 +42,10 @@ ipcRenderer.on("load-itemCalc", (sender, args) => {
         var wowHeadbtn = document.getElementById("findLinkBtn");
         wowHeadbtn.addEventListener('click', () => {
             LoadItemViaWowHead();
+        });
+        var compareBtn = document.getElementById("CompareItems");
+        compareBtn.addEventListener("click", () => {
+            CompareItems();
         });
         var clearCharBtn = document.getElementById("resetTable");
         clearCharBtn.addEventListener("click", () => {
@@ -156,6 +160,7 @@ async function loadCharTemplate(id) {
 }
 
 //important function,used to generate a value for items on char/new items
+//FIX : NEED TO GET AT THE ITEMS DETAILS HERE
 function GetOverallItemValue(itemToCalc, StatWeights, AzeriteWeights, SlotName, classID) {
     var ItemValue = 0; //var to hold the overallValue for the item
     var PrimaryArrray = [itemMap["3"], itemMap["4"], itemMap["5"], itemMap["71"], itemMap["72"], itemMap["73"], itemMap["74"]]; //array containing all the "Primary" keys
@@ -347,7 +352,7 @@ function AddCharToTable(CharTemplate) {
             itemLink.id = CharTemplate.charName + ":" + itemSlots[index];
             itemLink.onclick = function (e) {
                 e.preventDefault(); //prevent users from click the link
-              }
+            }
             var att = document.createAttribute("data-wowhead");
             var itemImg = document.createElement('img');
             itemImg.src = items[itemSlots[index]].itemImg
@@ -381,7 +386,7 @@ function AddCharToTable(CharTemplate) {
                 ValTd.innerHTML = parseFloat(itemVal.toFixed(2));
                 ValTd.id = CharTemplate.charName + ":" + itemSlots[index] + ":" + key;
                 itemRowTr.appendChild(ValTd);
-                
+
             }
             charTblBody.appendChild(itemRowTr);
         } catch (error) {
@@ -422,10 +427,6 @@ function GenerateItemValue(item) {
 }
 
 //assign the compare function to the compare button
-var compareBtn = document.getElementById("CompareItems");
-compareBtn.addEventListener("click", () => {
-    CompareItems();
-});
 
 async function CompareItems() //function to compare two items and get a postive(upgrade)/negative(downgrade) intger 
 {
@@ -446,20 +447,20 @@ async function CompareItems() //function to compare two items and get a postive(
 
     //now create a results table we can append the results on
     //if (document.getElementById("nav" + "-" + "results" + "-" + "tab") == null) {
-//var resultsNav = document.createElement('a');
-     //   resultsNav.id = "nav" + "-" + "results" + "-" + "tab";
-     //   resultsNav.setAttribute("data-toggle", "tab");
-      //  resultsNav.className = "nav-item nav-link";
-     //   resultsNav.href = "#nav-" + "results"
-     //   resultsNav.setAttribute("aria-controls", "nav-" + "results");
-     //   resultsNav.innerHTML = "Results"
-     //   if (document.getElementById('nav-tab').hasChildNodes()) {
-     //       resultsNav.setAttribute("aria-selected", "true");
-     //   } else {
-      //      resultsNav.setAttribute("aria-selected", "false");
-      //  }
+    //var resultsNav = document.createElement('a');
+    //   resultsNav.id = "nav" + "-" + "results" + "-" + "tab";
+    //   resultsNav.setAttribute("data-toggle", "tab");
+    //  resultsNav.className = "nav-item nav-link";
+    //   resultsNav.href = "#nav-" + "results"
+    //   resultsNav.setAttribute("aria-controls", "nav-" + "results");
+    //   resultsNav.innerHTML = "Results"
+    //   if (document.getElementById('nav-tab').hasChildNodes()) {
+    //       resultsNav.setAttribute("aria-selected", "true");
+    //   } else {
+    //      resultsNav.setAttribute("aria-selected", "false");
+    //  }
 
-  //  }
+    //  }
 
     //var resultsTblDiv = document.createElement('div');
     //resultsTblDiv.className = "tab-pane fade";
@@ -480,24 +481,24 @@ async function CompareItems() //function to compare two items and get a postive(
     //itemHead.innerHTML = "items";
     //resultsTblTRow.appendChild(itemHead);
     //var resultsTblBody = document.createElement('tbody');
-   // resultsTblBody.id = "resultsTblBody"
+    // resultsTblBody.id = "resultsTblBody"
 
 
     //loop though every character and run the math
     for (let charIndex = 0; charIndex < charArray.length; charIndex++) { //for every char
-      //  var charTr = document.createElement('tr');
-      //  var nameTd = document.createElement('td');
-      //  nameTd.innerHTML = charArray[charIndex].charName;
-       // charTr.appendChild(nameTd);
+        //  var charTr = document.createElement('tr');
+        //  var nameTd = document.createElement('td');
+        //  nameTd.innerHTML = charArray[charIndex].charName;
+        // charTr.appendChild(nameTd);
         for (let itemIndex = 0; itemIndex < itemArray.length; itemIndex++) {
             var currentChar = charArray[charIndex]; //get the current character being iterated on
             var newtItem = itemArray[itemIndex];
             var newitemID = newtItem.id;
             var newItemBonusArray = newtItem.bonusArray;
 
-          //  var itemTd =document.createElement('td');
-           // itemTd.innerHTML = newtItem;
-          //  charTr.appendChild(itemTd);
+            //  var itemTd =document.createElement('td');
+            // itemTd.innerHTML = newtItem;
+            //  charTr.appendChild(itemTd);
             await blizzard.wow.item({
                     id: newitemID,
                     bonuses: newItemBonusArray,
@@ -509,6 +510,7 @@ async function CompareItems() //function to compare two items and get a postive(
                     var invSlot = InvMap[response.data.inventoryType];
                     var statsObj = GenerateItemValue(response.data.bonusStats);
                     newitem[response.data.name] = statsObj;
+                    newitem = statsObj;
                     newitem.azerite = response.data.azeriteClassPowers;
                     for (var key in currentChar.PawnObjs) {
                         //back here mate
@@ -518,34 +520,32 @@ async function CompareItems() //function to compare two items and get a postive(
                         //check to see if its a azerite item
                         if (InvMap[response.data.inventoryType] == "head" || InvMap[response.data.inventoryType] == "shoulder" || InvMap[response.data.inventoryType] == "chest") {
 
-                            var teir1 = newAzeriteIDs.filter(function (el) {
+                            var teir1 = newitem.azerite[currentChar.classID].filter(function (el) {
                                 return el.tier === 1
                             });
-                            var optiomalT1 = OptimalAzeriteTeir(teir1, currentChar.classID)
+                            var optiomalT1 = OptimalAzeriteTeir(teir1, currentChar.AzeriteValues[key])
 
-                            var teir2 = newAzeriteIDs.filter(function (el) {
+                            var teir2 = newitem.azerite[currentChar.classID].filter(function (el) {
                                 return el.tier === 2
                             });
-                            var optiomalT2 = OptimalAzeriteTeir(teir2, currentChar.classID)
+                            var optiomalT2 = OptimalAzeriteTeir(teir2, currentChar.AzeriteValues[key])
 
-                            var teir3 = newAzeriteIDs.filter(function (el) {
+                            var teir3 = newitem.azerite[currentChar.classID].filter(function (el) {
                                 return el.tier === 3
                             });
-                            var optiomalT3 = OptimalAzeriteTeir(teir3, currentChar.classID);
+                            var optiomalT3 = OptimalAzeriteTeir(teir3, currentChar.AzeriteValues[key]);
 
-                            var teir4 = newAzeriteIDs.filter(function (el) {
+                            var teir4 = newitem.azerite[currentChar.classID].filter(function (el) {
                                 return el.tier === 4
                             });
-                            var optiomalT4 = OptimalAzeriteTeir(teir4, currentChar.classID);
+                            var optiomalT4 = OptimalAzeriteTeir(teir4, currentChar.AzeriteValues[key]);
 
-                            //azeriteArray
-                            Promise.all([optiomalT1, optiomalT2, optiomalT3, optiomalT4]).then(function (values) {
-                                newitem.azeriteArray = [optiomalT1, optiomalT2, optiomalT3, optiomalT4]
-                            });
+                            newitem.azeriteArray = [optiomalT1, optiomalT2, optiomalT3, optiomalT4]
+
                         }
                         //need to edit to include all values, not just for custom
 
-                        var newitemValue = GetOverallItemValue(newitem[response.data.name], currentChar.StatWeights[key], currentChar.AzeriteValues[key], InvMap[response.data.inventoryType], currentChar.classID);
+                        var newitemValue = GetOverallItemValue(newitem, currentChar.StatWeights[key], currentChar.AzeriteValues[key], InvMap[response.data.inventoryType], currentChar.classID);
                         //now that we have the result,we can append to to the relevant tag in the character
                         var itemLink = document.getElementById(currentChar.charName + ":" + InvMap[response.data.inventoryType] + ":" + key)
                         //now for math, I need to get the value of the current item in the slot vs the new value we have for that slot
@@ -553,9 +553,9 @@ async function CompareItems() //function to compare two items and get a postive(
                         resultP.style.border = '5px solid black';
                         resultP.name = "results" //can use this for reset
 
-                      //  var specTh = document.createElement('th');
-                       // specTh.innerHTML = key;
-                      //  resultsTblTRow.appendChild(specTh);
+                        //  var specTh = document.createElement('th');
+                        // specTh.innerHTML = key;
+                        //  resultsTblTRow.appendChild(specTh);
 
                         try { //some class/specs dont wear certain peices of gear,so a good chance it just cant be equiped,handle it with a try catch
                             var resultPercentage = (currentItem.OverAllValue - newitemValue) / currentItem.OverAllValue * 100.0;
@@ -570,12 +570,12 @@ async function CompareItems() //function to compare two items and get a postive(
                             }
 
                             itemLink.appendChild(resultP);
-                         //   var resultTd = document.createElement('td');
-                         //   resultTd.appendChild(resultP);
-                        //    charTr.appendChild(itemArray[itemIndex]);
-                        //    charTr.appendChild(resultTd);
+                            //   var resultTd = document.createElement('td');
+                            //   resultTd.appendChild(resultP);
+                            //    charTr.appendChild(itemArray[itemIndex]);
+                            //    charTr.appendChild(resultTd);
                             //now append this info to the table
-                            
+
                         } catch (error) {
                             resultP.innerHTML = "No matching Slot"
                         }
@@ -583,15 +583,15 @@ async function CompareItems() //function to compare two items and get a postive(
                     }
                 })
 
-                
-               // resultsTbl.appendChild(resultsTblBody);
-              //  resultsTblHead.appendChild(resultsTblTRow);
-              //  resultsTblDiv.appendChild(resultsTbl);
-               // document.getElementById('nav-tab').appendChild(resultsNav);
-               // document.getElementById('nav-tabContent').append(resultsTblDiv);
 
-              //  resultsTblBody.appendChild(charTr)
-              //  resultsTbl.appendChild(resultsTblHead);
+            // resultsTbl.appendChild(resultsTblBody);
+            //  resultsTblHead.appendChild(resultsTblTRow);
+            //  resultsTblDiv.appendChild(resultsTbl);
+            // document.getElementById('nav-tab').appendChild(resultsNav);
+            // document.getElementById('nav-tabContent').append(resultsTblDiv);
+
+            //  resultsTblBody.appendChild(charTr)
+            //  resultsTbl.appendChild(resultsTblHead);
 
         }
     }
@@ -599,7 +599,7 @@ async function CompareItems() //function to compare two items and get a postive(
 
 
 function OptimalAzeriteTeir(azeriteTeir, azeriteArray) { //used to find the best azerite value for a teir and return the dps value
-
+    //back here greg
     var returnAzeriteVal = 0;
 
     for (let index = 0; index < azeriteTeir.length; index++) {
@@ -617,7 +617,8 @@ function OptimalAzeriteTeir(azeriteTeir, azeriteArray) { //used to find the best
         }
 
     }
-    resolve(returnAzeriteVal)
+    return returnAzeriteVal
+
 }
 
 
@@ -781,7 +782,7 @@ function LoadItemViaWowHead() {
             itemLink.name = "compareItem";
             itemLink.onclick = function (e) {
                 e.preventDefault(); //prevent users from click the link
-              }
+            }
             var itemObj = {}
             itemObj.id = response.data.id;
             itemObj.bonusArray = BounusIDs; //obj here=
@@ -803,16 +804,16 @@ function LoadItemViaWowHead() {
             itemTd.appendChild(itemImg);
             itemTd.appendChild(itemLink); //back here gre   
 
-                   //now lets add a button to remove that item
-                   var removeTd = document.createElement('td');
-                   var removeBtn = document.createElement('button');
-                   removeBtn.addEventListener('click',() =>{
-                      document.getElementById('itemTblBody').removeChild(itemRowTr);
-                });
-                   removeBtn.innerHTML = "Remove Item";
-                   removeBtn.className = "btn btn-danger"
-                   removeTd.appendChild(removeBtn);
-                 
+            //now lets add a button to remove that item
+            var removeTd = document.createElement('td');
+            var removeBtn = document.createElement('button');
+            removeBtn.addEventListener('click', () => {
+                document.getElementById('itemTblBody').removeChild(itemRowTr);
+            });
+            removeBtn.innerHTML = "Remove Item";
+            removeBtn.className = "btn btn-danger"
+            removeTd.appendChild(removeBtn);
+
             itemRowTr.appendChild(itemTd);
             itemRowTr.appendChild(removeTd);
             itemTblBody.appendChild(itemRowTr);

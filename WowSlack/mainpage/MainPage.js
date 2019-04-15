@@ -152,8 +152,8 @@ function loadChatPage(chatId,guildID)
 
 function loadEventPage(id)
 {
-        console.log(id)
-    $("#pageArea").load("../guildCalendar/guildCalendar.html");
+   console.log(id)
+    $("#pageArea").load("../guildCalendarV2/calendar.html");
     ipcRenderer.send("load-guildEventPage",id);
 }
 
