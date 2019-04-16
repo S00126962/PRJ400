@@ -1,6 +1,7 @@
-//window.$ = window.jQuery = require('jquery'); // <-- main, not 'slim'
 window.Popper = require('popper.js');
 window.Tooltip = require('tooltip.js');
+window.select2 = require('select2');
+
 const remote = require('electron').remote;
 var config = {
     apiKey: "AIzaSyBPwA6lwFFahoYIABYpeAvjmSA10gkj040",
@@ -34,6 +35,14 @@ ipcRenderer.on('load-guildEventPage', (event, args) => {
             plugins: ['dayGrid'],
             defaultView: 'dayGridMonth',
             defaultDate: '2019-04-07',
+            customButtons: {
+                AddEventBtn: {
+                  text: 'Add Event',
+                  click: function() {
+                    AddEvent();
+                  }
+                }
+              },
             eventRender: function(info) {
                 console.log(info);
                 var tooltip = new Tooltip(info.el, {
@@ -44,10 +53,11 @@ ipcRenderer.on('load-guildEventPage', (event, args) => {
                 });
               },
               eventClick: function(info) {
-                ipcRenderer.send('load-eventCreate', remote.getGlobal("loadGuildID"));
+                console.log(info)
+                ipcRenderer.send('load-eventEdit',info.event.id);
               },
             header: {
-                left: 'prev,next today',
+                left: 'prev,next today AddEventBtn',
                 center: 'title',
                 right: ''
             },
@@ -55,6 +65,13 @@ ipcRenderer.on('load-guildEventPage', (event, args) => {
         });
         calendar.render();
         initLister();
+        var tid2 = setInterval( function () {
+            if ( window.select2 == undefined ) return;
+            clearInterval( tid2 );       
+            $('.js-example-basic-multiple').select2();
+        }, 100 );
+     
+        
     }, 100);
 });
 
@@ -86,8 +103,9 @@ events.onSnapshot(snapshot => {
                 var tid = setInterval(function () {
                     if (document.readyState !== 'complete') return;
                     clearInterval(tid);
-                    RenderEvent(EventData);
-                    console.log(EventData)
+                    RenderEvent(EventData,change.doc.id);
+                    console.log("i should be turing off")
+                    ipcRenderer.send('toggleLoaderOff');
                 });
             }, 100);
         })
@@ -95,8 +113,15 @@ events.onSnapshot(snapshot => {
 })
 }
 
-function RenderEvent(eventObj) {
+function AddEvent() {
+    ipcRenderer.send('load-eventCreate', remote.getGlobal("loadGuildID"))
+  }
 
+function RenderEvent(eventObj,eventID) {
+
+    if (calendar.getEventById(eventID)) {
+        calendar.getEventById(eventID).remove();
+    }
     var memeberNames = [];
     eventObj.Memebers.forEach((mID) => {
         db.collection('Users').where('UserID', '==', mID).get().then((snapshot) => {
@@ -109,17 +134,16 @@ function RenderEvent(eventObj) {
             eventContent += 'Description:' + eventObj.description + "\n";
             for (let index = 0; index < memeberNames.length; index++) {
                 eventContent += memeberNames[index] + "\n"
-                console.log(eventContent)
             }
 
 
             calendar.addEvent({
+                id : eventID,
                 title: eventObj.title,
                 start: eventObj.start,
                 end: eventObj.end,
                 description: eventContent,
                 eventMemebers: memeberNames
-
             });
         })
     })

@@ -8,6 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
     <!-- Custom styles for this template-->
     <link href= "mainPage.css" rel="stylesheet">
+    <link href= "loader.css" rel="stylesheet">
 
     <!--Valdaite js form,make sure its correct-->
     <script>var whTooltips = {colorLinks: true, iconizeLinks: true, renameLinks: true};</script>
@@ -20,8 +21,8 @@
     <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
 
       
-      <a href="https://www.wowhead.com/item=32474"  class="q4">JUST demoing WOWheadTooltips</a>
-      <button id="signoutBtn" class="btn btn-primary">LogOut</button>
+      <h3 class="nav-link" style="color:white">WowSlack</h3>
+      <button id="signoutBtn" class="btn btn-light">LogOut</button>
       <!-- Navbar -->
     </nav>
 
@@ -54,9 +55,14 @@
 
   
         <!-- /.container-fluid -->
-
-       <div id="pageArea">
-
+        <div>
+        <div id="loader" style="display:none">
+         weeeee
+        </div>
+       <div id="pageArea" class="animate-bottom">
+         
+        </div>
+        
        </div>
       </div>
       <!-- /.content-wrapper -->

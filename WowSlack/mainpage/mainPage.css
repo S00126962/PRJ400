@@ -45,11 +45,7 @@
       padding-left: 90px;
     }
   }
-  #pageArea{
-    overflow: scroll;
-    height: 100%;
-    width: 100%;
-  }
+  
   
   .scroll-to-top {
     position: fixed;

@@ -20,8 +20,35 @@ db.settings({
         timestampsInSnapshots: true
 })
 
-ipcRenderer.on('info', function (event, data) {
+ipcRenderer.on('info', function (event, data) {     
+        loadProfilePage();
+var signOutBtn = document.getElementById('signoutBtn');
+signOutBtn.addEventListener('click', function (event) {
+        var config = {
+                apiKey: "AIzaSyBPwA6lwFFahoYIABYpeAvjmSA10gkj040",
+                authDomain: "wow-slack.firebaseapp.com",
+                databaseURL: "https://wow-slack.firebaseio.com",
+                projectId: "wow-slack",
+                storageBucket: "wow-slack.appspot.com",
+                messagingSenderId: "105436064015"
+        };
+        firebase.initializeApp(config);
+        firebase.auth().signOut().then(function () {
 
+                ipcRenderer.send('sign-out')
+        }).catch(function (error) {
+
+                if (error != null) {
+                        alert(error.message)
+                        return;
+                }
+        })
+});
+
+var profileBtn = document.getElementById('profilePageBtn');
+profileBtn.addEventListener('click', () => {
+        loadProfilePage();
+})
 
         var uID = remote.getGlobal("uid");
         db.collection('Users').where('UserID', '==', uID).get().then((snapshot) => {
@@ -139,70 +166,43 @@ function loadGuildOpts(id,name) {
 }
 
 function loadItemCalc() {
+        toggleLoaderOn();
         $("#pageArea").load("../itemCalc/itemcalc.html");
         ipcRenderer.send("load-itemCalc");
 }
 
 function loadChatPage(chatId,guildID)
 {
-    console.log("At least the click is working" + guildID + " " + chatId)
+        toggleLoaderOn();
     $("#pageArea").load("../guildChatpage/guildChatPage.html");
     ipcRenderer.send("load-guildChatpage",chatId,guildID);
 }
 
 function loadEventPage(id)
 {
-   console.log(id)
+   toggleLoaderOn();
     $("#pageArea").load("../guildCalendarV2/calendar.html");
     ipcRenderer.send("load-guildEventPage",id);
 }
 
-
-var signOutBtn = document.getElementById('signoutBtn');
-signOutBtn.addEventListener('click', function (event) {
-        var config = {
-                apiKey: "AIzaSyBPwA6lwFFahoYIABYpeAvjmSA10gkj040",
-                authDomain: "wow-slack.firebaseapp.com",
-                databaseURL: "https://wow-slack.firebaseio.com",
-                projectId: "wow-slack",
-                storageBucket: "wow-slack.appspot.com",
-                messagingSenderId: "105436064015"
-        };
-        firebase.initializeApp(config);
-        firebase.auth().signOut().then(function () {
-
-                ipcRenderer.send('sign-out')
-        }).catch(function (error) {
-
-                if (error != null) {
-                        alert(error.message)
-                        return;
-                }
-        })
-});
-
-var profileBtn = document.getElementById('profilePageBtn');
-profileBtn.addEventListener('click', () => {
-        loadProfilePage();
-        //  sendTabChangeMessage;
-})
-
-$(document).ready(function () {
-        loadProfilePage(); //default page load here
-});
-
-
 function loadProfilePage() {
-        console.log("Boom");
+        toggleLoaderOn();
         $("#pageArea").load("../ProfilePage/ProfilePage.html");
         ipcRenderer.send("tabChangeProfile");
 }
 
-//function sendTabChangeMessage()
-//{
-//    console.log("tab change here");
-//      ipcRenderer.send("tabChangeProfile");
-//}
+function toggleLoaderOn()
+{
+        document.getElementById('pageArea').style.display = "none";
+        document.getElementById('loader').style.display = "";
+}
+
+ipcRenderer.on('toggleLoaderOff', () =>{
+        console.log("I should be off right now")
+        document.getElementById('pageArea').style.display = "";
+        document.getElementById('loader').style.display = "none";
+        
+})
 
 function loadGuildPage(id) {
         console.log("In mainpage")

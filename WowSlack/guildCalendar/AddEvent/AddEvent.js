@@ -16,28 +16,17 @@ var db = firebase.firestore();
 db.settings({timestampsInSnapshots:true})
 
 $(document ).ready(function() {
+    document.getElementById('AddSelected').addEventListener('click', (sender) => {
+        sender.preventDefault();
+        addMemebers();
+    });
+    document.getElementById('createEventForm').addEventListener('submit', (sender) => {
+        sender.preventDefault();
+        AddEvent();
+    });
     loadMemebers();
     });
 
-
-ipcRenderer.on('load-eventCreate',(args) =>{
-    console.log("messageReviced" + args);
-
-    //first need to get a list of everyone in the guild
-    var guildref = db.collection("Guilds")
-    var guildInQuestions = guildref.doc(remote.getGlobal("Gid"));
-
-    guildInQuestions.get().then((snapshot) =>{
-        snapshot.forEach(doc =>{
-            console.log("I am grrot");
-        });
-    });
-});
-
-document.getElementById('createEventForm').addEventListener('submit', (sender) => {
-    sender.preventDefault();
-    AddEvent();
-});
 
 function AddEvent()
 {
@@ -68,6 +57,7 @@ function AddEvent()
         description : eventDescrip,
         Memebers : eventMemebers
     });
+    ipcRenderer.send('eventAdded')
 }
 
 function loadMemebers()
@@ -96,17 +86,21 @@ function loadMemebers()
     });
 }
 
-document.getElementById('AddSelected').addEventListener('click', () => {
-    addMemebers();
-})
 function addMemebers()
-{
-    
+{   
     var clicked = document.getElementById("guildMemebersSel").options[document.getElementById("guildMemebersSel").selectedIndex];
     var newMemeber = document.createElement('li');
     newMemeber.className = "list-group-item";
     newMemeber.innerHTML =clicked.value;
     newMemeber.id = clicked.id;
+    var btn = document.createElement('button');
+    btn.className = "btn btn-danger btn-xs"; //need restyle
+    btn.innerHTML = "X";
+    btn.addEventListener('click', (sender) =>{
+        sender.preventDefault();
+        newMemeber.remove();
+    })
+    newMemeber.append(btn);
     console.log(newMemeber);
     document.getElementById('addedMemebers').appendChild(newMemeber);
 }

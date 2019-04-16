@@ -125,6 +125,7 @@ function LoadGuildMode() {
             return;
         }
     })
+    ipcRenderer.send('toggleLoaderOff');
 }
 
 document.getElementById('refreshChars').addEventListener('click', () => {

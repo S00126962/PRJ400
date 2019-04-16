@@ -19,7 +19,10 @@ app.on('ready', function () {
         minWidth: 1281,
         minHeight: 800,
     })
-    //  MainWindow.hide(); //dont want to show this until user logs in
+    MainWindow.on("close", (evt) => {
+        app.quit();
+    });
+     MainWindow.hide(); //dont want to show this until user logs in
 
     let $ = require('jquery');
     MainWindow.$ = $;
@@ -30,6 +33,11 @@ app.on('ready', function () {
         minHeight: 600,
         parent: MainWindow
     })
+
+    ChildWindow.on("close", (evt) => {
+        evt.preventDefault();    
+        ChildWindow.hide();
+    });
 
     var isLogedInAlready = false; //need to implent this proper
     MainWindow.loadURL(url.format({
@@ -67,15 +75,14 @@ ipcMain.on('asynchronous-message', (event, args) => {
     ChildWindow.hide(); //when we do login,close the login window
     console.log("login" + " " + args)
     global.uid = args
-    MainWindow.once('ready-to-show', () => {
-        child.show()
-    })
+    MainWindow.show();
     MainWindow.webContents.send('info', args);
     MainWindow.webContents.send('loadProfilePage');
 
 });
 
 ipcMain.on('tabChangeProfile', (sender, args) => {
+    console.log(sender)
     console.log("LoadProfilePage from main")
     MainWindow.webContents.send('loadProfilePage');
 })
@@ -110,6 +117,7 @@ ipcMain.on("storeAuthToken", (event, authToken) => { //store the Auth token in t
 });
 
 ipcMain.on('sign-out', (event, args) => {
+    MainWindow.hide();
     ChildWindow.loadURL(url.format({
         pathname: path.join(__dirname, '../login/loginWindow.html'),
         protocol: 'file',
@@ -146,6 +154,7 @@ ipcMain.on('load-guildChatpage', (event, args, args2) => {
 })
 
 ipcMain.on('load-guildEventPage', (event, args) => {
+    global.Gid = args; //fucking terrible idea,really bad
     console.log("load guild event called in Main page" + " " + args);
     MainWindow.webContents.send("load-guildEventPage", args);
 });
@@ -162,3 +171,26 @@ ipcMain.on('load-eventCreate', (event, args) => {
 
     ChildWindow.show();
 });
+
+ipcMain.on('load-eventEdit', (sender,args) =>{
+    console.log("Hmm little kiten")
+    ChildWindow.loadURL(url.format({
+        pathname: path.join(__dirname, '../guildCalendarV2/EventEdit/eventEdit.html'),
+        protocol: 'file',
+        show: false,
+        slashes: true
+    }));
+        global.editEventID = args;
+        ChildWindow.show();
+});
+
+ipcMain.on('eventAdded', () =>{
+    ChildWindow.hide();
+})
+
+ipcMain.on('eventUpdated', () =>{
+    ChildWindow.hide();
+})
+ipcMain.on('toggleLoaderOff', () =>{
+    MainWindow.webContents.send('toggleLoaderOff');
+})

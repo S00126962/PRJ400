@@ -14,6 +14,34 @@ ipcRenderer.on('loadProfilePage',() =>{
     if ( document.readyState !== 'complete' || remote.getGlobal("uid") == undefined) return;
     clearInterval( tid );       
     
+var searchInput = document.getElementById('searchCharacters');
+
+searchInput.addEventListener('input', () =>{ //very simple search,will do for time being
+    var input, filter, table, tr, td, i;
+    input = document.getElementById("searchCharacters");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("charTbl");
+    tr = table.getElementsByTagName("tr");
+  
+    // Loop through all table rows, and hide those who don't match the search query
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("td")[0];
+      if (td) {
+        if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      } 
+    }
+})
+
+var addcharBtn = document.getElementById('AddCharacterBTn');
+addcharBtn.addEventListener('click', () =>{
+
+        ipcRenderer.send('load-charCreate')
+})
+
     var uID = remote.getGlobal("uid");
     console.log(uID);
     var usernameLbl = document.getElementById('profileUserName');
@@ -72,7 +100,7 @@ ipcRenderer.on('loadProfilePage',() =>{
       return;
     }
   })
-    
+  ipcRenderer.send('toggleLoaderOff');
 }, 100 );
 })
 
@@ -90,33 +118,6 @@ function delteChar()
         console.error("Error removing document: ", error);
     });
 }
-var searchInput = document.getElementById('searchCharacters');
-
-searchInput.addEventListener('input', () =>{ //very simple search,will do for time being
-    var input, filter, table, tr, td, i;
-    input = document.getElementById("searchCharacters");
-    filter = input.value.toUpperCase();
-    table = document.getElementById("charTbl");
-    tr = table.getElementsByTagName("tr");
-  
-    // Loop through all table rows, and hide those who don't match the search query
-    for (i = 0; i < tr.length; i++) {
-      td = tr[i].getElementsByTagName("td")[0];
-      if (td) {
-        if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-          tr[i].style.display = "";
-        } else {
-          tr[i].style.display = "none";
-        }
-      } 
-    }
-})
-
-var addcharBtn = document.getElementById('AddCharacterBTn');
-addcharBtn.addEventListener('click', () =>{
-
-        ipcRenderer.send('load-charCreate')
-})
 
 
   

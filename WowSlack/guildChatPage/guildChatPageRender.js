@@ -42,6 +42,7 @@ ipcRenderer.on('load-guildChatpage', (event, data, data2) => {
         var messageData = change.doc.data()
         AppendMessage(messageData.MessageSender, messageData.MessageText, messageData.MessageTimeStamp);
       })
+      ipcRenderer.send('toggleLoaderOff');
     })
   }, 100);
 

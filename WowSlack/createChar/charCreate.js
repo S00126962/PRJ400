@@ -50,7 +50,10 @@ regionSelect.addEventListener('change', () => {
 
 createCharForm.addEventListener('submit', (sender) => {
     sender.preventDefault();
-
+    if (readPawnString(pawnString.value).PrimWeight == 0) {
+        alert("Invaild Pawn String");
+        return;
+    }
     blizzard.wow.character(['profile'], {
             realm: serverSelect.options[serverSelect.selectedIndex].innerText,
             name: charName.value,
