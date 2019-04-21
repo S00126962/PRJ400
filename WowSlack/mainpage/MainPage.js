@@ -43,11 +43,12 @@ signOutBtn.addEventListener('click', function (event) {
                         return;
                 }
         })
-});
 
+});
 var profileBtn = document.getElementById('profilePageBtn');
 profileBtn.addEventListener('click', () => {
-        loadProfilePage();
+       loadProfilePage();
+       JoinVoiceChannel(1,1);
 })
 
         var uID = remote.getGlobal("uid");
@@ -58,6 +59,10 @@ profileBtn.addEventListener('click', () => {
         })
 
 });
+
+function errorCallback(e) {
+        console.log('Error', e)
+     }
 
 function populatePageDetails(userData) {
         document.getElementById('userName').innerHTML = userData.UserName;
@@ -170,6 +175,44 @@ function loadItemCalc() {
         $("#pageArea").load("../itemCalc/itemcalc.html");
         ipcRenderer.send("load-itemCalc");
 }
+
+function JoinVoiceChannel(gid,channelID)
+{
+        let peer = new Peer(remote.getGlobal("uid")); //create the peer
+        //get the listener
+        var guildref = db.collection("Guilds")
+        var guildInQuestions = guildref.doc("1"); //hard code for node
+        var chatChanne = guildInQuestions.collection('ChatChannels');
+        var channelInQuestion = chatChanne.doc("S9gYVajDqhU8Gqa7sCPC");
+        var users = channelInQuestion.collection('ConnectedUsers');
+
+        users.orderBy('Name').onSnapshot(snapshot => { //order them by timestamp so we get oldest to newest
+                let changes = snapshot.docChanges(); //init the listner
+                changes.forEach(change => { //when it gets a chance
+                  var ConntectedUser = change.doc.id //get the message data
+                  console.log(ConntectedUser)
+                  navigator.getUserMedia({video: false, audio: true}, (localMediaStream) => {
+                       var call=  peer.call(ConntectedUser,localMediaStream);
+                       call.on('stream',(remoteStream) =>{
+                               console.log(remoteStream);
+                       })
+                        
+                })
+        })
+                });
+                
+
+peer.on('call', function(call) {
+        navigator.getUserMedia({video: false, audio: true}, (localMediaStream) => {
+                call.answer(localMediaStream); // Answer the call with an A/V stream.
+                call.on('stream', (remoteStream) =>{
+                          // Show stream in some video/canvas element.
+                          console.log(remoteStream)  
+                })
+             }, errorCallback)
+      });
+}
+
 
 function loadChatPage(chatId,guildID)
 {

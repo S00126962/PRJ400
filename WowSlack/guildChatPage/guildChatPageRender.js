@@ -12,8 +12,7 @@ var config = {
 };
 
 //when a user enters a channel,I want to keep these details around
-var gID;
-var chanID;
+
 if (!firebase.apps.length) {
   firebase.initializeApp(config); //pass the config to the init function
 }
@@ -22,30 +21,48 @@ db.settings({
   timestampsInSnapshots: true
 })
 
-ipcRenderer.on('load-guildChatpage', (event, data, data2) => {
-
-  gID = data;
-  chanID = data2;
+ipcRenderer.on('load-guildChatpage', (event, guildID, channelID) => {
   var tid = setInterval(function () {
     if (document.readyState !== 'complete') return;
     clearInterval(tid);
-    var guildref = db.collection("Guilds")
-    var guildInQuestions = guildref.doc(data);
-    var chatChannels = guildInQuestions.collection('ChatChannels');
-    var channelInQuestion = chatChannels.doc(data2);
-    var chatMessages = channelInQuestion.collection("Messages");
+    var guildref = db.collection("Guilds") //get the guild collection
+    var guildInQuestions = guildref.doc(guildID); //find the users guild
+    var chatChannels = guildInQuestions.collection('ChatChannels'); //get that guilds chatchannels
+    var channelInQuestion = chatChannels.doc(channelID); //get the id of the channel we want
+    var chatMessages = channelInQuestion.collection("Messages"); //get at the messages for the channel
 
-    chatMessages.orderBy('MessageTimeStamp').onSnapshot(snapshot => {
-      let changes = snapshot.docChanges();
-
-      changes.forEach(change => {
-        var messageData = change.doc.data()
-        AppendMessage(messageData.MessageSender, messageData.MessageText, messageData.MessageTimeStamp);
+    //set up a listner to the database, this will handle intial load in aswell as new messages
+    chatMessages.orderBy('MessageTimeStamp').onSnapshot(snapshot => { //order them by timestamp so we get oldest to newest
+      let changes = snapshot.docChanges(); //init the listner
+      changes.forEach(change => { //when it gets a chance
+        var messageData = change.doc.data() //get the message data
+        AppendMessage(messageData.MessageSender, messageData.MessageText, messageData.MessageTimeStamp); //append it to the page
       })
-      ipcRenderer.send('toggleLoaderOff');
+      ipcRenderer.send('toggleLoaderOff'); //once the page is ready, toggle off loading
+    })
+
+    var postBtn = document.getElementById('postMessage');
+    postBtn.addEventListener('click', () => {
+
+      var messageBody = document.getElementById('message').value; //get the text of the message
+      var sender = remote.getGlobal('userDetails')[0]; //get the user name, stored on login
+      var today = new Date(); //get the date
+      var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate(); //format date
+      var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds(); //format time
+      var timeStamp = date + ' ' + time; //create timestamp
+
+      chatMessages.add({ //add the record,already have this declared
+          MessageSender: sender,
+          MessageText: messageBody,
+          MessageTimeStamp: timeStamp
+        }).then(function () {
+
+        })
+        .catch(function (error) {
+          console.error("Error writing document: ", error);
+        });
     })
   }, 100);
-
 })
 
 
@@ -107,27 +124,3 @@ function AppendMessage(sender, message, timeStamp) {
 
   document.getElementById("temp").appendChild(messageDiv); //finally, attach the message onto the div
 }
-
-
-
-var postBtn = document.getElementById('postMessage');
-
-
-postBtn.addEventListener('click', () => {
-  var messageBody = document.getElementById('message').value;
-  var sender = remote.getGlobal('userDetails')[0];
-  var today = new Date();
-  var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-  var timeStamp = date + ' ' + time;
-  chatMessages.add({
-      MessageSender: sender,
-      MessageText: messageBody,
-      MessageTimeStamp: timeStamp
-    }).then(function () {
-
-    })
-    .catch(function (error) {
-      console.error("Error writing document: ", error);
-    });
-})

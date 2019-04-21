@@ -32,7 +32,8 @@ ipcRenderer.on('load-guildEventPage', (event, args) => {
         var calendarEl = document.getElementById('calendar');
 
         calendar = new FullCalendar.Calendar(calendarEl, {
-            plugins: ['dayGrid'],
+            plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
+            timeZone: 'UTC',
             defaultView: 'dayGridMonth',
             defaultDate: '2019-04-07',
             customButtons: {
@@ -58,20 +59,13 @@ ipcRenderer.on('load-guildEventPage', (event, args) => {
               },
             header: {
                 left: 'prev,next today AddEventBtn',
-                center: 'title',
-                right: ''
+                right: 'title',
+                center: 'dayGridMonth,timeGridWeek'
             },
         
         });
         calendar.render();
-        initLister();
-        var tid2 = setInterval( function () {
-            if ( window.select2 == undefined ) return;
-            clearInterval( tid2 );       
-            $('.js-example-basic-multiple').select2();
-        }, 100 );
-     
-        
+        initLister(); 
     }, 100);
 });
 
@@ -81,7 +75,7 @@ function initLister()
 var guildref = db.collection("Guilds")
 var guildInQuestions = guildref.doc(remote.getGlobal("loadGuildID"));
 var events = guildInQuestions.collection('GuildEvents');
-
+ipcRenderer.send('toggleLoaderOff');
 events.onSnapshot(snapshot => {
     var changes = snapshot.docChanges();
     changes.forEach(change => {

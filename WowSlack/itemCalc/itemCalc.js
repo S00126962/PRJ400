@@ -131,16 +131,13 @@ function LoadGuildMode() {
 document.getElementById('refreshChars').addEventListener('click', () => {
     LoadPersonalMode();
     LoadGuildMode();
-
 })
 
 //load in the character selected into the calcuation system
 async function loadCharTemplate(id) {
-
-    var charCollection = db.collection("Characters")
-    var characterRef = charCollection.doc(id); //get a ref to that document
-
-    characterRef.get().then((snapshot) => { //get it and
+    var charCollection = db.collection("Characters"); //go to the characters tab
+    var characterRef = charCollection.doc(id); //get a ref to the document containing the character
+    characterRef.get().then((snapshot) => { //get it 
 
         //get the details needed for the API to get that characters items
         var charName = snapshot.data().charName;
@@ -151,55 +148,43 @@ async function loadCharTemplate(id) {
         //Call the promise to generate a character template,once its down,sent it to get added to the listview
         GenerateCharItemTemplate(charName, sever, region, pawnString, classID).then(result => {
             console.log(result);
-            AddCharToTable(result);
-            //  AddItemToListview(result) //send the resulting template and name off to be put on screen
+            AddCharToTable(result); //once it is done, pass this object to be render into the list
         })
-
     })
-
-
 }
 
-//important function,used to generate a value for items on char/new items
-//FIX : NEED TO GET AT THE ITEMS DETAILS HERE
-function GetOverallItemValue(itemToCalc, StatWeights, AzeriteWeights, SlotName, classID) {
+function GetOverallItemValue(itemToCalc, StatWeights, AzeriteWeights, SlotName) {
     var ItemValue = 0; //var to hold the overallValue for the item
     var PrimaryArrray = [itemMap["3"], itemMap["4"], itemMap["5"], itemMap["71"], itemMap["72"], itemMap["73"], itemMap["74"]]; //array containing all the "Primary" keys
-    for (var key in itemToCalc) {
+    for (var key in itemToCalc) { //for each set of values(spec)
         if (itemToCalc.hasOwnProperty(key)) {
             if (PrimaryArrray.includes(key)) { //check if we are dealiong with a primary stat
-                ItemValue += calcItemStatValue(StatWeights.PrimWeight, itemToCalc[key]);
+                ItemValue += calcItemStatValue(StatWeights.PrimWeight, itemToCalc[key]); //if so,get the value(function muiltpes amount by weight,getting the value)
             } else {
-                for (var WeightKey in StatWeights) {
+                for (var WeightKey in StatWeights) { //do the same if its not a primary stat
                     if (WeightKey.includes(key)) {
-
                         ItemValue += calcItemStatValue(StatWeights[WeightKey], itemToCalc[key])
                     }
                 }
             }
         }
-        //now check to see if its an azerite item
+        //now check to see if its an azerite item and get the best values out
         if (SlotName == "shoulder" || SlotName == "head" || SlotName == "chest") {
 
             var weights = AzeriteWeights;
             for (let index = 0; index < itemToCalc.azeriteArray.length; index++) {
 
-                var traitID = itemToCalc.azeriteArray[index].id; //get the trait ID
+                var traitID = itemToCalc.azeriteArray[index]; //get the trait ID
                 var traitValue = weights[traitID]; //get the value from the azierte object
-
                 //bloodmallet only keep track of relevant traits,some may not be in there
                 if (traitValue != undefined) //so make sure we have a vaule before adding it onto the item
                 {
                     ItemValue += traitValue; //total it onto the new item
                 }
-
             }
         }
-
         return ItemValue;
     }
-
-
 }
 
 function calcItemStatValue(itemStatWeight, ItemStatAmount) {
@@ -208,85 +193,78 @@ function calcItemStatValue(itemStatWeight, ItemStatAmount) {
 }
 
 //promised based function to create an object to use for working with Wow Characters
+//this function will generate all the details I need to comapre items on a character(Values for each item on each spec) and store it for use in comparsion
 async function GenerateCharItemTemplate(Name, Sever, Region, Pawnstring, classID) {
-
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => { //promise based function, alot of computation here,aysnc functionaly is very useful here to keep anything running smoothly
         try {
-            //TODO,Add option to use this during item calc rather than provide this
-            var CustomPawnValues; //declare this here
-            var PawnValues = {}
-            var AzeriteValues = {};
+            var CustomPawnValues; //var to store custom pawn 
+            var PawnValues = {} //object to store generic pawn values
+            var AzeriteValues = {}; //object to store azerite values for each spec
             //now decide which one to use during the template generatetion
-            if (Pawnstring || Pawnstring != "") //if it is there
+            if (Pawnstring || Pawnstring != "") //if the character has a pawn string
             {
-                CustomPawnValues = readPawnString(Pawnstring); //use the one pulled from the database
-                PawnValues["CustomValues"] = CustomPawnValues
+                CustomPawnValues = readPawnString(Pawnstring); //read out the values for it and store them 
+                PawnValues["CustomValues"] = CustomPawnValues //assign this to the PawnValues object to use later
             }
-            //otherwise go and find the default weights from the database
-            var classRef = db.collection("Class")
-            var classInQuestion = classRef.doc(classID.toString()); //get the doc related to the 
-            var specs = classInQuestion.collection('Specs');
+            //now time to get the generic info
+            var classRef = db.collection("Class"); //in the class doc
+            var classInQuestion = classRef.doc(classID.toString()); //get the doc of the class currently being generated
+            var specs = classInQuestion.collection('Specs'); //get to the specs collection
 
-            specs.get().then((snapshot) => {
-                snapshot.forEach((doc) => {
-                    if (AzeriteValues["CustomValues"] == undefined) {
+            specs.get().then((snapshot) => { //now get the specs collection
+                snapshot.forEach((doc) => { //for each document
+                    console.log(doc.data().AzeriteVals)
+                    if (AzeriteValues["CustomValues"] != undefined) { //if azerite does not have custom values assigned to it
                         ReadAzeriteVals(doc.data().AzeriteVals).then(azeriteRes => {
-                            AzeriteValues["CustomValues"] = azeriteRes
+                            AzeriteValues["CustomValues"] = azeriteRes //assign the custom values to the azerite object
                         })
                     }
-                    PawnValues[doc.id] = readPawnString(doc.data().PawnString)
+                    PawnValues[doc.id] = readPawnString(doc.data().PawnString) //get the generic pawn values for the current spec doc
+                    //read the values and assign them once the promise is returned
                     ReadAzeriteVals(doc.data().AzeriteVals).then(azeriteRes => {
                         AzeriteValues[doc.id] = azeriteRes
                     })
                 })
 
-                var CharObj = {}; //create a blank object to build up
-                CharObj.charName = Name; //set the name on the object
-                CharObj.classID = classID; //use this for wowheadTooltips later
-                CharObj.StatWeights = PawnValues; //save these for later
-                CharObj.PawnObjs = {}; // define this for later
-                CharObj.AzeriteValues = AzeriteValues; // define this for later
-                var CharitemValue = 0; //value to add up and get an overall value
+                var CharObj = {}; //create a blank object for the character
+                CharObj.charName = Name; //set the name on the object to the character name
+                CharObj.classID = classID; //set the object class id to the own passed to the function, needed for wowhead links and azerite calcuation later
+                CharObj.StatWeights = PawnValues; //save the stat weights pulled from the Pawn objects(in db)
+                CharObj.PawnObjs = {}; // define var to describe items as pawn objects(EG each items values)
+                CharObj.AzeriteValues = AzeriteValues; // assign the azerite values to the character object
+                var CharitemValue = 0; //value to sum up the total value for a character item
                 blizzard.wow.character(['profile', 'items'], { //call the api to get the users character,more specficly their items
                         realm: Sever,
                         name: Name,
                         origin: Region
-                    })
-                    .then(response => {
-                        console.log(response.data)
+                    }).then(response => {
+                        //At this point, we have all the information relating to how the character values items, need to assign these to the items
                         for (var key in CharObj.StatWeights) {
-                            var ValsObj = {};
+                            var ValsObj = {}; //create an object to store the objects
                             itemSlots.forEach(function (itemSlotName) { //loop though each item slot on the character
-                                try {
+                                try { //use try catch,as some character may not have certain slots available to them(EG Reti paladins only have 1 weapon)
                                     var statsObj = GenerateItemValue(response.data.items[itemSlotName].stats); //get the current items stats
                                     ValsObj[itemSlotName] = statsObj; //assign the name and the stats to the object
-                                    if (itemSlotName == "head" || itemSlotName == "shoulder" || itemSlotName == "chest") {
+                                    if (itemSlotName == "head" || itemSlotName == "shoulder" || itemSlotName == "chest") { //if its an azerite item
+                                        //assign the azerite array of the item to the object
                                         ValsObj[itemSlotName].azeriteArray = response.data.items[itemSlotName].azeriteEmpoweredItem.azeritePowers
                                     }
-                                    var itemValue = GetOverallItemValue(ValsObj[itemSlotName], CharObj.StatWeights[key], CharObj.AzeriteValues[key], itemSlotName, CharObj.classID) //calcaute the value of that item
-                                    CharitemValue += itemValue;
-                                    ValsObj[itemSlotName].OverAllValue = itemValue; //assign this to the object,have the overall value ready for comparsion
-                                    ValsObj[itemSlotName].id = response.data.items[itemSlotName].id //get the Item ID
-                                    ValsObj[itemSlotName].ItemName = response.data.items[itemSlotName].name //get the name of the name
+                                    //get the actual value of the item,this will include any azerite values on the item
+                                    var itemValue = GetOverallItemValue(ValsObj[itemSlotName], CharObj.StatWeights[key], CharObj.AzeriteValues[key], itemSlotName, CharObj.classID)
+                                    CharitemValue += itemValue; //add up the character value
+                                    ValsObj[itemSlotName].OverAllValue = itemValue; //tie the item value for that item to the vals object
+                                    ValsObj[itemSlotName].id = response.data.items[itemSlotName].id //store the ID
+                                    ValsObj[itemSlotName].ItemName = response.data.items[itemSlotName].name //get the item name
                                     ValsObj[itemSlotName].bonusList = response.data.items[itemSlotName].bonusLists; //pull out the bonus lists on the item
                                     ValsObj[itemSlotName].itemEnchant = response.data.items[itemSlotName].tooltipParams.enchant //get any enchants on the item
-                                    ValsObj[itemSlotName].itemImg = "https://wow.zamimg.com/images/wow/icons/medium/" + response.data.items[itemSlotName].icon + ".jpg"
-                                    if (itemSlotName == "shoulder" || itemSlotName == "head" || itemSlotName == "chest") { //if this is a azerite item we are looking at
-                                        //we have an azerite item,need to add that on
-                                        ValsObj[itemSlotName].azeriteArray = response.data.items[itemSlotName].azeriteEmpoweredItem.azeritePowers //get the list of pwoers on that
-                                    }
-                                    CharObj.PawnObjs[key] = ValsObj;
-                                } catch (error) {
-                                    console.log(error);
-                                }
+                                    ValsObj[itemSlotName].itemImg = "https://wow.zamimg.com/images/wow/icons/medium/" + response.data.items[itemSlotName].icon + ".jpg" //store the image to display to the user
+                                    CharObj.PawnObjs[key] = ValsObj; //finally, assign the Vals object to whatever spec we are looping though to the Pawn bojects
+                                } catch (error) { console.log(error);}
                             })
-
                         };
                         CharObj.TotalItemValue = CharitemValue //assign the overvall value for a character
-                        resolve(CharObj); //return the object
-
+                        resolve(CharObj); //return the object,//the resulting object now has all the item values for the character, for each indviual spec      
                     })
-
             })
         } catch (e) {
             console.log(e);
@@ -429,102 +407,50 @@ function GenerateItemValue(item) {
 
 //assign the compare function to the compare button
 
-async function CompareItems() //function to compare two items and get a postive(upgrade)/negative(downgrade) intger 
+async function CompareItems() 
 {
 
-    var itemCount = document.getElementsByName('compareItem').length;
-    var itemArray = [];
+    var itemCount = document.getElementsByName('compareItem').length; //get a count of all the loaded items
+    var itemArray = []; //create an array to store the items
     for (var x = 0; x < itemCount; x++) //first get all the items
     {
-        itemArray.push(document.getElementsByName("compareItem")[x].LoadedItem);
+        itemArray.push(document.getElementsByName("compareItem")[x].LoadedItem); //get the loaded item,and pull out its loaded item
     }
-
-    //now get all the characters nav-item nav-link
-    var charCount = document.getElementsByName('charObj').length;
+    var charCount = document.getElementsByName('charObj').length; //do the same for the characters
     var charArray = [];
     for (var x = 0; x < charCount; x++) {
         charArray.push(document.getElementsByName("charObj")[x].charObj);
     }
 
-    //now create a results table we can append the results on
-    //if (document.getElementById("nav" + "-" + "results" + "-" + "tab") == null) {
-    //var resultsNav = document.createElement('a');
-    //   resultsNav.id = "nav" + "-" + "results" + "-" + "tab";
-    //   resultsNav.setAttribute("data-toggle", "tab");
-    //  resultsNav.className = "nav-item nav-link";
-    //   resultsNav.href = "#nav-" + "results"
-    //   resultsNav.setAttribute("aria-controls", "nav-" + "results");
-    //   resultsNav.innerHTML = "Results"
-    //   if (document.getElementById('nav-tab').hasChildNodes()) {
-    //       resultsNav.setAttribute("aria-selected", "true");
-    //   } else {
-    //      resultsNav.setAttribute("aria-selected", "false");
-    //  }
-
-    //  }
-
-    //var resultsTblDiv = document.createElement('div');
-    //resultsTblDiv.className = "tab-pane fade";
-    //resultsTblDiv.id = "nav-" + "results";
-    //resultsTblDiv.setAttribute("role", "tabpanel");
-    //resultsTblDiv.setAttribute("aria-labelledby", resultsTblDiv.id);
-
-    //var resultsTbl = document.createElement('table');
-    //resultsTbl.className = "table";
-    //resultsTbl.id = "resultsTable"
-
-    //var resultsTblHead = document.createElement('thead');
-    //var resultsTblTRow = document.createElement('tr');
-    //var resultsHead = document.createElement('th');
-    //resultsHead.innerHTML = "Characters";
-    //resultsTblTRow.appendChild(resultsHead);
-    //var itemHead = document.createElement('th');
-    //itemHead.innerHTML = "items";
-    //resultsTblTRow.appendChild(itemHead);
-    //var resultsTblBody = document.createElement('tbody');
-    // resultsTblBody.id = "resultsTblBody"
-
-
     //loop though every character and run the math
     for (let charIndex = 0; charIndex < charArray.length; charIndex++) { //for every char
-        //  var charTr = document.createElement('tr');
-        //  var nameTd = document.createElement('td');
-        //  nameTd.innerHTML = charArray[charIndex].charName;
-        // charTr.appendChild(nameTd);
-        for (let itemIndex = 0; itemIndex < itemArray.length; itemIndex++) {
+        for (let itemIndex = 0; itemIndex < itemArray.length; itemIndex++) { //for every item on that character
             var currentChar = charArray[charIndex]; //get the current character being iterated on
-            var newtItem = itemArray[itemIndex];
-            var newitemID = newtItem.id;
-            var newItemBonusArray = newtItem.bonusArray;
-
-            //  var itemTd =document.createElement('td');
-            // itemTd.innerHTML = newtItem;
-            //  charTr.appendChild(itemTd);
-            await blizzard.wow.item({
+            var newtItem = itemArray[itemIndex]; //get the current item being compared
+            var newitemID = newtItem.id; //get its id
+            var newItemBonusArray = newtItem.bonusArray; //get its bonus array
+            await blizzard.wow.item({ //use await here, Need this information before moving on
                     id: newitemID,
                     bonuses: newItemBonusArray,
-                    origin: 'eu' //orgin does not matter here,all items will be the same,maybe the chinse version could be behind
+                    origin: 'eu'
                 })
-                .then(response => {
-                    //build the basic details for the item
-                    var newitem = {};
-                    var invSlot = InvMap[response.data.inventoryType];
-                    var statsObj = GenerateItemValue(response.data.bonusStats);
-                    newitem[response.data.name] = statsObj;
-                    newitem = statsObj;
-                    newitem.azerite = response.data.azeriteClassPowers;
-                    for (var key in currentChar.PawnObjs) {
-                        //back here mate
+                .then(response => { //then with the response
+                    var newitem = {}; //create an object for the new item
+                    var invSlot = InvMap[response.data.inventoryType]; //get the slot of the new item being compared
+                    var statsObj = GenerateItemValue(response.data.bonusStats); //create an object holding the stats of that object
+                    newitem[response.data.name] = statsObj; //assign the stats object to the item
+                    newitem = statsObj; //used by another fucntion, work around
+                    newitem.azerite = response.data.azeriteClassPowers; //assign the items azerite to the responses azerite array(will need class ID to seperate out traits)
+                    for (var key in currentChar.PawnObjs) { //for every set of values(or specs)
                         if (!currentChar.PawnObjs.hasOwnProperty(key)) continue;
-                        var currentItem = currentChar.PawnObjs[key][invSlot];
-
-                        //check to see if its a azerite item
+                        var currentItem = currentChar.PawnObjs[key][invSlot]; //get tthe item to compare to
+                        //handle azerite items
                         if (InvMap[response.data.inventoryType] == "head" || InvMap[response.data.inventoryType] == "shoulder" || InvMap[response.data.inventoryType] == "chest") {
 
-                            var teir1 = newitem.azerite[currentChar.classID].filter(function (el) {
-                                return el.tier === 1
+                            var teir1 = newitem.azerite[currentChar.classID].filter(function (el) { //azerite items have teirs,eg you can have 1 teir 1 trait,1 teir 2 ect
+                                return el.tier === 1 //these functions will return all traits in that teir
                             });
-                            var optiomalT1 = OptimalAzeriteTeir(teir1, currentChar.AzeriteValues[key])
+                            var optiomalT1 = OptimalAzeriteTeir(teir1, currentChar.AzeriteValues[key]) //call the function to get the "best" trait in that teir, for the current character spec
 
                             var teir2 = newitem.azerite[currentChar.classID].filter(function (el) {
                                 return el.tier === 2
@@ -540,12 +466,9 @@ async function CompareItems() //function to compare two items and get a postive(
                                 return el.tier === 4
                             });
                             var optiomalT4 = OptimalAzeriteTeir(teir4, currentChar.AzeriteValues[key]);
-
-                            newitem.azeriteArray = [optiomalT1, optiomalT2, optiomalT3, optiomalT4]
-
+                            newitem.azeriteArray = [optiomalT1, optiomalT2, optiomalT3, optiomalT4]; //finally,assign these values are the items azerite array
                         }
-                        //need to edit to include all values, not just for custom
-
+                        //get the overall value for the item, for the spec of the character we are looping on
                         var newitemValue = GetOverallItemValue(newitem, currentChar.StatWeights[key], currentChar.AzeriteValues[key], InvMap[response.data.inventoryType], currentChar.classID);
                         //now that we have the result,we can append to to the relevant tag in the character
                         var itemLink = document.getElementById(currentChar.charName + ":" + InvMap[response.data.inventoryType] + ":" + key)
@@ -553,10 +476,6 @@ async function CompareItems() //function to compare two items and get a postive(
                         var resultP = document.createElement('p')
                         resultP.style.border = '5px solid black';
                         resultP.name = "results" //can use this for reset
-
-                        //  var specTh = document.createElement('th');
-                        // specTh.innerHTML = key;
-                        //  resultsTblTRow.appendChild(specTh);
 
                         try { //some class/specs dont wear certain peices of gear,so a good chance it just cant be equiped,handle it with a try catch
                             var resultPercentage = (currentItem.OverAllValue - newitemValue) / currentItem.OverAllValue * 100.0;
@@ -569,57 +488,35 @@ async function CompareItems() //function to compare two items and get a postive(
                                 resultP.innerHTML = Math.abs(resultPercentage).toFixed(2) + "%";
                                 resultP.style.color = "red"
                             }
-
                             itemLink.appendChild(resultP);
-                            //   var resultTd = document.createElement('td');
-                            //   resultTd.appendChild(resultP);
-                            //    charTr.appendChild(itemArray[itemIndex]);
-                            //    charTr.appendChild(resultTd);
-                            //now append this info to the table
-
                         } catch (error) {
                             resultP.innerHTML = "No matching Slot"
                         }
 
                     }
                 })
-
-
-            // resultsTbl.appendChild(resultsTblBody);
-            //  resultsTblHead.appendChild(resultsTblTRow);
-            //  resultsTblDiv.appendChild(resultsTbl);
-            // document.getElementById('nav-tab').appendChild(resultsNav);
-            // document.getElementById('nav-tabContent').append(resultsTblDiv);
-
-            //  resultsTblBody.appendChild(charTr)
-            //  resultsTbl.appendChild(resultsTblHead);
-
         }
     }
 }
 
 
 function OptimalAzeriteTeir(azeriteTeir, azeriteArray) { //used to find the best azerite value for a teir and return the dps value
-    //back here greg
-    var returnAzeriteVal = 0;
-
+    var AzeriteVal = 0; //set this to zero to start with
+    var returnTraitID; //decalre a var to hold the return id
     for (let index = 0; index < azeriteTeir.length; index++) {
-
         var traitID = azeriteTeir[index].id; //get the trait ID
         var traitValue = azeriteArray[traitID]; //get the value from the azierte object
-
         //bloodmallet only keep track of relevant traits,some may not be in there
         if (traitValue != undefined) //so make sure we have a vaule before adding it onto the item
         {
             //if the current trait has a higher value,set the value to that
-            if (traitValue > returnAzeriteVal) {
-                returnAzeriteVal = traitValue;
+            if (traitValue > AzeriteVal) {
+                returnTraitID = traitID; //the return id will now be the current looping id
+                AzeriteVal = traitValue //set the value, so we can comapre for the next loop
             }
         }
-
     }
-    return returnAzeriteVal
-
+    return returnTraitID //finally,return the trait with the highest value
 }
 
 
@@ -711,16 +608,11 @@ async function ReadAzeriteVals(AzeriteString) {
 
 
 function LoadItemViaWowHead() {
-    var link = document.getElementById("wowheadLink").value;
-    if (link == "" || link == null || !link.includes("item=")) {
-        console.log("Error,Please Link an item");
+    var link = document.getElementById("wowheadLink").value; //get the link the user inputted
+    if (link == "" || link == null || !link.includes("item=")) { //make sure we have a link
         return;
     }
-
-    //try and get the itemID out of the link
-    var itemID = link.substring(
-        link.lastIndexOf("item=") + 5); //this will get use the ID,followed by other data
-
+    var itemID = link.substring(link.lastIndexOf("item=") + 5); //get just the info on the link and not the whole string
     //handle differnt forms of links,just need the id of the item
     if (itemID.indexOf('/') > -1) {
         itemID = itemID.slice(0, itemID.indexOf("/"))
@@ -729,8 +621,8 @@ function LoadItemViaWowHead() {
     }
     //try and get any bonus IDs from the link
     var BounusIDs = link.substring(
-        link.lastIndexOf("bonus=") + 6, //Links will always be the same,can grab the item id like this
-        link.lastIndexOf("")).split(":");
+        link.lastIndexOf("bonus=") + 6, //get the bounus
+        link.lastIndexOf("")).split(":"); //spilt them to form an array of all bonus's,Api reads bonus as an array
 
 
     //first make the nav for the character
@@ -784,9 +676,10 @@ function LoadItemViaWowHead() {
             itemLink.onclick = function (e) {
                 e.preventDefault(); //prevent users from click the link
             }
+
             var itemObj = {}
             itemObj.id = response.data.id;
-            itemObj.bonusArray = BounusIDs; //obj here=
+            itemObj.bonusArray = BounusIDs; 
             itemLink.LoadedItem = itemObj;
             console.log(itemLink.LoadedItem)
 
