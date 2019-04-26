@@ -2,6 +2,7 @@
  * Start Bootstrap - SB Admin v5.0.2 (https://startbootstrap.com/template-overviews/sb-admin)
  * Copyright 2013-2018 Start Bootstrap
  * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-sb-admin/blob/master/LICENSE)
+ *Moddifed with assets from https://gaming-tools.com/warcraft-3/warcraft-3-fansite-kit-free-download/
  */
 
  html {
@@ -11,14 +12,18 @@
   
   body {
     height: 100%;
+    background-image: url("../backgrounds/OldPaper.jpg");
+    
   }
   
   #wrapper {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-    border: #e9ecef;
-    border-style: solid;
+    background-image: url("../assets/Warcraft3FanSite/images/bg.jpg");
+    border:15px outset brown;
+    -webkit-border-image:url(../assets/Warcraft3FanSite/images/orb-borders.png) 25 30 10 20 repeat;
+    border-image:url(../assets/Warcraft3FanSite/images/orb-borders.png) 25 30 10 20 repeat;
   }
   
   #wrapper #content-wrapper {
@@ -87,9 +92,24 @@
   .z-1 {
     z-index: 1;
   }
+
+  .navbar{
+    background-image: url("../assets/Warcraft3FanSite/images/bg.jpg");
+    border:15px outset brown;
+    -webkit-border-image:url(../assets/Warcraft3FanSite/images/orb-borders.png) 25 30 10 20 repeat;
+    border-image:url(../assets/Warcraft3FanSite/images/orb-borders.png) 25 30 10 20 repeat;
+    font-family: fanFont;
+  }
+
+  .navbar button {
+    background: url(../assets/Warcraft3FanSite/images/red-button.png) no-repeat;
+    font-family: fanFont;
+    color: white
+  }
   
   .navbar-nav .form-inline .input-group {
     width: 100%;
+    
   }
   
   .navbar-nav .nav-item.active .nav-link {
@@ -125,6 +145,7 @@
     top: 0.3rem;
     font-weight: 400;
     font-size: 0.5rem;
+    
   }
   
   @media (min-width: 768px) {
@@ -132,12 +153,23 @@
       width: auto;
     }
   }
-  
+  @font-face {
+    font-family: fanFont;
+    src: url("../assets/Warcraft3FanSite/Fonts/LifeCraft_Font_0.ttf");
+  }
+
   .sidebar {
     width: 90px !important;
-    background-color: #212529;
     min-height: calc(100vh - 56px);
+    font-family: fanFont;
+    background-image: url("../assets/Warcraft3FanSite/images/bg.jpg");
+    border:15px outset brown;
+    -webkit-border-image:url(../assets/Warcraft3FanSite/images/orb-borders.png) 25 30 10 10 repeat;
+    margin-left: -2%;
+    border-image:url(../assets/Warcraft3FanSite/images/orb-borders.png) 25 30 10 20 repeat;
   }
+
+
   
   .sidebar .nav-item:last-child {
     margin-bottom: 1rem;
@@ -160,8 +192,11 @@
     transform: none !important;
     left: calc(90px + 0.5rem) !important;
     margin: 0;
+    font-family: fanFont;
   }
   
+
+
   .sidebar .nav-item .dropdown-menu.dropup {
     bottom: 0;
     top: auto !important;
@@ -374,6 +409,8 @@
       width: calc(100% - 90px);
     }
   }
+
+  
 
 
   

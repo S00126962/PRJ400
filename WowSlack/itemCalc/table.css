@@ -1,6 +1,30 @@
+.container{
+    background-image: url("../backgrounds/OldPaper.jpg");
+    border:15px outset brown;
+    -webkit-border-image:url(../assets/Warcraft3FanSite/images/orb-borders.png) 25 30 10 20 repeat;
+    border-image:url(../assets/Warcraft3FanSite/images/orb-borders.png) 25 30 10 20 repeat;
+}
+
+.fademe {
+    width:100px;
+    height:100px;
+    background:red;
+  }
+  
+  .fademe.animated {
+    animation:fade-in 1.5s ease;
+  }
+  
+  
+  @keyframes fade-in {
+      0% {opacity: 0;}
+      100% {opacity: 1;}
+  }
+
 .project-tab {
-    padding: 10%;
-    margin-top: -8%;
+    margin-left: 8%;
+    margin-right: 8%;
+    background-image: url("../backgrounds/OldPaper.jpg");
 }
 .project-tab #tabs{
     background: #007b5e;

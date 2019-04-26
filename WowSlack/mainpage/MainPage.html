@@ -12,7 +12,7 @@
     <!--Valdaite js form,make sure its correct-->
     <script>var whTooltips = {colorLinks: true, iconizeLinks: true, renameLinks: true};</script>
       <script src="http://wow.zamimg.com/widgets/power.js"></script>
-
+      <style> ::-webkit-scrollbar { display: none; } </style>
   </head>
 
   <body id="page-top">
@@ -20,11 +20,20 @@
     <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
 
       
-      <audio id="thisda">
-        <source id="audioSource" src=""></source>
-      </audio>
+      <div id="roomAudio">
+      </div>
       <h4 class="nav-link" style="color:white">WowSlack</h4>
       <button id="signoutBtn" class="btn btn-light">LogOut</button>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="voiceNavDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        </a>
+        <div class="dropdown-menu" aria-labelledby="voiceNavDropDown">
+          <ul id="ChannelMemebersList" class="list-group">
+
+          </ul>
+          <button id="guildVoiceChannelBtn" class="btn btn-success">Join</button>
+        </div>
+      </li>
       <!-- Navbar -->
     </nav>
 

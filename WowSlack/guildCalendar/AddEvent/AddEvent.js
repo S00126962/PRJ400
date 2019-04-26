@@ -30,26 +30,23 @@ $(document ).ready(function() {
 
 function AddEvent()
 {
-    var Gid = remote.getGlobal("Gid"); //gets the gid,make sure to null this out once your done
-    console.log("Gid");
-
+    //get all the values needed to create the event
     var eventName = document.getElementById('inputEventName').value;
     var eventStartDate = document.getElementById('eventStartDate').value;
     var eventEndDate = document.getElementById('eventEndDate').value;
     var eventDescrip = document.getElementById('eventDesc').value;
     var Memebers = document.getElementById("addedMemebers").getElementsByTagName("li");
 
+    //get the Ids of the event attendies, can be edited later by the user
     var eventMemebers = [];
     for (let index = 0; index < Memebers.length; index++) {
          eventMemebers[index] = Memebers[index].id;   
     }
 
-    console.log(eventMemebers);
-
-    var guildref = db.collection("Guilds")
-    var guildInQuestions = guildref.doc(remote.getGlobal("Gid"));
-    var events = guildInQuestions.collection("GuildEvents");
-    events.add({
+    var guildref = db.collection("Guilds");//go to the guild collection
+    var guildInQuestions = guildref.doc(remote.getGlobal("Gid")); //get the current guild
+    var events = guildInQuestions.collection("GuildEvents"); //get the events collection for that guild
+    events.add({ //add the event
         title : eventName,
         start: eventStartDate,
         end: eventEndDate,
@@ -57,7 +54,7 @@ function AddEvent()
         description : eventDescrip,
         Memebers : eventMemebers
     });
-    ipcRenderer.send('eventAdded')
+    ipcRenderer.send('eventAdded') //send the message that the event was added,this will close the window
 }
 
 function loadMemebers()

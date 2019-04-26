@@ -18,6 +18,7 @@ app.on('ready', function () {
         height: 800,
         minWidth: 1281,
         minHeight: 800,
+        frame: false
     })
     MainWindow.on("close", (evt) => {
         app.quit();

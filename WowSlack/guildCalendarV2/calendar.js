@@ -29,116 +29,83 @@ ipcRenderer.on('load-guildEventPage', (event, args) => {
     var tid = setInterval(function () {
         if (document.readyState !== 'complete') return;
         clearInterval(tid);
-        var calendarEl = document.getElementById('calendar');
+        var calendarEl = document.getElementById('calendar'); //get the div for the calendar
 
-        calendar = new FullCalendar.Calendar(calendarEl, {
-            plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
-            timeZone: 'UTC',
-            defaultView: 'dayGridMonth',
-            defaultDate: '2019-04-07',
-            customButtons: {
+        calendar = new FullCalendar.Calendar(calendarEl, { //make it a full calendar
+            plugins: ['interaction', 'dayGrid', 'timeGrid'], //plugins for differnt views
+            timeZone: 'UTC', //default timezone
+            defaultView: 'dayGridMonth', //default view for the calendar
+            customButtons: { //custom button for users to add event
                 AddEventBtn: {
-                  text: 'Add Event',
-                  click: function() {
-                    AddEvent();
-                  }
+                    text: 'Add Event',
+                    click: function () {
+                        AddEvent();
+                    }
                 }
-              },
-            eventRender: function(info) {
-                console.log(info);
-                var tooltip = new Tooltip(info.el, {
-                  title: "Wow",
-                  placement: 'top',
-        trigger: 'click',
-        container: 'body'
-                });
-              },
-              eventClick: function(info) {
-                console.log(info)
-                ipcRenderer.send('load-eventEdit',info.event.id);
-              },
-            header: {
+            },
+            eventClick: function (info) { //when a event is clicked, load its details into the childwindow
+                ipcRenderer.send('load-eventEdit', info.event.id);
+            },
+            header: { //set up the header,IE the controls on the calendar
                 left: 'prev,next today AddEventBtn',
                 right: 'title',
                 center: 'dayGridMonth,timeGridWeek'
             },
-        
+
         });
-        calendar.render();
-        initLister(); 
+        calendar.render(); //render the calendar
+        initLister(); //once the calendar is rendered and setup, start the database listener for events
     }, 100);
 });
 
 
-function initLister()
-{
-var guildref = db.collection("Guilds")
-var guildInQuestions = guildref.doc(remote.getGlobal("loadGuildID"));
-var events = guildInQuestions.collection('GuildEvents');
-ipcRenderer.send('toggleLoaderOff');
-events.onSnapshot(snapshot => {
-    var changes = snapshot.docChanges();
-    changes.forEach(change => {
-        //add events here
-        var EventData = change.doc.data();
-        var memeberNames = [];
-        //get get the memeber names
-        EventData.Memebers.forEach((mID) => {
-            db.collection('Users').where('UserID', '==', mID).get().then((snapshot) => {
-                snapshot.docs.forEach(doc => {
-                    memeberNames.push(doc.data().UserName)
-                })
-                var eventContent = ""
-                eventContent += 'Description:' + EventData.description + "\n";
-                for (let index = 0; index < memeberNames.length; index++) {
-                    eventContent += memeberNames[index] + "\n"
-                    console.log(eventContent)
-                }
-                var tid = setInterval(function () {
-                    if (document.readyState !== 'complete') return;
-                    clearInterval(tid);
-                    RenderEvent(EventData,change.doc.id);
-                    console.log("i should be turing off")
-                    ipcRenderer.send('toggleLoaderOff');
-                });
-            }, 100);
+function initLister() {
+    var guildref = db.collection("Guilds") //go to guilds
+    var guildInQuestions = guildref.doc(remote.getGlobal("loadGuildID")); //get the current guild
+    var events = guildInQuestions.collection('GuildEvents'); //get that guilds events
+    ipcRenderer.send('toggleLoaderOff'); //turn off loading here, users can see the event "load" in
+    events.onSnapshot(snapshot => {
+        var changes = snapshot.docChanges();
+        changes.forEach(change => {
+            var EventData = change.doc.data(); //get the data for the event
+            var memeberNames = [];
+            EventData.Memebers.forEach((mID) => { //loop though all the memebers
+                db.collection('Users').where('UserID', '==', mID).get().then((snapshot) => { //find there user record
+                    snapshot.docs.forEach(doc => {
+                        memeberNames.push(doc.data().UserName) //add their name to the array
+                    })
+                    var eventContent = "" //build up a description object with the memebers
+                    eventContent += 'Description:' + EventData.description + "\n";
+                    for (let index = 0; index < memeberNames.length; index++) {
+                        eventContent += memeberNames[index] + "\n"
+                    }
+                    var tid = setInterval(function () {
+                        if (document.readyState !== 'complete') return; //make sure the document is ready
+                        clearInterval(tid);
+                        RenderEvent(EventData, eventContent, change.doc.id); //then render the event
+                    });
+                }, 100);
+            })
         })
     })
-})
 }
 
 function AddEvent() {
     ipcRenderer.send('load-eventCreate', remote.getGlobal("loadGuildID"))
-  }
+}
 
-function RenderEvent(eventObj,eventID) {
+function RenderEvent(eventObj, eventContent, eventID) {
 
-    if (calendar.getEventById(eventID)) {
-        calendar.getEventById(eventID).remove();
+    if (calendar.getEventById(eventID)) { //check to see if that event is there already
+        calendar.getEventById(eventID).remove(); //remove it,this is to prevent an event being edited, and readded as a differnt event
     }
-    var memeberNames = [];
-    eventObj.Memebers.forEach((mID) => {
-        db.collection('Users').where('UserID', '==', mID).get().then((snapshot) => {
-            snapshot.docs.forEach(doc => {
-                memeberNames.push(doc.data().UserName)
-            })
+    //render the event to the calendar
+    calendar.addEvent({
+        id: eventID,
+        title: eventObj.title,
+        start: eventObj.start,
+        end: eventObj.end,
+        description: eventContent,
+    });
 
-
-            var eventContent = ""
-            eventContent += 'Description:' + eventObj.description + "\n";
-            for (let index = 0; index < memeberNames.length; index++) {
-                eventContent += memeberNames[index] + "\n"
-            }
-
-
-            calendar.addEvent({
-                id : eventID,
-                title: eventObj.title,
-                start: eventObj.start,
-                end: eventObj.end,
-                description: eventContent,
-                eventMemebers: memeberNames
-            });
-        })
-    })
 }
