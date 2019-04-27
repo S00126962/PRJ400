@@ -4,6 +4,10 @@ window.Bootstrap = require('bootstrap')
 var electron = require('electron');
 var ipcRenderer = electron.ipcRenderer;
 const remote = require('electron').remote
+const {
+        clipboard
+} = require('electron')
+const prompt = require('electron-prompt');
 var config = {
         apiKey: "AIzaSyBPwA6lwFFahoYIABYpeAvjmSA10gkj040",
         authDomain: "wow-slack.firebaseapp.com",
@@ -67,25 +71,69 @@ function errorCallback(e) {
 
 function populatePageDetails(userData) {
         document.getElementById('userName').innerHTML = userData.UserName;
-        populateGuildsDropDown(userData);
+        populateGuildsDropDown();
         var itemCalcBtn = document.getElementById("itemCalcBtn");
         itemCalcBtn.onclick = loadItemCalc;
 
 }
 
 
-function populateGuildsDropDown(userData) {
+function populateGuildsDropDown() {
         document.getElementById('guildDropDown').innerHTML = "";
         var addGuldBtn = document.createElement('a');
         addGuldBtn.className = "dropdown-item"
         addGuldBtn.innerHTML = "Add Guild";
         addGuldBtn.id = "addGuildBtn";
         addGuldBtn.onclick = loadGuildCreate;
-        document.getElementById('guildDropDown').appendChild(addGuldBtn)
+        document.getElementById('guildDropDown').appendChild(addGuldBtn);
+        //now a button to join a guild
+
+        var joinGuldBtn = document.createElement('a');
+        joinGuldBtn.className = "dropdown-item"
+        joinGuldBtn.innerHTML = "Join Guild";
+        joinGuldBtn.id = "joinGuildBtn";
+        joinGuldBtn.onclick = () => {
+                prompt({
+                                title: 'Join a guild',
+                                label: 'URL:',
+                                value: 'http://example.org',
+                                inputAttrs: {
+                                        type: 'text'
+                                }
+                        })
+                        .then((r) => {
+                                if (r === null) {
+
+                                } else {
+                                        var link = r;
+                                        var guild = link.split(':', 2);
+                                        var guildID = guild[1];
+                                        
+                                        db.collection('Guilds').doc(guildID).get().then((snapshot) =>{
+                                                var memebersArray = snapshot.data().GuildMemebers
+
+                                                if (memebersArray.includes(remote.getGlobal('uid'))) {
+                                                        alert("You are already in that guild!")
+                                                }
+                                                else
+                                                {
+                                                        memebersArray.push(remote.getGlobal('uid'));
+                                                        db.collection('Guilds').doc(guildID).update({
+                                                                GuildMemebers : memebersArray
+                                                        }).then(() =>{populateGuildsDropDown()})
+                                                }
+                                        })
+                                }
+                        })
+                        .catch(console.error);
+        }
+        document.getElementById('guildDropDown').appendChild(joinGuldBtn);
+
         var divder = document.createElement('div');
         divder.className = "dropdown-divider";
-        document.getElementById('guildDropDown').appendChild(divder)
-        db.collection('Guilds').where('GuildID', '==', userData.GuildID).get().then((snapshot) => {
+        document.getElementById('guildDropDown').appendChild(divder);
+
+        db.collection('Guilds').where('GuildMemebers', 'array-contains', remote.getGlobal("uid")).get().then((snapshot) => {
                 snapshot.docs.forEach(doc => {
                         var guildToAppend = document.createElement('a');
                         guildToAppend.className = "dropdown-item"
@@ -94,10 +142,19 @@ function populateGuildsDropDown(userData) {
                         guildToAppend.addEventListener("click", () => {
                                 loadGuildOpts(guildToAppend.id, doc.data().GuildName);
                         });
+                        if (doc.data().GuildLeader == remote.getGlobal("uid")) {
+                                var inviteLink = document.createElement('a');
+                                inviteLink.innerHTML = "Click for Invite Code"
+                                console.log("heregreg")
+                                inviteLink.id = doc.data().GuildInviteCode
+                                inviteLink.addEventListener('click', () => {
+                                        clipboard.writeText(inviteLink.id)
+                                })
+                                document.getElementById('guildDropDown').appendChild(inviteLink);
+                        }
                         document.getElementById('guildDropDown').appendChild(guildToAppend)
                 })
         })
-
 }
 
 
@@ -107,14 +164,22 @@ function loadGuildCreate() {
 
 async function loadGuildOpts(id, name) {
 
+        try {
+                document.getElementById('loadedGuild').parentNode.removeChild(document.getElementById('loadedGuild'))
+                document.getElementById('loadedGuildEvent').parentNode.removeChild(document.getElementById('loadedGuildEvent'))
+        } catch (error) {
+
+        }
         ipcRenderer.send("load-Guild", id) //store the current guild gloably
         if (document.getElementById('loadedGuildTChannelsDDL') == undefined) {
                 //attach a new item to the side bar
                 var li = document.createElement('li');
                 li.className = "nav-item dropdown";
+                li.id = "loadedGuild"
                 var a = document.createElement('a');
                 a.className = "nav-link dropdown-toggle";
                 a.id = "navDropDown" + ":" + id;
+                a.name = "loadGuildChannels"
                 a.innerHTML = name + "'s" + " " + "Channels"
                 a.setAttribute("data-toggle", "dropdown")
                 a.setAttribute("aria-haspopup", "true")
@@ -130,6 +195,7 @@ async function loadGuildOpts(id, name) {
         if (document.getElementById('loadedGuildEventLink') == undefined) {
                 var eventLi = document.createElement('li');
                 eventLi.className = "nav-item"
+                eventLi.id = "loadedGuildEvent";
                 var eventA = document.createElement('a');
                 eventA.id = "loadedGuildEventLink"
                 eventA.innerHTML = name + "'s" + " " + "Events"

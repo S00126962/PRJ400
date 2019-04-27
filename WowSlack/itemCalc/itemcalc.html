@@ -36,15 +36,15 @@
 
 <body>
 
-    <div class="container">
+    <div class="container" style="padding:10px">
         <div class="row">
             <div class="col-sm">
                 <h5>Character Select</h5>
 
                 <div class="input-group">
-                    <select id="charSelect" class="js-example-basic-single" style="width:95%;" name="state">
+                    <select id="charSelect" style="float:right;width: 70% !important" class="js-example-basic-single" style="width:95%;" name="state">
                     </select>
-                    <span class="input-group-btn">
+                    <span style="float:left" class="input-group-btn">
                         <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top"
                             title="We use Wowhead links to pull items in to compare, you can look up an item on Wowhead, or use Wowhead Link Grabber(availble on the Twitch client) to get item links in game ">
                             ?</button> </span>
@@ -55,13 +55,16 @@
 
 
             <div class="col-sm">
-                <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top"
-                    title="We use Wowhead links to pull items in to compare, you can look up an item on Wowhead, or use Wowhead Link Grabber(availble on the Twitch client) to get item links in game ">
-                    ?</button>
-                <h5>Load item by WowHeadLink</h5>
-
+                    <h5>Load item by WowHeadLink</h5>
+                    <div class="input-group">
+                            <span style="float:left" class="input-group-btn">
+                                    <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top"
+                                        title="We use Wowhead links to pull items in to compare, you can look up an item on Wowhead, or use Wowhead Link Grabber(availble on the Twitch client) to get item links in game ">
+                                        ?</button> </span>
+               
                 <input type="text" class="form-control" id="wowheadLink" placeholder="Wow Head Link"><br>
                 <button id="findLinkBtn" type="button" class="btn btn-primary mb-2">Find Item</button>
+                    </div>
             </div>
             <div class="col-sm">
                 <h5>Options</h5>
@@ -82,7 +85,7 @@
     </div>
     <br>
     </div>
-    <div class="row">
+    <div id="itemsRowMain" style="display: none;" class="row">
         <section id="ItemsTabs" class="project-tab">
             <div class="container">
                 <div class="row">
@@ -93,12 +96,15 @@
                         <div class="nav-tabContent" id="tabContentItems">
                         </div>
                     </div>
-                </div>
             </div>
     </div>
     </section>
+                
+                </div>
+        </div>
+        </section>
     </div>
-    <div class="row">
+    <div id="charRowMain" style="display: none;" class="row">
         <section id="tabs" class="project-tab">
             <div class="container">
                 <div class="row">

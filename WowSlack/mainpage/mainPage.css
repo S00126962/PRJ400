@@ -21,9 +21,10 @@
     display: -ms-flexbox;
     display: flex;
     background-image: url("../assets/Warcraft3FanSite/images/bg.jpg");
-    border:15px outset brown;
+    border:10px outset brown;
     -webkit-border-image:url(../assets/Warcraft3FanSite/images/orb-borders.png) 25 30 10 20 repeat;
     border-image:url(../assets/Warcraft3FanSite/images/orb-borders.png) 25 30 10 20 repeat;
+    font-size: 16px;
   }
   
   #wrapper #content-wrapper {
@@ -144,8 +145,7 @@
     margin-left: 0.75rem;
     top: 0.3rem;
     font-weight: 400;
-    font-size: 0.5rem;
-    
+    font-size: 0.5rem;  
   }
   
   @media (min-width: 768px) {
@@ -179,7 +179,10 @@
     text-align: center;
     padding: 0.75rem 1rem;
     width: 90px;
+    font-size: 16px;
   }
+
+  
   
   .sidebar .nav-item .nav-link span {
     font-size: 0.65rem;
@@ -193,6 +196,7 @@
     left: calc(90px + 0.5rem) !important;
     margin: 0;
     font-family: fanFont;
+    background-image: url("../backgrounds/OldPaper.jpg");
   }
   
 
@@ -408,6 +412,11 @@
     body.sidebar-toggled footer.sticky-footer {
       width: calc(100% - 90px);
     }
+  }
+
+  .listBackgroundClass
+  {
+    background-image: url("../backgrounds/OldPaper.jpg");
   }
 
   

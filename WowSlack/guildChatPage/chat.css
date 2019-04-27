@@ -39,17 +39,30 @@
     margin-left: 20px;
     margin-right:0;
   }
+
+  .container p {
+    margin-left: 30%;
+    font-size: 16px;
+  }
+
+
   
   /* Style time text */
   .time-right {
     float: right;
-    color: #aaa;
+    color: black;
+    box-shadow: #999;
+    border: 1px;
+    border-radius: 1px;
+    border-style: dashed;
   }
   
   /* Style time text */
   .time-left {
-    float: left;
-    color: #999;
+    color: black;
+    box-shadow: #999;
+    margin-top: 10px;
+    margin-left: 10px;
   }
 
   textarea{ 
@@ -65,11 +78,16 @@
   }
 /* basic css gotten from w3schools,modifed it to make it look more in line with the app*/
   .card {
-    /* Add shadows to create the "card" effect */
-    border-image:url(../assets/Warcraft3FanSite/images/p-chain.png) 25 30 10 20 repeat;
-    border-radius: 15px;
+    background-image: url("../backgrounds/OldPaper.jpg");
+  border:3px outset brown;
+    border-image:url(../assets/Warcraft3FanSite/images/elf-borders.png) 25 30 10 20 repeat;
+    border-radius: 3px;
     padding: 10px;
     margin: 10px 0;
+  }
+
+  .card p{
+    margin-left: 0;
   }
   
   /* On mouse-over, add a deeper shadow */
@@ -82,4 +100,28 @@
    /* padding: 2px 16px;*/
     border-style: double;
     border-width: thick;
+  }
+
+  .messageDiv{
+    overflow-y: scroll;
+    height: 500px;
+    padding-bottom: 20px;
+
+  }
+
+  .textInput{
+    margin-top: 20px;
+    border:10px outset brown;
+    -webkit-border-image:url(../assets/Warcraft3FanSite/images/orb-borders.png) 25 30 10 20 repeat;
+    border-image:url(../assets/Warcraft3FanSite/images/orb-borders.png) 25 30 10 20 repeat;
+    font-size: 16px;
+  }
+
+  button{
+    background: url(../assets/Warcraft3FanSite/images/blue-button.png) no-repeat;
+    font-family: fanFont;
+    color: white;
+    font-size: 16px;
+    width: 90px;
+    height: 50px;
   }

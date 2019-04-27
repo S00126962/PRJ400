@@ -67,13 +67,25 @@ ipcRenderer.on('load-guildChatpage', (event, guildID, channelID) => {
 
 
 function AppendMessage(sender, message, timeStamp) {
+
+  if (sender == undefined || message  == undefined || timeStamp == undefined ) {
+    return;
+  }
+  var userSpan = document.createElement('span');
+  userSpan.className = "time-left";
+  userSpan.innerHTML = sender + " writes:";
+
   var textP = document.createElement('p');
-  textP.innerHTML = sender + "\n" + message;
+  textP.innerHTML = message;
   var spanTime = document.createElement('span');
   spanTime.className = "time-right";
-  spanTime.innerHTML = timeStamp;
+  var date = timeStamp.split(" ");
+  spanTime.innerHTML = "On the: " + date[0] + " At: " + date[1] ;
+
+  
   var messageDiv = document.createElement('div');
   messageDiv.className = "container"
+  messageDiv.appendChild(userSpan);
   messageDiv.appendChild(textP);
   messageDiv.appendChild(spanTime);
 

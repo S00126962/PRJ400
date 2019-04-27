@@ -34,7 +34,8 @@
     color: #eee;
 }
 .project-tab #tabs .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
-    color: #0062cc;
+   
+    color: black;
     background-color: transparent;
     border-color: transparent transparent #f3f3f3;
     border-bottom: 3px solid !important;
@@ -45,7 +46,7 @@
     border: 1px solid transparent;
     border-top-left-radius: .25rem;
     border-top-right-radius: .25rem;
-    color: #0062cc;
+    color:grey;
     font-size: 16px;
     font-weight: 600;
 }
@@ -58,6 +59,13 @@
 }
 .project-tab a{
     text-decoration: none;
-    color: #333;
+    color:purple;
     font-weight: 600;
 }
+
+button {
+    background: url(../assets/Warcraft3FanSite/images/red-button.png) no-repeat;
+    font-family: fanFont;
+    color: white;
+    font-size: 16px;
+  }

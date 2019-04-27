@@ -1,0 +1,49 @@
+.container{
+    background-image: url("../backgrounds/OldPaper.jpg");
+    border:10px outset brown;
+    -webkit-border-image:url(../assets/Warcraft3FanSite/images/human-borders.png) 25 30 10 20 repeat;
+    border-image:url(../assets/Warcraft3FanSite/images/human-borders.png) 25 30 10 20 repeat;
+    font-size: 16px;
+}
+
+
+
+.card-body{
+    background-image: url("../backgrounds/OldPaper.jpg");
+}
+
+.tab-content{
+    background-image: url("../backgrounds/OldPaper.jpg");
+    border:10px outset brown;
+    -webkit-border-image:url(../assets/Warcraft3FanSite/images/elf-borders.png) 25 30 10 20 repeat;
+    border-image:url(../assets/Warcraft3FanSite/images/elf-borders.png) 25 30 10 20 repeat;
+    font-size: 16px;
+    
+}
+
+.col-12{
+    background-image: url("../backgrounds/OldPaper.jpg");
+}
+
+.nav-link{
+    color: black;
+}
+.nav-link .active{
+    color: whitesmoke;
+}
+
+.tab-pane{
+    padding: 5px;
+}
+
+.table button{
+    background: url(../assets/Warcraft3FanSite/images/red-button.png);
+    font-family: fanFont;
+    color: white
+}
+
+#AddCharacterBTn{
+    background: url(../assets/Warcraft3FanSite/images/blue-button.png);
+    font-family: fanFont;
+    color: white
+}

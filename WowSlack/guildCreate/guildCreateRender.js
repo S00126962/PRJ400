@@ -50,23 +50,42 @@ regionSelect.addEventListener('change', () => {
 guildCreateForm.addEventListener('submit', (event)=>{
 
     event.preventDefault();
-    var guildID = "";
-    db.collection('Guilds').orderBy('GuildID').get().then((snapshot) =>{
-        snapshot.docs.forEach(doc =>{
-            GuildID = doc.data().GuildID
-        })
-    });
-   
     db.collection('Guilds').add({
         GuildName: guildName.value,
         GuildRealm: serverSelect.options[serverSelect.selectedIndex].innerText,
         GuildRegion: regionSelect.options[regionSelect.selectedIndex].innerText,
         GuildDescription: guildDescrip.value,
-        GuildID: guildID +1, //not a great soultion,may end up using the name for an Unquie ID
-    }).then(function () {
-        console.log("Document successfully written!");
-        //send a message back to update the main page
-        ipcRenderer.send('asynchronous-message',firebase.auth().currentUser.uid)
+       GuildMemebers : [remote.getGlobal("uid")], //start off us just the user in the guild
+       GuildLeader : remote.getGlobal("uid"), //set the creator as the leader
+    }).then(function (docRef) {
+        console.log(docRef);
+
+        var newGuildRef = db.collection('Guilds').doc(docRef.id);
+        newGuildRef.update({GuildInviteCode : "JoinUs:" + docRef.id })
+         newGuildRef.collection('ChatMessages').doc('1').collection('Messages').doc().set({
+            MessagerSender : "WowSlack",
+            MessageText : "Welcome To WowSlack Chat!",
+            MessageTimeStamp : "Welcome!"
+         }).then(() =>{
+            newGuildRef.collection('ChatChannels').doc('1').set({
+                ChannelName : "MainChannel"
+            })
+         })
+         newGuildRef.collection('VoiceChannels').doc('1').set({
+             Name: "Main Channel"
+         })
+         var today = new Date(); //get the date
+         var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate(); //format date
+         newGuildRef.collection('GuildEvents').doc().set({
+             Memebers : [],
+             description : "Default event",
+             start: date,
+             end:date,
+             title:"Default Event",
+             eventEditable : true
+         }).then(() =>{
+             ipcRenderer.send('asynchronous-message',firebase.auth().currentUser.uid)
+         })
     })
     .catch(function (error) {
         console.error("Error writing document: ", error);

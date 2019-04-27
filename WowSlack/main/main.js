@@ -17,8 +17,9 @@ app.on('ready', function () {
         width: 1281,
         height: 800,
         minWidth: 1281,
-        minHeight: 800,
-        frame: false
+        minHeight: 900,
+        frame: false,
+        icon : path.join(__dirname, '../assets/ws.png')
     })
     MainWindow.on("close", (evt) => {
         app.quit();
@@ -32,6 +33,7 @@ app.on('ready', function () {
         height: 600,
         minWidth: 800,
         minHeight: 600,
+        frame : false,
         parent: MainWindow
     })
 
@@ -65,7 +67,7 @@ app.on('ready', function () {
     request('https://eu.battle.net/oauth/token?grant_type=client_credentials&client_id=cc03f6bfa99541d9b2644e450b96eadf&client_secret=e1rRSqs6k5QES9yxMaDNV1PXL4QrDDQI', {
         json: true
     }, (err, res, body) => {
-        console.log(body.access_token)
+
         global.Token = body.access_token
     })
 
@@ -75,7 +77,7 @@ app.on('ready', function () {
 //reload function,this will reload all details into the mainPage.html
 ipcMain.on('asynchronous-message', (event, args) => {
     ChildWindow.hide(); //when we do login,close the login window
-    console.log("login" + " " + args)
+
     global.uid = args
     MainWindow.show();
     MainWindow.webContents.send('info', args);
@@ -84,8 +86,8 @@ ipcMain.on('asynchronous-message', (event, args) => {
 });
 
 ipcMain.on('tabChangeProfile', (sender, args) => {
-    console.log(sender)
-    console.log("LoadProfilePage from main")
+
+
     MainWindow.webContents.send('loadProfilePage');
 })
 
@@ -110,11 +112,11 @@ ipcMain.on('create-account', (event, args) => {
 ipcMain.on("storeUserDetails", (event, userDetails) => { //handly way I can set global vars for the users when logging in
 
     global.userDetails = userDetails;
-    console.log(global.userDetails)
+
 });
 
 ipcMain.on("storeAuthToken", (event, authToken) => { //store the Auth token in the global namespace
-    console.log(authToken)
+
     global.Token = authToken;
 });
 
@@ -151,19 +153,18 @@ ipcMain.on("load-Guild", (event,args) =>{
     global.loadGuildID = args;
 })
 ipcMain.on('load-guildChatpage', (event, args, args2) => {
-    console.log("load guild chat called in Main page args");
+
     MainWindow.webContents.send("load-guildChatpage", args, args2);
 })
 
 ipcMain.on('load-guildEventPage', (event, args) => {
     global.Gid = args; //fucking terrible idea,really bad
-    console.log("load guild event called in Main page" + " " + args);
+
     MainWindow.webContents.send("load-guildEventPage", args);
 });
 
 ipcMain.on('load-eventCreate', (event, args) => {
     global.Gid = args; //fucking terrible idea,really bad
-    console.log("event create" + " " + args)
     ChildWindow.loadURL(url.format({
         pathname: path.join(__dirname, '../guildCalendar/AddEvent/AddEvent.html'),
         protocol: 'file',

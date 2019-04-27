@@ -169,30 +169,30 @@ function GetOverallItemValue(itemToCalc, StatWeights, AzeriteWeights, SlotName) 
             }
         }
     }
-        //now check to see if its an azerite item and get the best values out
-        if (SlotName == "shoulder" || SlotName == "head" || SlotName == "chest") {
+    //now check to see if its an azerite item and get the best values out
+    if (SlotName == "shoulder" || SlotName == "head" || SlotName == "chest") {
 
-            var weights = AzeriteWeights;
-            for (let index = 0; index < itemToCalc.azeriteArray.length; index++) {
-                
-                var traitID = itemToCalc.azeriteArray[index]; //get the trait ID
-                if (traitID != undefined) {
-                    var traitValue = weights[traitID.id]; //get the value from the azierte object
-                    //bloodmallet only keep track of relevant traits,some may not be in there
-                    if (traitValue != undefined) //so make sure we have a vaule before adding it onto the item
-                    {
-                        ItemValue += traitValue; //total it onto the new item
-                    }
+        var weights = AzeriteWeights;
+        for (let index = 0; index < itemToCalc.azeriteArray.length; index++) {
+
+            var traitID = itemToCalc.azeriteArray[index]; //get the trait ID
+            if (traitID != undefined) {
+                var traitValue = weights[traitID.id]; //get the value from the azierte object
+                //bloodmallet only keep track of relevant traits,some may not be in there
+                if (traitValue != undefined) //so make sure we have a vaule before adding it onto the item
+                {
+                    ItemValue += traitValue; //total it onto the new item
                 }
-               
             }
+
         }
-        if(SlotName == "mainHand"|| SlotName == "offHand" ||SlotName == "main hand"|| SlotName == "off hand") //handle weapon dps
-        {
-            ItemValue += calcItemStatValue(StatWeights["WepDpsWeight"], itemToCalc["WepDps"])
-        }
-        return ItemValue;
-    
+    }
+    if (SlotName == "mainHand" || SlotName == "offHand" || SlotName == "main hand" || SlotName == "off hand") //handle weapon dps
+    {
+        ItemValue += calcItemStatValue(StatWeights["WepDpsWeight"], itemToCalc["WepDps"])
+    }
+    return ItemValue;
+
 }
 
 function calcItemStatValue(itemStatWeight, ItemStatAmount) {
@@ -242,45 +242,46 @@ async function GenerateCharItemTemplate(Name, Sever, Region, Pawnstring, classID
                 CharObj.AzeriteValues = AzeriteValues; // assign the azerite values to the character object
                 var CharitemValue = 0; //value to sum up the total value for a character item
                 blizzard.wow.character(['profile', 'items'], { //call the api to get the users character,more specficly their items
-                        realm: Sever,
-                        name: Name,
-                        origin: Region
-                    }).then(response => {
-                        //At this point, we have all the information relating to how the character values items, need to assign these to the items
-                        for (var key in CharObj.StatWeights) {
-                            var ValsObj = {}; //create an object to store the objects
-                            itemSlots.forEach(function (itemSlotName) { //loop though each item slot on the character
-                                try { //use try catch,as some character may not have certain slots available to them(EG Reti paladins only have 1 weapon)
-                                    var statsObj;
-                                    if (itemSlotName == "mainHand" || itemSlotName == "offHand") {
-                                        statsObj = GenerateItemValue(response.data.items[itemSlotName].stats,response.data.items[itemSlotName].weaponInfo.dps); 
-                                    }
-                                    else{
-                                        statsObj = GenerateItemValue(response.data.items[itemSlotName].stats); 
-                                    }
-                    
-                                    ValsObj[itemSlotName] = statsObj; //assign the name and the stats to the object
-                                    if (itemSlotName == "head" || itemSlotName == "shoulder" || itemSlotName == "chest") { //if its an azerite item
-                                        //assign the azerite array of the item to the object
-                                        ValsObj[itemSlotName].azeriteArray = response.data.items[itemSlotName].azeriteEmpoweredItem.azeritePowers
-                                    }
-                                    
-                                    //get the actual value of the item,this will include any azerite values on the item
-                                    var itemValue = GetOverallItemValue(ValsObj[itemSlotName], CharObj.StatWeights[key], CharObj.AzeriteValues[key], itemSlotName, CharObj.classID)
-                                    CharitemValue += itemValue; //add up the character value
-                                    ValsObj[itemSlotName].OverAllValue = itemValue; //tie the item value for that item to the vals object
-                                    ValsObj[itemSlotName].id = response.data.items[itemSlotName].id //store the ID
-                                    ValsObj[itemSlotName].ItemName = response.data.items[itemSlotName].name //get the item name
-                                    ValsObj[itemSlotName].bonusList = response.data.items[itemSlotName].bonusLists; //pull out the bonus lists on the item
-                                    ValsObj[itemSlotName].itemEnchant = response.data.items[itemSlotName].tooltipParams.enchant //get any enchants on the item
-                                    ValsObj[itemSlotName].itemImg = "https://wow.zamimg.com/images/wow/icons/medium/" + response.data.items[itemSlotName].icon + ".jpg" //store the image to display to the user
-                                    CharObj.PawnObjs[key] = ValsObj; //finally, assign the Vals object to whatever spec we are looping though to the Pawn bojects
-                                } catch (error) { console.log(error);}
-                            })
-                        };
-                        CharObj.TotalItemValue = CharitemValue //assign the overvall value for a character
-                        resolve(CharObj); //return the object,//the resulting object now has all the item values for the character, for each indviual spec      
-                    })
+                    realm: Sever,
+                    name: Name,
+                    origin: Region
+                }).then(response => {
+                    //At this point, we have all the information relating to how the character values items, need to assign these to the items
+                    for (var key in CharObj.StatWeights) {
+                        var ValsObj = {}; //create an object to store the objects
+                        itemSlots.forEach(function (itemSlotName) { //loop though each item slot on the character
+                            try { //use try catch,as some character may not have certain slots available to them(EG Reti paladins only have 1 weapon)
+                                var statsObj;
+                                if (itemSlotName == "mainHand" || itemSlotName == "offHand") {
+                                    statsObj = GenerateItemValue(response.data.items[itemSlotName].stats, response.data.items[itemSlotName].weaponInfo.dps);
+                                } else {
+                                    statsObj = GenerateItemValue(response.data.items[itemSlotName].stats);
+                                }
+
+                                ValsObj[itemSlotName] = statsObj; //assign the name and the stats to the object
+                                if (itemSlotName == "head" || itemSlotName == "shoulder" || itemSlotName == "chest") { //if its an azerite item
+                                    //assign the azerite array of the item to the object
+                                    ValsObj[itemSlotName].azeriteArray = response.data.items[itemSlotName].azeriteEmpoweredItem.azeritePowers
+                                }
+
+                                //get the actual value of the item,this will include any azerite values on the item
+                                var itemValue = GetOverallItemValue(ValsObj[itemSlotName], CharObj.StatWeights[key], CharObj.AzeriteValues[key], itemSlotName, CharObj.classID)
+                                CharitemValue += itemValue; //add up the character value
+                                ValsObj[itemSlotName].OverAllValue = itemValue; //tie the item value for that item to the vals object
+                                ValsObj[itemSlotName].id = response.data.items[itemSlotName].id //store the ID
+                                ValsObj[itemSlotName].ItemName = response.data.items[itemSlotName].name //get the item name
+                                ValsObj[itemSlotName].bonusList = response.data.items[itemSlotName].bonusLists; //pull out the bonus lists on the item
+                                ValsObj[itemSlotName].itemEnchant = response.data.items[itemSlotName].tooltipParams.enchant //get any enchants on the item
+                                ValsObj[itemSlotName].itemImg = "https://wow.zamimg.com/images/wow/icons/medium/" + response.data.items[itemSlotName].icon + ".jpg" //store the image to display to the user
+                                CharObj.PawnObjs[key] = ValsObj; //finally, assign the Vals object to whatever spec we are looping though to the Pawn bojects
+                            } catch (error) {
+                                console.log(error);
+                            }
+                        })
+                    };
+                    CharObj.TotalItemValue = CharitemValue //assign the overvall value for a character
+                    resolve(CharObj); //return the object,//the resulting object now has all the item values for the character, for each indviual spec      
+                })
             })
         } catch (e) {
             console.log(e);
@@ -293,6 +294,7 @@ async function GenerateCharItemTemplate(Name, Sever, Region, Pawnstring, classID
 
 function AddCharToTable(CharTemplate) {
     //first make the nav for the character
+    
     var charNav = document.createElement('a');
     charNav.id = "nav" + "-" + CharTemplate.charName + "-" + "tab";
     charNav.setAttribute("data-toggle", "tab");
@@ -345,6 +347,7 @@ function AddCharToTable(CharTemplate) {
             itemLink.href = "https://www.wowhead.com/item=" + itemID;
             itemLink.innerHTML = items[itemSlots[index]].ItemName;
             itemLink.id = CharTemplate.charName + ":" + itemSlots[index];
+            itemLink.className = "q4" 
             itemLink.onclick = function (e) {
                 e.preventDefault(); //prevent users from click the link
 
@@ -395,6 +398,7 @@ function AddCharToTable(CharTemplate) {
     charTbl.appendChild(charTblHead);
     document.getElementById('nav-tab').appendChild(charNav); //link ready to go, need to build char table frist
     document.getElementById('nav-tabContent').append(charTblDiv); //now that the div is there, we need a table for our data
+    document.getElementById("charRowMain").style.display = "";
 
 
 }
@@ -411,7 +415,7 @@ function clearCharTables() {
 
 
 //function to attach item's stat values to an object,used in the generatechartemplate function
-function GenerateItemValue(item, wepDpsVal =0) {
+function GenerateItemValue(item, wepDpsVal = 0) {
     var returnObj = {};
     item.forEach(element => {
         var Name = itemMap[element.stat];
@@ -427,8 +431,7 @@ function GenerateItemValue(item, wepDpsVal =0) {
 
 //assign the compare function to the compare button
 
-async function CompareItems() 
-{
+async function CompareItems() {
 
     var itemCount = document.getElementsByName('compareItem').length; //get a count of all the loaded items
     var itemArray = []; //create an array to store the items
@@ -459,12 +462,12 @@ async function CompareItems()
                     var newitem = {}; //create an object for the new item
                     var invSlot = InvMap[response.data.inventoryType]; //get the slot of the new item being compared
                     var statsObj;
-                    if (response.data.inventoryType == 16 || response.data.inventoryType ==17) {
-                        statsObj = GenerateItemValue(response.data.bonusStats,response.data.weaponInfo.dps);
+                    if (response.data.inventoryType == 16 || response.data.inventoryType == 17) {
+                        statsObj = GenerateItemValue(response.data.bonusStats, response.data.weaponInfo.dps);
                     } else {
                         statsObj = GenerateItemValue(response.data.bonusStats); //create an object holding the stats of that object
                     }
-                    
+
                     newitem[response.data.name] = statsObj; //assign the stats object to the item
                     newitem = statsObj; //used by another fucntion, work around
                     newitem.azerite = response.data.azeriteClassPowers; //assign the items azerite to the responses azerite array(will need class ID to seperate out traits)
@@ -501,23 +504,30 @@ async function CompareItems()
                         var itemLink = document.getElementById(currentChar.charName + ":" + invSlot + ":" + key)
                         //now for math, I need to get the value of the current item in the slot vs the new value we have for that slot
                         var resultP = document.createElement('p')
+                        resultP.style.fontWeight = 'bold';
                         var refLink = document.createElement('a');
                         var resultdiv = document.createElement('div');
+                        var resultImg = document.createElement('img');
+                        resultImg.height = 30;
+                        resultImg.width = 30;
                         refLink.href = wowheadLink;
                         refLink.innerHTML = response.data.name;
                         resultdiv.appendChild(refLink);
+                        resultdiv.appendChild(resultImg);
                         resultdiv.appendChild(resultP);
                         resultdiv.style.border = '5px solid black';
                         resultP.name = "results" //can use this for reset
                         try { //some class/specs dont wear certain peices of gear,so a good chance it just cant be equiped,handle it with a try catch
-                            var resultPercentage = (newitemValue - currentItem.OverAllValue) / currentItem.OverAllValue *100.0;
+                            var resultPercentage = (newitemValue - currentItem.OverAllValue) / currentItem.OverAllValue * 100.0;
                             var result = newitemValue - currentItem.OverAllValue
                             if (result > 0) { //upgrade
-                                resultP.innerHTML =  "\n" + Math.abs(resultPercentage).toFixed(2) + "%" +"\n" + result.toFixed(2)
+                                resultP.innerHTML = "\n" + Math.abs(resultPercentage).toFixed(2) + "%" + "\n" + result.toFixed(2)
+                                resultImg.src = "../assets/Warcraft3FanSite/images/button-yes.png"
                                 resultP.style.color = "green"
 
                             } else { //upgrade
-                                resultP.innerHTML =  "\n" + Math.abs(resultPercentage).toFixed(2) + "%" +"\n" + result.toFixed(2)
+                                resultP.innerHTML = "\n" + Math.abs(resultPercentage).toFixed(2) + "%" + "\n" + result.toFixed(2)
+                                resultImg.src = "../assets/Warcraft3FanSite/images/button-no.png"
                                 resultP.style.color = "red"
                             }
                             itemLink.appendChild(resultdiv);
@@ -661,15 +671,15 @@ function LoadItemViaWowHead() {
 
     //first make the nav for the character
 
-        var itemNav = document.createElement('a');
-        itemNav.id = "nav" + "-" + "loadedItem" + "-" + "tab";
-        itemNav.setAttribute("data-toggle", "tab");
-        itemNav.className = "nav-item nav-link";
-        itemNav.href = "#nav-" + "loadedItems"
-        itemNav.setAttribute("aria-controls", "nav-" + "loadedItems");
-        itemNav.innerHTML = "Items to Compare"
-        itemNav.setAttribute("aria-selected", "false");
-    
+    var itemNav = document.createElement('a');
+    itemNav.id = "nav" + "-" + "loadedItem" + "-" + "tab";
+    itemNav.setAttribute("data-toggle", "tab");
+    itemNav.className = "nav-item nav-link";
+    itemNav.href = "#nav-" + "loadedItems"
+    itemNav.setAttribute("aria-controls", "nav-" + "loadedItems");
+    itemNav.innerHTML = "Items to Compare"
+    itemNav.setAttribute("aria-selected", "false");
+
 
     var itemTblDiv = document.createElement('div');
     itemTblDiv.className = "tab-pane fade";
@@ -708,7 +718,7 @@ function LoadItemViaWowHead() {
 
             var itemObj = {}
             itemObj.id = response.data.id;
-            itemObj.bonusArray = BounusIDs; 
+            itemObj.bonusArray = BounusIDs;
             itemObj.wowheadLink = "https://www.wowhead.com/item=" + itemID;
             itemLink.LoadedItem = itemObj;
             console.log(itemLink.LoadedItem)
@@ -759,6 +769,7 @@ function LoadItemViaWowHead() {
     itemTbl.appendChild(itemTblHead);
     document.getElementById('nav-tabItem').appendChild(itemNav);
     document.getElementById('tabContentItems').append(itemTblDiv);
+    document.getElementById('itemsRowMain').style.display = "";
 
 
 }
