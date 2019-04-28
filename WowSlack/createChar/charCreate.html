@@ -18,18 +18,14 @@
         <div class="container">
             <div class="card card-container">
                 <p>Enter in your character details to get started!</p>
-                <!-- <img class="profile-img-card" src="//lh3.googleusercontent.com/-6V8xOA6M7BA/AAAAAAAAAAI/AAAAAAAAAAA/rzlHcD0KYwo/photo.jpg?sz=120" alt="" /> -->
-
-
                 <input type="text" id="inputCharName" class="form-control" placeholder="Character Name" required><br>
-
                 <label>Region</label>
                 <select id="regionSelect" class="form-control">
                    <option value="choose">Select Region</option>
                     <option value="eu">Europe</option>
                     <option value="us">United States</option>
                     <option value="kr">Asia</option>
-                    <option value="tw">??</option>
+                    <option value="tw">Tw</option>
                 </select><br>
 
                 <label>Sever</label>
@@ -40,15 +36,12 @@
         
             </div>
         </div>
-    </form><!-- /form -->
+    </form>
     <script>
-        window.$ = window.Jquery = require("jquery")
+        window.$ = window.Jquery = require("jquery");
     </script>
     <script>
         require("./charCreate.js");
-        $(function () {
-            $("#nav-placeholder").load("nav.html");
-        });
     </script>
 </body>
 

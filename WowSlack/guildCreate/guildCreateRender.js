@@ -21,21 +21,22 @@ const db = firebase.firestore();
 db.settings({timestampsInSnapshots:true})
 
 
+//details for sumbit
 var guildCreateForm = document.getElementById('guildCreateForm');
 var guildName = document.getElementById('inputGuildName');
 var guildDescrip = document.getElementById('guildDescrip');
 var regionSelect = document.getElementById('regionSelect');
 var serverSelect = document.getElementById('serverSelect');
 
-regionSelect.addEventListener('change', () => {   
+regionSelect.addEventListener('change', () => { //simliar to char create,whenever the region changes
     serverSelect.options.length = 0;
     if (regionSelect.options[regionSelect.selectedIndex].value == "choose") {
         return;
     } else {
-        blizzard.wow.realms({
+        blizzard.wow.realms({ //call the api to get the servers in that region
                 origin: regionSelect.options[regionSelect.selectedIndex].value
             })
-            .then(response => {
+            .then(response => { //fill the server select with the reponse
                 for (let index = 0; index < response.data.realms.length; index++) {
                     var rName = response.data.realms[index].name
                     var childToAppend = document.createElement('option');
@@ -49,8 +50,8 @@ regionSelect.addEventListener('change', () => {
 
 guildCreateForm.addEventListener('submit', (event)=>{
 
-    event.preventDefault();
-    db.collection('Guilds').add({
+    event.preventDefault(); //prevent the form default
+    db.collection('Guilds').add({ //add the guild to the database
         GuildName: guildName.value,
         GuildRealm: serverSelect.options[serverSelect.selectedIndex].innerText,
         GuildRegion: regionSelect.options[regionSelect.selectedIndex].innerText,
@@ -59,24 +60,27 @@ guildCreateForm.addEventListener('submit', (event)=>{
        GuildLeader : remote.getGlobal("uid"), //set the creator as the leader
     }).then(function (docRef) {
         console.log(docRef);
-
-        var newGuildRef = db.collection('Guilds').doc(docRef.id);
-        newGuildRef.update({GuildInviteCode : "JoinUs:" + docRef.id })
-         newGuildRef.collection('ChatMessages').doc('1').collection('Messages').doc().set({
+//used to timestamp hello messages
+     var today = new Date(); //get the date
+      var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate(); //format date
+      var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds(); //format time
+      var timeStamp = date + ' ' + time; //create timestamp
+        //now build up the collections for events/messaging/voice chat
+        var newGuildRef = db.collection('Guilds').doc(docRef.id); //get the guild we just created
+        newGuildRef.update({GuildInviteCode : "JoinUs:" + docRef.id }) //add the invite code
+         newGuildRef.collection('ChatChannels').doc('1').collection('Messages').doc().set({ //set a defulat message,ID doesnt matter,system doesnt look for IDS when pulling messages
             MessagerSender : "WowSlack",
             MessageText : "Welcome To WowSlack Chat!",
-            MessageTimeStamp : "Welcome!"
+            MessageTimeStamp : timeStamp
          }).then(() =>{
-            newGuildRef.collection('ChatChannels').doc('1').set({
-                ChannelName : "MainChannel"
+            newGuildRef.collection('ChatChannels').doc('1').set({ //now set the default name for a channel
+                ChannelName : "MainChannel" 
             })
          })
-         newGuildRef.collection('VoiceChannels').doc('1').set({
+         newGuildRef.collection('VoiceChannels').doc('1').set({ //do the same for voice chat
              Name: "Main Channel"
-         })
-         var today = new Date(); //get the date
-         var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate(); //format date
-         newGuildRef.collection('GuildEvents').doc().set({
+         });
+         newGuildRef.collection('GuildEvents').doc().set({ //need a default event to fill the table,dont like it but it will have to do
              Memebers : [],
              description : "Default event",
              start: date,

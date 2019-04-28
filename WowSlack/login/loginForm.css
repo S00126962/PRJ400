@@ -8,7 +8,8 @@ body,
 html {
     height: 100%;
     background-repeat: no-repeat;
-    background-image: url("../assets/Warcraft3FanSite/images/bg.jpg")
+    background-image: url("../assets/Warcraft3FanSite/images/bg.jpg");
+    overflow: hidden;
 }
 
 

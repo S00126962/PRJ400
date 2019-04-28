@@ -21,24 +21,23 @@ const db = firebase.firestore();
 db.settings({timestampsInSnapshots:true})
 
 
-
-
+//get the page controls
 var regionSelect = document.getElementById('regionSelect');
 var serverSelect = document.getElementById('serverSelect');
 var createCharForm = document.getElementById('createCharForm');
 var charName = document.getElementById('inputCharName');
 var pawnString = document.getElementById('pawnString');
-regionSelect.addEventListener('change', () => {
-    serverSelect.options.length = 0;
-    if (regionSelect.options[regionSelect.selectedIndex].value == "choose") {
+regionSelect.addEventListener('change', () => { //whenever the use changes there region
+    serverSelect.options.length = 0; //reset the length of the sever select
+    if (regionSelect.options[regionSelect.selectedIndex].value == "choose") { //if they are on the default value, do nothing
         return;
-    } else {
-        blizzard.wow.realms({
+    } else { //otherwise
+        blizzard.wow.realms({ //ask the APi for the servers in that region,could hardcode this too, but API is more reliable
                 origin: regionSelect.options[regionSelect.selectedIndex].value
             })
             .then(response => {
-                for (let index = 0; index < response.data.realms.length; index++) {
-                    var rName = response.data.realms[index].name
+                for (let index = 0; index < response.data.realms.length; index++) { //loop though the servers returned
+                    var rName = response.data.realms[index].name //create the options
                     var childToAppend = document.createElement('option');
                     childToAppend.innerHTML = rName;
                     childToAppend.value = rName;
@@ -48,27 +47,30 @@ regionSelect.addEventListener('change', () => {
     }
 })
 
-createCharForm.addEventListener('submit', (sender) => {
-    sender.preventDefault();
-    if (readPawnString(pawnString.value).PrimWeight == 0) {
-        alert("Invaild Pawn String");
-        return;
+createCharForm.addEventListener('submit', (sender) => { //handle submiting the form
+    sender.preventDefault(); //prevent the default form behaviour
+    if (pawnString.value !== "") { //if there is a pawn string
+        if(readPawnString(pawnString.value).PrimWeight == 0) { //if the pawn string is invaild
+            alert("Invaild Pawn String"); //let the user know
+            return;
+        }
     }
-    blizzard.wow.character(['profile'], {
+    
+    blizzard.wow.character(['profile'], { //call the apu for the charcter data, need some of it for later
+        //this also is a way to check if that character exists, stops issues in item comparsion
             realm: serverSelect.options[serverSelect.selectedIndex].innerText,
             name: charName.value,
             origin: regionSelect.options[regionSelect.selectedIndex].value
         })
         .then(response => {
-            db.collection('Characters').add({
-                charName: response.data.name,
-                charPawnString: pawnString.value,
-                charRealm: serverSelect.options[serverSelect.selectedIndex].innerText,
-                charRegion: regionSelect.options[regionSelect.selectedIndex].value,
-                ClassID: response.data.class,
-                userID: firebase.auth().currentUser.uid
+            db.collection('Characters').add({ //add the character to the database
+                charName: response.data.name, //Used to call API later
+                charPawnString: pawnString.value, //used for Item calc if provided
+                charRealm: serverSelect.options[serverSelect.selectedIndex].innerText,//Used to call API later
+                charRegion: regionSelect.options[regionSelect.selectedIndex].value,//Used to call API later
+                ClassID: response.data.class,//used for Item calc if provided
+                userID: firebase.auth().currentUser.uid //used to tie a character to a user
             }).then(function () {
-                console.log("Document successfully written!");
                 //send a message back to update the main page
                 ipcRenderer.send('asynchronous-message',firebase.auth().currentUser.uid)
             })

@@ -22,7 +22,7 @@ db.settings({
 
 var electron = require('electron');
 var ipcRenderer = electron.ipcRenderer;
-let calendar;
+let calendar; //decalre calendar here, so other functions can get at it
 
 
 ipcRenderer.on('load-guildEventPage', (event, args) => {

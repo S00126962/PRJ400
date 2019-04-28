@@ -18,6 +18,8 @@ app.on('ready', function () {
         height: 800,
         minWidth: 1281,
         minHeight: 900,
+        maxWidth : 1281,
+        maxHeight : 800,
         frame: false,
         icon : path.join(__dirname, '../assets/ws.png')
     })
@@ -33,7 +35,7 @@ app.on('ready', function () {
         height: 600,
         minWidth: 800,
         minHeight: 600,
-        frame : false,
+      //  autoHideMenuBar : true,
         parent: MainWindow
     })
 

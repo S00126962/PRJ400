@@ -26,7 +26,7 @@ db.settings({
 let peer;
 let call;
 ipcRenderer.on('info', function (event, data) {
-        //  initPeer();   
+     
         loadProfilePage();
         var signOutBtn = document.getElementById('signoutBtn');
         signOutBtn.addEventListener('click', function (event) {
@@ -145,7 +145,6 @@ function populateGuildsDropDown() {
                         if (doc.data().GuildLeader == remote.getGlobal("uid")) {
                                 var inviteLink = document.createElement('a');
                                 inviteLink.innerHTML = "Click for Invite Code"
-                                console.log("heregreg")
                                 inviteLink.id = doc.data().GuildInviteCode
                                 inviteLink.addEventListener('click', () => {
                                         clipboard.writeText(inviteLink.id)
@@ -153,6 +152,10 @@ function populateGuildsDropDown() {
                                 document.getElementById('guildDropDown').appendChild(inviteLink);
                         }
                         document.getElementById('guildDropDown').appendChild(guildToAppend)
+                        var divder2 = document.createElement('div');
+                        divder2.className = "dropdown-divider";
+                        document.getElementById('guildDropDown').appendChild(divder2);
+                
                 })
         })
 }
@@ -179,7 +182,7 @@ async function loadGuildOpts(id, name) {
                 var a = document.createElement('a');
                 a.className = "nav-link dropdown-toggle";
                 a.id = "navDropDown" + ":" + id;
-                a.name = "loadGuildChannels"
+                a.name = "loadGuildChannels";
                 a.innerHTML = name + "'s" + " " + "Channels"
                 a.setAttribute("data-toggle", "dropdown")
                 a.setAttribute("aria-haspopup", "true")
@@ -216,7 +219,14 @@ async function loadGuildOpts(id, name) {
         var channelTxt = document.createElement('a');
         channelTxt.className = "dropdown-item"
         channelTxt.innerHTML = "Text Channels";
+        //add button for text channel add
+        var addTextChannel = document.createElement('a');
+        addTextChannel.innerHTML = "+ Channel"
+        addTextChannel.addEventListener('click', () =>{
+                CreateTextChannel(id);
+        })
         document.getElementById('loadedGuildTChannelsDDL').appendChild(channelTxt);
+        document.getElementById('loadedGuildTChannelsDDL').appendChild(addTextChannel);
         document.getElementById('loadedGuildTChannelsDDL').appendChild(divder);
 
         await chatChanne.get().then((snapshot) => {
@@ -240,8 +250,14 @@ async function loadGuildOpts(id, name) {
         var voiceChannelTxt = document.createElement('a');
         voiceChannelTxt.className = "dropdown-item"
         voiceChannelTxt.innerHTML = "Voice Channels";
+        var addVoiceChannel = document.createElement('a');
+        addVoiceChannel.innerHTML = "+ Channel"
+        addVoiceChannel.addEventListener('click', () =>{
+                CreateVoiceChannel(id);
+        })
         document.getElementById('loadedGuildTChannelsDDL').appendChild(voiceDivder);
         document.getElementById('loadedGuildTChannelsDDL').appendChild(voiceChannelTxt);
+        document.getElementById('loadedGuildTChannelsDDL').appendChild(addVoiceChannel);
         voiceChanne.get().then((vsnapshot) => {
                 vsnapshot.forEach(vdoc => {
                         console.log(vdoc.data())
@@ -292,6 +308,68 @@ function LoadChannelMembers(channelId, gID, channelName) {
                 })
         })
 
+}
+
+function CreateTextChannel(id)
+{
+        var guildref = db.collection("Guilds")
+        var guildInQuestions = guildref.doc(id);
+        var chatChanne = guildInQuestions.collection('ChatChannels');
+        prompt({
+                title: 'Create Text Channel',
+                label: 'Name:',
+                value: '',
+                inputAttrs: {
+                        type: 'text'
+                }
+        })
+        .then((r) => {
+                if (r === null) {
+
+                } else {
+                        chatChanne.add({
+                                ChannelName : r
+                        }).then((ref) =>{
+                                var today = new Date(); //get the date
+                                var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate(); //format date
+                                var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds(); //format time
+                                var timeStamp = date + ' ' + time; //create timestamp
+                                chatChanne.doc(ref.id).collection("Messages").add({
+                                        MessagerSender : "WowSlack",
+                                        MessageText : "Welcome to " + r,
+                                        MessageTimeStamp : timeStamp
+                                })
+                        })
+                }
+        })
+        .catch(console.error);
+}
+
+function CreateVoiceChannel(id)
+{
+        var guildref = db.collection("Guilds")
+        var guildInQuestions = guildref.doc(id);
+        var voiceChanne = guildInQuestions.collection('VoiceChannels');
+        prompt({
+                title: 'Create Text Channel',
+                label: 'Name:',
+                value: '',
+                inputAttrs: {
+                        type: 'text'
+                }
+        })
+        .then((r) => {
+                if (r === null) {
+
+                } else {
+                        voiceChanne.add({
+                                Name : r
+                        })
+                }
+        })
+        .catch(console.error);
+
+        
 }
 
 function loadItemCalc() {
