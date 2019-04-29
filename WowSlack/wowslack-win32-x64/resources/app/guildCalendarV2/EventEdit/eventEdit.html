@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Edit an event</title>
+    <script lang="JavaScript" type="text/javascript" src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
+    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link href="../../node_modules/select2/dist/css/select2.css" rel="stylesheet" />
+    <script src="../../node_modules/select2/dist/js/select2.js"></script>
+    <link rel="stylesheet" href="../../login/loginForm.css">
+
+    <style>
+            .list-group{
+                max-height: 150px;
+                margin-bottom: 10px;
+                overflow:scroll;
+                -webkit-overflow-scrolling: touch;
+            }
+            </style>
+
+</head>
+
+<body>
+        <form class="form-signin" id="editEventForm">
+                <div class="container">
+                    <div class="card card-container">
+                        <input type="text" id="inputEventName" class="form-control" placeholder="Event Name" required><br>
+                        <input type="date" id="eventStartDate" class="form-control">
+                        <input type="date" id="eventEndDate" class="form-control">
+                        <div class="form-group">
+                            <label for="sel1">Select Memebers</label>
+                            <select class="form-control" id="guildMemebersSel">
+                            </select>
+                            <button id="AddSelected">Add Select Memebers</button>
+                          </div>
+                          <ul id="addedMemebers" class="list-group">
+                          </ul>
+                          <label>Description</label>
+                          <textarea id="eventDesc" rows="4" cols="50">
+                            </textarea>
+                        <button type="submit">Submit</button>
+                    </div>
+                </div>
+            </form><!-- /form -->
+    <script>
+        window.$ = window.Jquery = require("jquery")
+    </script>
+    <script>
+        require("./eventEdit.js");
+    </script>
+</body>
+
+</html>

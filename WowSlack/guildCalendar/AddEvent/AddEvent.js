@@ -57,7 +57,7 @@ function AddEvent()
     ipcRenderer.send('eventAdded') //send the message that the event was added,this will close the window
 }
 
-function loadMemebers()
+function loadMemebers() //pulls in a list of all the users guild's memebers from the database to add to the event
 {
     var guildref = db.collection("Guilds");
     var id = remote.getGlobal("Gid");

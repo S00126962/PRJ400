@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>SignUp</title>
+    <script lang="JavaScript" type="text/javascript" src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../login/loginForm.css">
+
+
+</head>
+
+<body>
+
+    <div id="nav"></div>
+    <form class="form-signin" id="signUpForm">
+
+        <div class="container">
+            <div class="card card-container">
+                <p>Get started with WowSlack by providing some basic information</p>
+             
+                <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus><br>
+                <input type="password" id="inputPassword" class="form-control" placeholder="Password" required><br>
+                <input type="text" id="inputUserName" class="form-control" placeholder="UserName" required><br>
+
+                <label>Region</label>
+                <select id="regionSelect" class="form-control">
+                    <option value="eu">Europe</option>
+                    <option value="us">United States</option>
+                    <option value="kr">Asia</option>
+                </select><br>
+                <a href="../login/loginWindow.html">I have an account! Go back to login</a><br>
+                <button class="nbtn" id="createProfileBTN" type="submit">Create
+                    Account</button>
+            </div>
+        </div>
+    </form><!-- /form -->
+    <script>
+        window.$ = window.Jquery = require("jquery")
+    </script>
+    <script>
+        require("../signUp/SignUpRender.js");
+    </script>
+</body>
+
+</html>

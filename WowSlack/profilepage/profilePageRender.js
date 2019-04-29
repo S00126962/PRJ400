@@ -37,41 +37,36 @@ searchInput.addEventListener('input', () =>{ //very simple search,will do for ti
 })
 
 var addcharBtn = document.getElementById('AddCharacterBTn');
-addcharBtn.addEventListener('click', () =>{
+addcharBtn.addEventListener('click', () =>{ //when the user clicks add character
 
-        ipcRenderer.send('load-charCreate')
+        ipcRenderer.send('load-charCreate') //load that into the child window
 })
 
     var uID = remote.getGlobal("uid");
-    console.log(uID);
+    //get the detail holders
     var usernameLbl = document.getElementById('profileUserName');
     var userEmailLbl = document.getElementById('profileuserEmail');
     var userRegion = document.getElementById('profileUserRegion');
-    if (remote.getGlobal("userDetails") == null) {
+
+    //then get those details from the db
       db.collection('Users').where('UserID', '==',uID).get().then((snapshot) => {
         snapshot.docs.forEach(doc => {     
-              ipcRenderer.send( "storeUserDetails", [doc.data().UserName,doc.data().userEmail,doc.data().userRegion] );
+              ipcRenderer.send( "storeUserDetails", [doc.data().UserName,doc.data().userEmail,doc.data().userRegion] ); //store them for later
               usernameLbl.innerHTML = doc.data().UserName;
               userEmailLbl.innerHTML =doc.data().userEmail;
               userRegion.innerHTML = doc.data().userRegion;    
                   
         })
       })
-      }
-      else{
-        var userDetails =  remote.getGlobal("userDetails");
-        usernameLbl.innerHTML = userDetails[0];
-        userEmailLbl.innerHTML =userDetails[1];  
-        userRegion.innerHTML = userDetails[2];     
-      }
-
+      //clear out the table first
         var tbody= document.getElementById('charTable');
         while (tbody.childNodes.length) {
             tbody.removeChild(tbody.childNodes[0]);
           }
+          //get the users characters
         db.collection('Characters').where('userID', '==',uID).get().then((snapshot) => {
             snapshot.docs.forEach(doc => {
-              
+              //create the elements, and then fill in the details
                 var row = document.createElement("tr");
                 var cell1 = document.createElement("td");
                 var cell2 = document.createElement("td");

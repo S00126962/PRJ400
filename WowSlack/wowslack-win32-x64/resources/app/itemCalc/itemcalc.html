@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <script>
+        if (typeof module === 'object') {
+            window.module = module;
+            module = undefined;
+        }
+    </script>
+    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
+    <link href="../node_modules/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="../node_modules/select2/dist/js/select2.js"></script>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <link href="../mainpage/mainPage.css" rel="stylesheet">
+    <link href="../itemCalc/table.css" rel="stylesheet">
+    <link href="../itemCalc/tooltip.css" rel="stylesheet">
+    <script>
+        var whTooltips = {
+            colorLinks: true,
+            iconizeLinks: true,
+            renameLinks: true
+        };
+    </script>
+    <script src="http://wow.zamimg.com/widgets/power.js"></script>
+
+    <script>
+        if (window.module) module = window.module;
+    </script>
+
+
+</head>
+
+<body>
+
+    <div class="container" style="padding:10px">
+        <div class="row">
+            <div class="col-sm">
+                <h5>Character Select</h5>
+
+                <div class="input-group">
+                    <select id="charSelect" style="float:right;width: 70% !important" class="js-example-basic-single" style="width:95%;" name="state">
+                    </select>
+                    <span style="float:left" class="input-group-btn">
+                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top"
+                            title="We use Wowhead links to pull items in to compare, you can look up an item on Wowhead, or use Wowhead Link Grabber(availble on the Twitch client) to get item links in game ">
+                            ?</button> </span>
+                </div>
+
+
+            </div>
+
+
+            <div class="col-sm">
+                    <h5>Load item by WowHeadLink</h5>
+                    <div class="input-group">
+                            <span style="float:left" class="input-group-btn">
+                                    <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top"
+                                        title="We use Wowhead links to pull items in to compare, you can look up an item on Wowhead, or use Wowhead Link Grabber(availble on the Twitch client) to get item links in game ">
+                                        ?</button> </span>
+               
+                <input type="text" class="form-control" id="wowheadLink" placeholder="Wow Head Link"><br>
+                <button id="findLinkBtn" type="button" class="btn btn-primary mb-2">Find Item</button>
+                    </div>
+            </div>
+            <div class="col-sm">
+                <h5>Options</h5>
+
+                <button id="CompareItems" type="button" class="btn btn-primary ">Compare Items</button>
+                <button id="resetTable" type="button" class="btn btn-secondary">Reset</button>
+                <button id="refreshChars" type="button" class="btn btn-secondary">Refresh</button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+    </div>
+    <br>
+    </div>
+    <div id="itemsRowMain" style="display: none;" class="row">
+        <section id="ItemsTabs" class="project-tab">
+            <div class="container">
+                <div class="row">
+                    <div id="ItemTableDiv" class="col-md-14">
+                        <nav>
+                            <div class="nav nav-tabs nav-fill" id="nav-tabItem" role="tablist"></div>
+                        </nav>
+                        <div class="nav-tabContent" id="tabContentItems">
+                        </div>
+                    </div>
+            </div>
+    </div>
+    </section>
+                
+                </div>
+        </div>
+        </section>
+    </div>
+    <div id="charRowMain" style="display: none;" class="row">
+        <section id="tabs" class="project-tab">
+            <div class="container">
+                <div class="row">
+                    <div id="TableDiv" class="col-md-14">
+                        <nav>
+                            <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist"></div>
+                        </nav>
+                        <div class="tab-content" id="nav-tabContent">
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </section>
+    </div>
+
+
+
+</body>
+
+
+
+<script>
+    window.$ = window.Jquery = require("jquery");
+</script>
+
+<script>
+    require('../itemcalc/itemCalc.js')
+</script>
+
+</html>

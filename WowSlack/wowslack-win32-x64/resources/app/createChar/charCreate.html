@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Create a Character</title>
+    <script lang="JavaScript" type="text/javascript" src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../login/loginForm.css">
+
+
+</head>
+
+<body>
+
+    <div id="nav"></div>
+    <form class="form-signin" id="createCharForm">
+
+        <div class="container">
+            <div class="card card-container">
+                <p>Enter in your character details to get started!</p>
+                <input type="text" id="inputCharName" class="form-control" placeholder="Character Name" required><br>
+                <label>Region</label>
+                <select id="regionSelect" class="form-control">
+                   <option value="choose">Select Region</option>
+                    <option value="eu">Europe</option>
+                    <option value="us">United States</option>
+                    <option value="kr">Asia</option>
+                    <option value="tw">Tw</option>
+                </select><br>
+
+                <label>Sever</label>
+                <select id="serverSelect" class="form-control">
+                </select><br>
+                <input type="text" id="pawnString" class="form-control" placeholder="Pawn String"><br>
+                <button class="nbtn" type="submit">Submit</button>
+        
+            </div>
+        </div>
+    </form>
+    <script>
+        window.$ = window.Jquery = require("jquery");
+    </script>
+    <script>
+        require("./charCreate.js");
+    </script>
+</body>
+
+</html>

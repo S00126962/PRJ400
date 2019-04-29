@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Login</title>
+
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="loginForm.css">
+    <script src="https://www.gstatic.com/firebasejs/5.5.6/firebase.js"></script>
+
+</head>
+<body>
+      
+        <div class="container">
+                <div class="card card-container">
+                    <!-- <img class="profile-img-card" src="//lh3.googleusercontent.com/-6V8xOA6M7BA/AAAAAAAAAAI/AAAAAAAAAAA/rzlHcD0KYwo/photo.jpg?sz=120" alt="" /> -->
+                    <p id="profile-name" class="profile-name-card">Login to WowSlack</p>
+                    <form class="form-signin">
+                        <span id="reauth-email" class="reauth-email"></span>
+                        <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+                        <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                        <button class="nbtn" id="loginBTN">Sign in</button><br>
+                        <a href="../signUp/signUpWindow.html">Dont Have an Account? Sign up!</a>
+                    </form><!-- /form -->
+                </div><!-- /card-container -->
+            </div><!-- /container -->
+        
+</body>
+<script>
+    window.$ = window.Jquery = require("jquery")
+</script>
+<script>
+require("./LoginRender.js");
+</script>
+</html>
